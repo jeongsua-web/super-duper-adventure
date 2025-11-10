@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class VillageCard extends StatelessWidget {
-  const VillageCard({Key? key}) : super(key: key);
+  const VillageCard({super.key});
 
   @override
   Widget build(BuildContext context) {
