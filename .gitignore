@@ -10,3 +10,10 @@ build/
 ios/Pods/
 .idea/
 .vscode/
+
+# IntelliJ IDEA / JetBrains
+*.iml
+.idea/
+
+# macOS
+.DS_Store
