@@ -10,3 +10,9 @@ build/
 ios/Pods/
 .idea/
 .vscode/
+
+# IntelliJ / Android Studio project files
+*.iml
+
+# macOS system files
+.DS_Store

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "316746655715",
+    "project_id": "my-maeul-373c4",
+    "storage_bucket": "my-maeul-373c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:316746655715:android:2a14b4d268c80811ed62d6",
+        "android_client_info": {
+          "package_name": "com.example.my_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2CSF94Qh3sBmOaDKEgp-G5MIzxZaa04Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
