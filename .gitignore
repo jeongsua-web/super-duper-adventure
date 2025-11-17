@@ -30,6 +30,7 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+<<<<<<< HEAD
 /build/
 /coverage/
 
@@ -43,3 +44,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+=======
+build/
+ios/Pods/
+.idea/
+.vscode/
+
+# IntelliJ IDEA / JetBrains
+*.iml
+.idea/
+
+# macOS
+.DS_Store
+>>>>>>> 87dfdc0ee37b20cf14278e1e2f99a0d059b71667
