@@ -149,7 +149,7 @@ class _BoardScreenState extends State<BoardScreen> {
                   color: const Color(0xFFD9D9D9).withOpacity(0.41),
                   // Row + MainAxisAlignment.center 조합으로 무조건 가운데 정렬
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center, 
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
@@ -203,12 +203,17 @@ class _BoardScreenState extends State<BoardScreen> {
                           final data = docs[index].data() as Map<String, dynamic>;
                           String category = data['category'] ?? '기타';
 
+                          // [수정완료] DB 필드명 'comments'를 가져오도록 수정했습니다.
+                          // 만약 null이면 0으로 처리합니다.
+                          int commentCount = data['comments'] ?? 0;
+
                           return _PostCard(
                             postId: docs[index].id,
                             title: data['title'] ?? '제목 없음',
                             author: '[$category] ${data['author'] ?? '익명'}',
                             time: _formatTimestamp(data['createdAt']),
-                            comments: '0',
+                            // 숫자를 문자열로 변환하여 전달
+                            comments: commentCount.toString(),
                             hasImage: false,
                           );
                         },
@@ -221,7 +226,7 @@ class _BoardScreenState extends State<BoardScreen> {
           ),
         ),
       ),
-      
+
       // ---------------- [5. 글쓰기 버튼 (반응형)] ----------------
       // 버튼 위치도 화면 중앙 컨테이너 기준으로 잡기 위해 별도 처리
       floatingActionButton: Center(
@@ -230,7 +235,7 @@ class _BoardScreenState extends State<BoardScreen> {
           constraints: const BoxConstraints(maxWidth: 600),
           padding: const EdgeInsets.only(bottom: 20, right: 20),
           // Align을 써서 컨테이너 안에서 오른쪽 아래로 보냄
-          alignment: Alignment.bottomRight, 
+          alignment: Alignment.bottomRight,
           child: FloatingActionButton(
             onPressed: () {
               Navigator.of(context).push(

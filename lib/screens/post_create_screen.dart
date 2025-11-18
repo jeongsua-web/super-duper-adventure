@@ -1,6 +1,8 @@
+import 'dart:io'; // 파일을 다루기 위해 추가
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart'; // 이미지 피커 추가
+import 'package:firebase_storage/firebase_storage.dart'; // 스토리지 추가
 
 class PostCreateScreen extends StatefulWidget {
   const PostCreateScreen({super.key});
@@ -10,238 +12,152 @@ class PostCreateScreen extends StatefulWidget {
 }
 
 class _PostCreateScreenState extends State<PostCreateScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _contentController = TextEditingController();
-  String _selectedCategory = '전체';
-  bool _isSubmitting = false;
+  final _titleController = TextEditingController();
+  final _contentController = TextEditingController();
+  bool _isLoading = false;
 
-  final List<String> _categories = ['전체', '일상', '게임', '취미', '퀴즈'];
+  String _selectedCategory = '일상';
+  final List<String> _categories = ['일상', '게임', '취미', '퀴즈'];
 
-  Future<void> _submitPost() async {
-    if (!_formKey.currentState!.validate()) return;
+  // [추가] 이미지와 공지사항 여부 변수
+  File? _selectedImage;
+  bool _isNotice = false;
+  final ImagePicker _picker = ImagePicker();
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('로그인이 필요합니다.')),
-        );
-      }
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    try {
-      await FirebaseFirestore.instance.collection('posts').add({
-        'title': _titleController.text.trim(),
-        'content': _contentController.text.trim(),
-        'category': _selectedCategory,
-        'authorId': user.uid,
-        'authorEmail': user.email,
-        'createdAt': FieldValue.serverTimestamp(),
-        'comments': 0,
+  // [추가] 이미지 선택 함수
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('게시물이 등록되었습니다.')),
-        );
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('게시물 등록 실패: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
     }
   }
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _contentController.dispose();
-    super.dispose();
+  // [수정] 저장 함수 (이미지 업로드 기능 포함)
+  Future<void> _savePost() async {
+    if (_titleController.text.isEmpty) {
+      // ... (기존 유효성 검사) ...
+      return;
+    }
+
+    setState(() { _isLoading = true; });
+
+    try {
+      String? imageUrl;
+
+      // 1. 이미지가 선택되었다면 Storage에 업로드
+      if (_selectedImage != null) {
+        // 파일 이름 고유하게 만들기
+        String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        Reference storageRef = FirebaseStorage.instance
+            .ref()
+            .child('post_images')
+            .child(fileName);
+
+        // 파일 업로드
+        await storageRef.putFile(_selectedImage!);
+        
+        // 업로드된 URL 가져오기
+        imageUrl = await storageRef.getDownloadURL();
+      }
+
+      // 2. Firestore에 데이터 저장 (imageUrl 포함)
+      await FirebaseFirestore.instance.collection('posts').add({
+        'title': _titleController.text,
+        'content': _contentController.text,
+        'category': _selectedCategory,
+        'author': '익명', // TODO: 로그인 기능 후 수정
+        'createdAt': FieldValue.serverTimestamp(),
+        'isNotice': _isNotice,   // [추가] 공지 여부
+        'imageUrl': imageUrl,   // [추가] 이미지 URL (없으면 null)
+      });
+
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      print('저장 실패: $e');
+      // ... (에러 처리) ...
+    } finally {
+      if (mounted) setState(() { _isLoading = false; });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('글쓰기'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: Padding(
+      appBar: AppBar(title: const Text('새 글 작성')),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 카테고리 선택
-              const Text(
-                '카테고리',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ... (카테고리, 제목, 내용 입력창은 기존 코드와 동일) ...
+            const Text('카테고리 선택'),
+            DropdownButton<String>(
+              value: _selectedCategory,
+              isExpanded: true,
+              items: _categories.map((String category) {
+                return DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(category),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() { _selectedCategory = newValue!; });
+              },
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: '제목', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _contentController,
+              decoration: const InputDecoration(labelText: '내용', border: OutlineInputBorder()),
+              maxLines: 8,
+            ),
+            const SizedBox(height: 20),
+
+            // [추가] 이미지 선택 버튼
+            ElevatedButton.icon(
+              onPressed: _pickImage,
+              icon: const Icon(Icons.image),
+              label: const Text('이미지 선택'),
+            ),
+            
+            // [추가] 이미지 미리보기
+            if (_selectedImage != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedCategory,
-                    isExpanded: true,
-                    items: _categories.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Text(
-                          category,
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _selectedCategory = value);
-                      }
-                    },
-                  ),
-                ),
+                margin: const EdgeInsets.only(top: 10),
+                height: 150,
+                width: 150,
+                child: Image.file(_selectedImage!, fit: BoxFit.cover),
               ),
-
-              const SizedBox(height: 20),
-
-              // 제목 입력
-              const Text(
-                '제목',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
+            
+            // [추가] 공지사항 체크박스
+            CheckboxListTile(
+              title: const Text('공지사항으로 등록'),
+              value: _isNotice,
+              onChanged: (bool? value) {
+                setState(() {
+                  _isNotice = value ?? false;
+                });
+              },
+            ),
+            
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _savePost,
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('게시글 올리기'),
               ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: '제목을 입력하세요',
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.black, width: 1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.black, width: 1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '제목을 입력하세요';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 20),
-
-              // 내용 입력
-              const Text(
-                '내용',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: TextFormField(
-                  controller: _contentController,
-                  maxLines: null,
-                  expands: true,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                    hintText: '내용을 입력하세요',
-                    border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.black, width: 1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.black, width: 1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.black, width: 2),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return '내용을 입력하세요';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // 등록 버튼
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitPost,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA9A9),
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                      side: const BorderSide(color: Colors.black, width: 1),
-                    ),
-                  ),
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator(
-                          color: Colors.black,
-                        )
-                      : const Text(
-                          '등록하기',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

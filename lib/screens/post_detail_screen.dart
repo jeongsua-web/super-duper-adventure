@@ -16,12 +16,12 @@ class PostDetailScreen extends StatefulWidget {
 class _PostDetailScreenState extends State<PostDetailScreen> {
   final TextEditingController _commentController = TextEditingController();
 
-  // [기능 1] 댓글 저장 함수
-  void _addComment() {
+  // [기능 1] 댓글 저장 함수 (수정됨: 숫자 증가 기능 추가)
+  Future<void> _addComment() async {
     if (_commentController.text.isEmpty) return;
 
-    // 파이어베이스: posts -> (현재글ID) -> comments 폴더에 추가
-    FirebaseFirestore.instance
+    // 1. 댓글 내용 저장 (원래 있던 코드)
+    await FirebaseFirestore.instance
         .collection('posts')
         .doc(widget.postId)
         .collection('comments')
@@ -31,9 +31,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       'createdAt': FieldValue.serverTimestamp(),
     });
 
+    // ---------------------------------------------------------
+    // [★ 핵심 수정] 게시글의 'comments' 숫자 필드를 +1 해줍니다.
+    // ---------------------------------------------------------
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(widget.postId)
+        .update({
+      // 'comments'는 아까 파이어베이스에 만들어둔 필드 이름과 똑같아야 합니다.
+      'comments': FieldValue.increment(1), 
+    });
+
     // 입력창 비우기 및 키보드 내리기
     _commentController.clear();
-    FocusScope.of(context).unfocus();
+    if (mounted) {
+      FocusScope.of(context).unfocus();
+    }
   }
 
   // 날짜 포맷 함수
