@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'village_view_screen.dart';
 import 'village_create_screen.dart';
+import 'invitation_input_screen.dart';
+import 'invitation_create_screen.dart';
+import 'village_settings_screen.dart';
 
 class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
@@ -97,6 +100,92 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     }
   }
 
+  Future<void> _navigateToInvitationInput() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const InvitationInputScreen()),
+    );
+
+    if (result == true) {
+      // Reload villages after joining a new one
+      _loadUserVillages();
+    }
+  }
+
+  void _showVillageMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.add_circle_outline),
+                title: const Text(
+                  '새 마을 만들기',
+                  style: TextStyle(fontFamily: 'Gowun Dodum'),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _navigateToCreateVillage();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.qr_code_scanner),
+                title: const Text(
+                  '초대 코드로 입주하기',
+                  style: TextStyle(fontFamily: 'Gowun Dodum'),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _navigateToInvitationInput();
+                },
+              ),
+              if (villages.isNotEmpty) ...[
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.card_giftcard),
+                  title: const Text(
+                    '초대 코드 생성',
+                    style: TextStyle(fontFamily: 'Gowun Dodum'),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (_currentIndex < villages.length) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => InvitationCreateScreen(
+                            villageId: villages[_currentIndex]['id'],
+                            villageName: villages[_currentIndex]['name'],
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -116,7 +205,21 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _MenuButton(label: '메뉴', onTap: () {}),
-                _MenuButton(label: '메뉴', onTap: () {}),
+                _MenuButton(
+                  label: '설정',
+                  onTap: () {
+                    if (villages.isNotEmpty && _currentIndex < villages.length) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => VillageSettingsScreen(
+                            villageId: villages[_currentIndex]['id'],
+                            villageName: villages[_currentIndex]['name'],
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -168,7 +271,15 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 // Circle button (Go to my village)
                 GestureDetector(
                   onTap: () {
-                    // Handle "내 마을로 가기" tap
+                    if (villages.isNotEmpty && _currentIndex < villages.length) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => VillageViewScreen(
+                            villageName: villages[_currentIndex]['name'],
+                          ),
+                        ),
+                      );
+                    }
                   },
                   child: Container(
                     width: 101,
@@ -198,13 +309,16 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        '마을 목록',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.01,
+                      GestureDetector(
+                        onTap: _showVillageMenu,
+                        child: const Text(
+                          '마을 목록',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0.01,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -268,6 +382,26 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
             ),
             child: const Text(
               '새 마을 만들기',
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'Gowun Dodum',
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(
+            onPressed: _navigateToInvitationInput,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.black,
+              side: const BorderSide(color: Color(0xFFC4ECF6)),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              '초대 코드로 입주하기',
               style: TextStyle(
                 fontSize: 16,
                 fontFamily: 'Gowun Dodum',

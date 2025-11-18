@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'board_screen.dart';
+import '../community/board_screen.dart';
 import 'creator_home_screen.dart';
-import 'calendar_screen.dart';
-import 'chat_screen.dart';
-import 'resident_profile_screen.dart';
+import '../community/calendar_screen.dart';
+import '../community/chat_screen.dart';
+import '../user/resident_profile_screen.dart';
 
 class VillageViewScreen extends StatelessWidget {
   final String villageName;
