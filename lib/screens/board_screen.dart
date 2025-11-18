@@ -203,16 +203,16 @@ class _BoardScreenState extends State<BoardScreen> {
                           final data = docs[index].data() as Map<String, dynamic>;
                           String category = data['category'] ?? '기타';
 
-                          // [수정완료] DB 필드명 'comments'를 가져오도록 수정했습니다.
-                          // 만약 null이면 0으로 처리합니다.
-                          int commentCount = data['comments'] ?? 0;
+                          // [수정됨] Firestore에서 'commentCount' 필드를 가져옵니다.
+                          // 만약 필드가 없다면 0으로 처리합니다.
+                          int commentCount = data['commentCount'] ?? 0;
 
                           return _PostCard(
                             postId: docs[index].id,
                             title: data['title'] ?? '제목 없음',
                             author: '[$category] ${data['author'] ?? '익명'}',
                             time: _formatTimestamp(data['createdAt']),
-                            // 숫자를 문자열로 변환하여 전달
+                            // [수정됨] 숫자를 문자열로 변환하여 전달
                             comments: commentCount.toString(),
                             hasImage: false,
                           );
