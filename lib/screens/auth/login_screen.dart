@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'signup_screen.dart';
-import 'main_home_screen.dart';
+import '../village/main_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -332,12 +332,12 @@ class _LoginScreenState extends State<LoginScreen> {
               //   ),
               // ),
 
-              // Email label
+              // ID label
               const Positioned(
                 left: 43,
                 top: 298,
                 child: Text(
-                  '이메일',
+                  '아이디',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 13,
@@ -348,7 +348,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              // Email input field
+              // ID input field
               Positioned(
                 left: 43,
                 top: 324,
@@ -361,7 +361,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: TextField(
                     controller: _idController,
-                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),

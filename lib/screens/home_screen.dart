@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/village_card.dart';
-import 'board_screen.dart';
-import 'quiz_screen.dart';
-import 'calendar_screen.dart';
-import 'profile_screen.dart';
+import 'community/board_screen.dart';
+import 'community/quiz_screen.dart';
+import 'community/calendar_screen.dart';
+import 'user/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
