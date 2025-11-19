@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/village_member.dart';
-import '../widgets/role_widgets.dart';
+import '../../models/village_member.dart';
+import '../../widgets/role_widgets.dart';
 
 /// 역할 기반 UI 사용 예시
 class VillageRoleExampleScreen extends StatelessWidget {

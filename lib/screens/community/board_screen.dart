@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'post_create_screen.dart';
-import 'post_detail_screen.dart';
+import '../post_detail_screen.dart';
 
 class BoardScreen extends StatefulWidget {
   final String villageName;
@@ -276,7 +276,6 @@ class _PostCard extends StatelessWidget {
   final bool hasImage;
 
   const _PostCard({
-    super.key,
     required this.postId,
     required this.title,
     required this.author,

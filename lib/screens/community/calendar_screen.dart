@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CalendarScreen extends StatefulWidget {
   final String villageName;
+  final String? villageId;
 
   const CalendarScreen({
     super.key,
     required this.villageName,
+    this.villageId,
   });
 
   @override
@@ -13,483 +18,322 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  late DateTime _currentDate;
+  String? _resolvedVillageId;
+  bool _isLoading = true;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  Map<DateTime, List<Map<String, dynamic>>> _events = {};
+  final TextEditingController _eventController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _currentDate = DateTime.now();
-  }
-
-  int _getDaysInMonth(int month, int year) {
-    if (month == DateTime.february) {
-      final bool isLeapYear =
-          (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
-      return isLeapYear ? 29 : 28;
-    }
-    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    return days[month - 1];
-  }
-
-  int _getFirstDayOfMonth(int month, int year) {
-    return DateTime(year, month, 1).weekday % 7;
+    _selectedDay = _focusedDay;
+    _resolveVillageId();
   }
 
   @override
-  Widget build(BuildContext context) {
-    final daysInMonth = _getDaysInMonth(_currentDate.month, _currentDate.year);
-    final firstDay = _getFirstDayOfMonth(_currentDate.month, _currentDate.year);
-    final monthName = _getMonthName(_currentDate.month);
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Back button (top left)
-            Positioned(
-              left: 16,
-              top: 12,
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 63,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '뒤로가기',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Header with year and navigation buttons
-            Positioned(
-              left: 46,
-              top: 96,
-              child: Text(
-                '${_currentDate.year}',
-                style: const TextStyle(
-                  fontFamily: 'Jersey 20',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 40,
-                  height: 0.45,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Month navigation buttons (Y, M, W, D)
-            Positioned(
-              left: 76,
-              top: 16,
-              child: Row(
-                children: [
-                  _NavButton(label: 'Y', isSelected: false),
-                  const SizedBox(width: 8),
-                  _NavButton(label: 'M', isSelected: true),
-                  const SizedBox(width: 8),
-                  _NavButton(label: 'W', isSelected: false),
-                  const SizedBox(width: 8),
-                  _NavButton(label: 'D', isSelected: false),
-                ],
-              ),
-            ),
-
-            // Month title
-            Positioned(
-              left: 45,
-              top: 126,
-              child: Text(
-                monthName,
-                style: const TextStyle(
-                  fontFamily: 'Jersey 20',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 40,
-                  height: 0.45,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Calendar container
-            Positioned(
-              left: 19,
-              top: 75,
-              child: Container(
-                width: 356,
-                height: 469,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Stack(
-                  children: [
-                    // Weekday headers (S M T W T F S)
-                    Positioned(
-                      left: 10,
-                      top: 20,
-                      child: SizedBox(
-                        width: 335,
-                        child: Text(
-                          'S M T W T F S',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 24,
-                            height: 0.75,
-                            letterSpacing: 0.55,
-                            color: Color(0xFFEB5151),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Calendar grid
-                    Positioned(
-                      left: 20,
-                      top: 70,
-                      child: _CalendarGrid(
-                        daysInMonth: daysInMonth,
-                        firstDay: firstDay,
-                      ),
-                    ),
-
-                    // Selection indicator
-                    Positioned(
-                      right: 28,
-                      top: 294,
-                      child: Container(
-                        width: 28,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEBB0B0),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Event 1
-            Positioned(
-              left: 19,
-              top: 575,
-              child: Container(
-                width: 356,
-                height: 51,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: const Color(0xFF8C6565), width: 1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 29,
-                      top: 10,
-                      child: Container(
-                        width: 2,
-                        height: 30,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Positioned(
-                      left: 41,
-                      top: 16,
-                      child: Text(
-                        'play day with jisoo',
-                        style: const TextStyle(
-                          fontFamily: 'Playfair Display',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 24,
-                          height: 0.75,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 20,
-                      top: 16,
-                      child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('수정')),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(Icons.edit, size: 20, color: Colors.black),
-                            const SizedBox(width: 8),
-                            Text(
-                              'modify',
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                height: 1.286,
-                                letterSpacing: 0.01,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Event 2
-            Positioned(
-              left: 19,
-              top: 634,
-              child: Container(
-                width: 356,
-                height: 51,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: const Color(0xFF8C6565), width: 1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 29,
-                      top: 10,
-                      child: Container(
-                        width: 2,
-                        height: 30,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Positioned(
-                      left: 100,
-                      top: 16,
-                      child: Text(
-                        'spa day',
-                        style: const TextStyle(
-                          fontFamily: 'Playfair Display',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 24,
-                          height: 0.75,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 20,
-                      top: 16,
-                      child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('수정')),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(Icons.edit, size: 20, color: Colors.black),
-                            const SizedBox(width: 8),
-                            Text(
-                              'modify',
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                height: 1.286,
-                                letterSpacing: 0.01,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Add schedule button
-            Positioned(
-              left: 16,
-              bottom: 24,
-              child: Text(
-                'add schedule',
-                style: const TextStyle(
-                  fontFamily: 'Jersey 20',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 24,
-                  height: 0.75,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Add schedule input box
-            Positioned(
-              left: 16,
-              bottom: 20,
-              child: Container(
-                width: 136,
-                height: 23,
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF706F6F), width: 1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-
-            // Unblind button
-            Positioned(
-              left: 22,
-              bottom: 150,
-              child: GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('일정 공개')),
-                  );
-                },
-                child: Text(
-                  'unblind',
-                  style: const TextStyle(
-                    fontFamily: 'Jersey 20',
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                    height: 1.125,
-                    letterSpacing: 0.01,
-                    color: Color(0xFF8183F1),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _eventController.dispose();
+    super.dispose();
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ];
-    return months[month - 1];
-  }
-}
-
-class _NavButton extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-
-  const _NavButton({
-    required this.label,
-    required this.isSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 50,
-      height: 28,
-      decoration: BoxDecoration(
-        color: const Color(0xFFD9D9D9),
-        border: isSelected ? Border.all(color: Colors.black, width: 1) : null,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-            fontSize: 24,
-            height: 0.75,
-            letterSpacing: 0.01,
-            color: Color(0xFF4E4E4E),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CalendarGrid extends StatelessWidget {
-  final int daysInMonth;
-  final int firstDay;
-
-  const _CalendarGrid({
-    required this.daysInMonth,
-    required this.firstDay,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const double cellWidth = 45;
-    const double cellHeight = 18;
-    const double cellSpacing = 10;
-
-    List<Widget> cells = [];
-
-    // Empty cells for days before month starts
-    for (int i = 0; i < firstDay; i++) {
-      cells.add(SizedBox(width: cellWidth, height: cellHeight));
+  Future<void> _resolveVillageId() async {
+    if (widget.villageId != null && widget.villageId!.isNotEmpty) {
+      setState(() {
+        _resolvedVillageId = widget.villageId;
+      });
+      await _loadEvents();
+      setState(() {
+        _isLoading = false;
+      });
+      return;
     }
 
-    // Day numbers
-    for (int day = 1; day <= daysInMonth; day++) {
-      cells.add(
-        SizedBox(
-          width: cellWidth,
-          height: cellHeight,
-          child: Center(
-            child: Text(
-              day.toString(),
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w700,
-                fontSize: 24,
-                height: 0.75,
-                letterSpacing: 0.01,
-                color: Colors.black,
-              ),
-            ),
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('villages')
+          .where('name', isEqualTo: widget.villageName)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        setState(() {
+          _resolvedVillageId = querySnapshot.docs.first.id;
+        });
+        await _loadEvents();
+      }
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('마을 ID 조회 오류: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadEvents() async {
+    if (_resolvedVillageId == null) return;
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(_resolvedVillageId)
+          .collection('events')
+          .get();
+
+      Map<DateTime, List<Map<String, dynamic>>> events = {};
+      
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final Timestamp timestamp = data['date'];
+        final DateTime eventDate = timestamp.toDate();
+        final DateTime normalizedDate = DateTime(eventDate.year, eventDate.month, eventDate.day);
+        
+        final eventData = {
+          'id': doc.id,
+          'title': data['title'],
+          'creatorId': data['creatorId'],
+          'creatorName': data['creatorName'],
+        };
+
+        if (events[normalizedDate] == null) {
+          events[normalizedDate] = [];
+        }
+        events[normalizedDate]!.add(eventData);
+      }
+
+      setState(() {
+        _events = events;
+      });
+    } catch (e) {
+      print('일정 로드 오류: $e');
+    }
+  }
+
+  List<Map<String, dynamic>> _getEventsForDay(DateTime day) {
+    final normalizedDay = DateTime(day.year, day.month, day.day);
+    return _events[normalizedDay] ?? [];
+  }
+
+  Future<void> _addEvent() async {
+    if (_resolvedVillageId == null) return;
+    if (_eventController.text.trim().isEmpty) return;
+    if (_selectedDay == null) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final normalizedDate = DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day);
+      
+      await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(_resolvedVillageId)
+          .collection('events')
+          .add({
+        'title': _eventController.text.trim(),
+        'date': Timestamp.fromDate(normalizedDate),
+        'creatorId': user.uid,
+        'creatorName': user.displayName ?? user.email ?? '익명',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      _eventController.clear();
+      await _loadEvents();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('일정이 추가되었습니다')),
+        );
+      }
+    } catch (e) {
+      print('일정 추가 오류: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('일정 추가에 실패했습니다')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteEvent(String eventId, String creatorId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.uid != creatorId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('본인이 만든 일정만 삭제할 수 있습니다')),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('일정 삭제'),
+        content: const Text('이 일정을 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
           ),
-        ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(_resolvedVillageId)
+          .collection('events')
+          .doc(eventId)
+          .delete();
+
+      await _loadEvents();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('일정이 삭제되었습니다')),
+        );
+      }
+    } catch (e) {
+      print('일정 삭제 오류: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('일정 삭제에 실패했습니다')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    return Wrap(
-      spacing: cellSpacing,
-      runSpacing: cellSpacing,
-      children: cells,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          '${widget.villageName} 캘린더',
+          style: const TextStyle(color: Colors.black),
+        ),
+      ),
+      body: Column(
+        children: [
+          TableCalendar(
+            firstDay: DateTime(2020, 1, 1),
+            lastDay: DateTime(2030, 12, 31),
+            focusedDay: _focusedDay,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            eventLoader: _getEventsForDay,
+            calendarFormat: CalendarFormat.month,
+            startingDayOfWeek: StartingDayOfWeek.sunday,
+            calendarStyle: CalendarStyle(
+              todayDecoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              selectedDecoration: const BoxDecoration(
+                color: Colors.cyan,
+                shape: BoxShape.circle,
+              ),
+              markerDecoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ),
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _eventController,
+                    decoration: const InputDecoration(
+                      hintText: '일정 제목 입력',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _addEvent,
+                  child: const Text('추가'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _selectedDay == null
+                ? const Center(child: Text('날짜를 선택하세요'))
+                : _buildEventList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventList() {
+    final events = _getEventsForDay(_selectedDay!);
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (events.isEmpty) {
+      return const Center(
+        child: Text('이 날짜에 일정이 없습니다'),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        final event = events[index];
+        final isCreator = currentUser?.uid == event['creatorId'];
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            title: Text(event['title']),
+            subtitle: Text('작성자: ${event['creatorName']}'),
+            trailing: isCreator
+                ? IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteEvent(event['id'], event['creatorId']),
+                  )
+                : null,
+          ),
+        );
+      },
     );
   }
 }
