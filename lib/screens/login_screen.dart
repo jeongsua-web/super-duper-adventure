@@ -134,13 +134,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 60),
 
-              // ID label
+              // Email label
               Padding(
                 padding: const EdgeInsets.only(left: 44, bottom: 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '아이디',
+                    '이메일',
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'Inter',
@@ -151,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              // ID input field
+              // Email input field
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 37),
                 child: Container(
@@ -162,10 +162,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: TextField(
                     controller: _idController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      hintText: '아이디 입력',
+                      hintText: '이메일 입력',
                     ),
                   ),
                 ),
