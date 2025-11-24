@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ★ 추가된 import
 import 'chat_screen.dart'; // [중요] 아래 3번 파일 import
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
 
   void _createChatRoom(BuildContext context) async {
+    // ------------------------------------------------------------------
+    // ★[수정] 현재 사용자 ID를 가져와 사용합니다.
+    // ------------------------------------------------------------------
+    final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    // 임시 상대방 ID를 사용하여 1:1 방을 만듭니다. 실제 구현에서는 여기서 상대방을 선택해야 합니다.
+    final String tempRecipientId = 'temp_recipient_id'; 
+
     final newRoom = await FirebaseFirestore.instance.collection('chat_rooms').add({
       'roomName': '새로운 대화방', 
       'lastMessage': '대화를 시작해보세요!',
       'lastMessageTime': FieldValue.serverTimestamp(),
       'createdAt': FieldValue.serverTimestamp(),
-      'participants': ['user1', 'user2'], 
+      // ------------------------------------------------------------------
+      // ★[수정] participants에 실제 UID와 임시 상대방 ID를 넣습니다.
+      // ------------------------------------------------------------------
+      'participants': [currentUserId, tempRecipientId], 
     });
     
     if (context.mounted) {
@@ -32,6 +43,12 @@ class ChatListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ------------------------------------------------------------------
+    // ★[추가] 현재 사용자 ID를 가져와 필터링에 사용합니다.
+    // (주의: 로그인이 되어 있어야 합니다.)
+    // ------------------------------------------------------------------
+    final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -47,16 +64,25 @@ class ChatListScreen extends StatelessWidget {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('chat_rooms').orderBy('lastMessageTime', descending: true).snapshots(),
+        stream: FirebaseFirestore.instance.collection('chat_rooms')
+            // ------------------------------------------------------------------
+            // ★[수정] .where()를 사용하여 현재 사용자가 참여한 방만 가져옵니다.
+            // ------------------------------------------------------------------
+            .where('participants', arrayContains: currentUserId)
+            .orderBy('lastMessageTime', descending: true)
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final docs = snapshot.data!.docs;
-
+          
+          // ... (나머지 로직은 그대로 유지)
+          // ...
+          
           if (docs.isEmpty) {
             return Center(
               child: ElevatedButton(
                 onPressed: () => _createChatRoom(context),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD9D9D9), foregroundColor: Colors.black),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFC4ECF6), foregroundColor: Colors.black),
                 child: const Text("채팅방 만들기"),
               ),
             );
