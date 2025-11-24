@@ -17,7 +17,6 @@ class _SignupScreenState extends State<SignupScreen> {
   late TextEditingController _emailDomainController;
 
   final AuthService _authService = AuthService();
-  bool _isValidPassword = false;
   String _selectedPhonePrefix = '010';
   String _selectedEmailDomain = 'naver.com';
 
@@ -48,9 +47,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _validatePassword() {
     // Check if password is alphanumeric
-    final isValid = RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(_passwordController.text);
+    RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(_passwordController.text);
     setState(() {
-      _isValidPassword = isValid;
+      // Password validation check
     });
   }
 
