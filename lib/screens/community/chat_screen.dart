@@ -1,406 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ★ 추가된 import
 
 class ChatScreen extends StatefulWidget {
-  final String villageName;
+  final String chatRoomId; 
 
-  const ChatScreen({
-    super.key,
-    required this.villageName,
-  });
+  const ChatScreen({super.key, required this.chatRoomId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  
+  // ------------------------------------------------------------------
+  // ★[수정] 하드코딩된 'user1' 대신 실제 로그인 사용자 UID 사용
+  // ------------------------------------------------------------------
+  // (주의: 로그인 후에 이 화면에 접근해야 null 오류가 발생하지 않습니다.)
+  final String myId = FirebaseAuth.instance.currentUser!.uid; 
+  // 현재 로그인된 사용자의 닉네임이 있다면, 이 부분도 동적으로 가져오는 것이 좋습니다.
+  final String myNickname = FirebaseAuth.instance.currentUser!.displayName ?? '나'; 
 
-  final List<Map<String, String>> _messages = [
-    {
-      'nickname': '닉네임',
-      'message': '너희들은 아보카도 두개 먹어라!',
-    },
-    {
-      'nickname': '닉네임2',
-      'message': '너희들은 아보카도 한개 먹어라!',
-    },
-    {
-      'nickname': '닉네임3',
-      'message': '너희들은 아보카도 세개 먹어라!',
-    },
-    {
-      'nickname': '닉네임4',
-      'message': '너희들은 아보카도 다섯개 먹어라!',
-    },
-    {
-      'nickname': '닉네임4',
-      'message': '너희들은 아보카도 여섯개 먹어라!',
-    },
-  ];
+  void _sendMessage() async {
+    if (_controller.text.trim().isEmpty) return;
+    String msg = _controller.text;
+    _controller.clear();
 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
+    await FirebaseFirestore.instance.collection('chat_rooms').doc(widget.chatRoomId).collection('messages').add({
+      'text': msg, 
+      'senderId': myId, // 실제 UID 사용
+      'nickname': myNickname, // 실제 닉네임 (없으면 '나' 사용)
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    await FirebaseFirestore.instance.collection('chat_rooms').doc(widget.chatRoomId).update({
+      'lastMessage': msg, 'lastMessageTime': FieldValue.serverTimestamp(),
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Top header divider
-            Positioned(
-              left: 0,
-              top: 54,
-              child: Container(
-                width: 393,
-                height: 2,
-                color: const Color(0xFFD9D9D9),
-              ),
-            ),
-
-            // Back button (top left)
-            Positioned(
-              left: 10,
-              top: 8,
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFD9D9D9),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Search button (top center)
-            Positioned(
-              left: 277,
-              top: 8,
-              child: GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('채팅 검색')),
-                  );
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFD9D9D9),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.search,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Settings button (top right)
-            Positioned(
-              left: 326,
-              top: 8,
-              child: GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('채팅 설정')),
-                  );
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFD9D9D9),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.settings,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Messages list
-            Positioned(
-              left: 0,
-              top: 70,
-              right: 0,
-              bottom: 90,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final msg = _messages[index];
-                  return _ChatMessageBubble(
-                    nickname: msg['nickname']!,
-                    message: msg['message']!,
-                  );
-                },
-              ),
-            ),
-
-            // Question bubble
-            Positioned(
-              left: 119,
-              top: 744,
-              child: Container(
-                width: 155,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: const Center(
-                  child: Text(
-                    '폭죽을 터트리겠습니까?',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w200,
-                      fontSize: 14,
-                      height: 1.286,
-                      letterSpacing: 0.01,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Reaction circle
-            Positioned(
-              left: 178,
-              top: 695,
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFD9D9D9),
-                  border: Border.all(color: const Color(0xFFA3A3A3), width: 1),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.favorite,
-                    size: 18,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            ),
-
-            // Bottom input area
-            Positioned(
-              left: 0,
-              bottom: 0,
-              right: 0,
-              child: Container(
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    top: BorderSide(
-                      color: const Color(0xFF595959),
-                      width: 1,
-                    ),
-                  ),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                child: Row(
-                  children: [
-                    // Attach file button
-                    GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('첨부파일')),
-                        );
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.attachment,
-                            size: 18,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 10),
-
-                    // Message input field
-                    Expanded(
-                      child: Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                        child: TextField(
-                          controller: _messageController,
-                          decoration: const InputDecoration(
-                            hintText: '메시지 입력',
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                          ),
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 10),
-
-                    // Send button
-                    GestureDetector(
-                      onTap: () {
-                        if (_messageController.text.isNotEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '메시지 전송: ${_messageController.text}',
-                              ),
-                            ),
-                          );
-                          _messageController.clear();
-                        }
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.send,
-                            size: 18,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+      appBar: AppBar(
+        backgroundColor: Colors.white, elevation: 0,
+        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Navigator.pop(context)),
+        title: const Text("대화방", style: TextStyle(color: Colors.black)),
+        bottom: PreferredSize(preferredSize: const Size.fromHeight(1.0), child: Container(color: const Color(0xFFD9D9D9), height: 1.0)),
       ),
-    );
-  }
-}
-
-class _ChatMessageBubble extends StatelessWidget {
-  final String nickname;
-  final String message;
-
-  const _ChatMessageBubble({
-    required this.nickname,
-    required this.message,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
         children: [
-          // User info with avatar
-          Row(
-            children: [
-              // Avatar
-              Container(
-                width: 58.34,
-                height: 58.34,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFC2C2C2),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.person,
-                    size: 24,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              // Nickname
-              Text(
-                nickname,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 20,
-                  height: 0.9,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          // Message bubble
-          Container(
-            margin: const EdgeInsets.only(left: 70),
-            padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFD9D9D9),
-              borderRadius: BorderRadius.circular(28),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('chat_rooms').doc(widget.chatRoomId).collection('messages').orderBy('createdAt', descending: true).snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                final docs = snapshot.data!.docs;
+                return ListView.builder(
+                  reverse: true, padding: const EdgeInsets.all(16), itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final bool isMe = data['senderId'] == myId;
+                    return _Bubble(message: data['text'] ?? '', isMe: isMe, nickname: data['nickname'] ?? '익명');
+                  },
+                );
+              },
             ),
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w200,
-                fontSize: 20,
-                height: 0.9,
-                letterSpacing: 0.01,
-                color: Colors.black,
+          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            decoration: BoxDecoration(color: const Color(0xFFD9D9D9), borderRadius: BorderRadius.circular(28)),
+            child: const Text("폭죽을 터트리겠습니까?", style: TextStyle(fontSize: 12)),
+          ),
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFF595959))), color: Colors.white),
+              child: Row(
+                children: [
+                  const Icon(Icons.add_box_outlined, color: Colors.grey), const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      height: 46, padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(color: const Color(0xFFD9D9D9), borderRadius: BorderRadius.circular(28)),
+                      child: TextField(
+                        controller: _controller, decoration: const InputDecoration(border: InputBorder.none, hintText: '메시지 입력'),
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
+                    ),
+                  ),
+                  IconButton(icon: const Icon(Icons.send), onPressed: _sendMessage),
+                ],
               ),
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class _Bubble extends StatelessWidget {
+  final String message; final bool isMe; final String nickname;
+  const _Bubble({required this.message, required this.isMe, required this.nickname});
+
+  @override
+  Widget build(BuildContext context) {
+    if (isMe) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16, left: 60),
+        child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [Flexible(child: Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), decoration: BoxDecoration(color: const Color(0xFFC4ECF6), borderRadius: BorderRadius.circular(20)), child: Text(message, style: const TextStyle(fontSize: 16))))]),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16, right: 60),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.person, color: Colors.white)), const SizedBox(width: 8),
+          Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(nickname, style: const TextStyle(fontWeight: FontWeight.bold)), const SizedBox(height: 4), Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), decoration: BoxDecoration(color: const Color(0xFFE7E7E7), borderRadius: BorderRadius.circular(20)), child: Text(message, style: const TextStyle(fontSize: 16)))]))
+        ]),
+      );
+    }
   }
 }

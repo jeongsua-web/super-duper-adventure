@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'village/village_view_screen.dart';
 import 'village/village_create_screen.dart';
+import 'mailbox_screen.dart';
+import 'settings/account_settings_screen.dart';
 
 class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
@@ -59,14 +61,17 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               .get();
           
           if (villageDoc.exists && villageDoc.data() != null) {
-            loadedVillages.add({
+            final villageData = {
               'id': villageId,
               'name': villageDoc.data()!['name'] ?? '이름 없음',
               'description': villageDoc.data()!['description'] ?? '',
-            });
+            };
+            print('마을 로드됨: $villageData');
+            loadedVillages.add(villageData);
           }
         }
 
+        print('전체 마을 목록: $loadedVillages');
         setState(() {
           villages = loadedVillages;
           _isLoading = false;
@@ -109,6 +114,20 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
+          // 파일명 표시 (테스트용)
+          Container(
+            color: Colors.yellow.withOpacity(0.3),
+            padding: const EdgeInsets.all(4),
+            child: const Text(
+              'main_home_screen.dart',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
           // Top menu bar with two buttons
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 12),
@@ -116,7 +135,34 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _MenuButton(label: '메뉴', onTap: () {}),
-                _MenuButton(label: '메뉴', onTap: () {}),
+                GestureDetector(
+                  onTap: () async {
+                    final result = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const MailboxScreen(),
+                      ),
+                    );
+                    // 초대를 수락했으면 마을 목록 새로고침
+                    if (result == true) {
+                      _loadUserVillages();
+                    }
+                  },
+                  child: Container(
+                    width: 63,
+                    height: 58,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD9D9D9),
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.mail_outline,
+                        size: 32,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -127,28 +173,35 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : villages.isEmpty
                     ? _buildEmptyState()
-                    : Center(
-                        child: SizedBox(
-                          height: 350,
-                          child: PageView.builder(
-                            controller: _pageController,
-                            onPageChanged: (index) {
-                              setState(() {
-                                _currentIndex = index;
-                              });
-                            },
-                            itemCount: villages.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 30),
-                                child: _VillageCard(
-                                  title: villages[index]['name'],
-                                  isCenter: index == _currentIndex,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Center(
+                            child: SizedBox(
+                              height: 350,
+                              width: constraints.maxWidth,
+                              child: PageView.builder(
+                                controller: _pageController,
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentIndex = index;
+                                  });
+                                },
+                                itemCount: villages.length,
+                                itemBuilder: (context, index) {
+                                  final villageData = villages[index];
+                                  print('카드 생성 - index: $index, id: ${villageData['id']}, name: ${villageData['name']}');
+                                  return Center(
+                                    child: _VillageCard(
+                                      title: villageData['name'],
+                                      villageId: villageData['id'],
+                                      isCenter: index == _currentIndex,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        },
                       ),
           ),
 
@@ -210,7 +263,11 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       const SizedBox(width: 10),
                       GestureDetector(
                         onTap: () {
-                          // Handle "내 계정" tap
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const AccountSettingsScreen(),
+                            ),
+                          );
                         },
                         child: const Text(
                           '내 계정',
@@ -294,6 +351,10 @@ class _MenuButton extends StatelessWidget {
       child: Container(
         width: 63,
         height: 58,
+        constraints: const BoxConstraints(
+          minWidth: 63,
+          minHeight: 58,
+        ),
         decoration: const BoxDecoration(
           color: Color(0xFFD9D9D9),
           borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -317,30 +378,42 @@ class _MenuButton extends StatelessWidget {
 
 class _VillageCard extends StatelessWidget {
   final String title;
+  final String villageId;
   final bool isCenter;
 
   const _VillageCard({
     required this.title,
+    required this.villageId,
     required this.isCenter,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isCenter
-          ? () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => VillageViewScreen(villageName: title),
-                ),
-              );
-            }
-          : null,
-      child: Transform.scale(
-        scale: isCenter ? 1.0 : 0.85,
-        child: Container(
+    final cardWidth = isCenter ? 300.0 : 255.0;
+    final cardHeight = isCenter ? 350.0 : 297.0;
+    
+    return Center(
+      child: GestureDetector(
+        onTap: isCenter
+            ? () {
+                print('카드 클릭 - villageId: $villageId, title: $title');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => VillageViewScreen(
+                      villageName: title,
+                      villageId: villageId,
+                    ),
+                  ),
+                );
+              }
+            : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          width: cardWidth,
+          height: cardHeight,
           decoration: BoxDecoration(
-            color: isCenter ? const Color(0xFFD9D9D9) : const Color(0xFFD9D9D9),
+            color: const Color(0xFFD9D9D9),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -369,14 +442,20 @@ class _VillageCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Inter',
-                  letterSpacing: 0.01,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                    letterSpacing: 0.01,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ],

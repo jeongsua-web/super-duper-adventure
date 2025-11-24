@@ -332,12 +332,12 @@ class _LoginScreenState extends State<LoginScreen> {
               //   ),
               // ),
 
-              // ID label
+              // Email label
               const Positioned(
                 left: 43,
                 top: 298,
                 child: Text(
-                  '아이디',
+                  '이메일',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 13,
@@ -348,7 +348,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              // ID input field
+              // Email input field
               Positioned(
                 left: 43,
                 top: 324,
@@ -361,6 +361,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: TextField(
                     controller: _idController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),

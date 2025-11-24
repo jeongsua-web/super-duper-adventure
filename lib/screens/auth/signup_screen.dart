@@ -29,9 +29,6 @@ class _SignupScreenState extends State<SignupScreen> {
     _phone2Controller = TextEditingController();
     _emailLocalController = TextEditingController();
     _emailDomainController = TextEditingController();
-
-    // Password validation listener
-    _passwordController.addListener(_validatePassword);
   }
 
   @override
@@ -43,14 +40,6 @@ class _SignupScreenState extends State<SignupScreen> {
     _emailLocalController.dispose();
     _emailDomainController.dispose();
     super.dispose();
-  }
-
-  void _validatePassword() {
-    // Check if password is alphanumeric
-    RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(_passwordController.text);
-    setState(() {
-      // Password validation check
-    });
   }
 
   Future<void> _handleSignup() async {
