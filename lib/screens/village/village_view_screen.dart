@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../community/board_screen.dart';
 import 'creator_home_screen.dart';
 import '../community/calendar_screen.dart';
-import '../community/chat_screen.dart';
+
 import '../user/resident_profile_screen.dart';
 import 'village_settings_screen.dart';
 import '../../services/village_role_service.dart';
