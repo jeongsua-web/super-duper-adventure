@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'join.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,8 +18,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: GoogleFonts.gowunDodumTextTheme(),
       ),
-      home: const JoinScreen(),
+      home: const LoginScreen(),
       builder: (context, child) {
         return ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
