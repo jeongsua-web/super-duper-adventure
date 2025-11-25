@@ -15,6 +15,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // ⚠️ [중요]: 실제 앱에서는 로그인된 사용자의 실제 마을 ID를 가져와서 사용해야 합니다.
+  // 현재는 컴파일 오류를 해결하기 위해 임시 ID를 사용합니다.
+  static const String TEMPORARY_VILLAGE_ID = 'your_resolved_village_id_here'; 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +63,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.search, color: Colors.grey),
                       const SizedBox(width: 8),
-                      Expanded(
+                      const Expanded(
                         child: TextField(
                           decoration: InputDecoration(
                             hintText: '검색어를 입력하세요',
@@ -88,7 +92,7 @@ class HomeScreen extends StatelessWidget {
                   itemCount: 5,
                   separatorBuilder: (_, __) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
-                    return SizedBox(width: 220, child: const VillageCard());
+                    return const SizedBox(width: 220, child: VillageCard());
                   },
                 ),
               ),
@@ -108,7 +112,11 @@ class HomeScreen extends StatelessWidget {
                     _FeatureCard(
                       icon: Icons.forum_outlined,
                       label: '게시판',
-                      onTap: () => _open(context, const BoardScreen(villageName: '우리 마을')),
+                      // 🚨 [수정된 부분]: BoardScreen에 villageId를 추가했습니다.
+                      onTap: () => _open(context, const BoardScreen(
+                        villageName: '우리 마을',
+                        villageId: TEMPORARY_VILLAGE_ID, // 임시 ID 사용
+                      )),
                     ),
                     _FeatureCard(
                       icon: Icons.quiz_outlined,
@@ -118,7 +126,11 @@ class HomeScreen extends StatelessWidget {
                     _FeatureCard(
                       icon: Icons.calendar_today_outlined,
                       label: '일정',
-                      onTap: () => _open(context, const CalendarScreen(villageName: '우리 마을')),
+                      // 🚨 [수정된 부분]: CalendarScreen에도 villageId를 추가해야 합니다.
+                      onTap: () => _open(context, const CalendarScreen(
+                        villageName: '우리 마을',
+                        villageId: TEMPORARY_VILLAGE_ID, // 임시 ID 사용
+                      )),
                     ),
                     _FeatureCard(
                       icon: Icons.person_outline,

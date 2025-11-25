@@ -1,11 +1,14 @@
-import 'dart:io'; // 파일을 다루기 위해 추가
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart'; // 이미지 피커 추가
-import 'package:firebase_storage/firebase_storage.dart'; // 스토리지 추가
 
+// villageId를 받기 위한 생성자 추가
 class PostCreateScreen extends StatefulWidget {
-  const PostCreateScreen({super.key});
+  final String villageId; 
+
+  const PostCreateScreen({
+    super.key,
+    required this.villageId,
+  });
 
   @override
   State<PostCreateScreen> createState() => _PostCreateScreenState();
@@ -19,65 +22,51 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
   String _selectedCategory = '일상';
   final List<String> _categories = ['일상', '게임', '취미', '퀴즈'];
 
-  // [추가] 이미지와 공지사항 여부 변수
-  File? _selectedImage;
-  bool _isNotice = false;
-  final ImagePicker _picker = ImagePicker();
+  bool _isNotice = false; // 공지사항 여부 변수
 
-  // [추가] 이미지 선택 함수
-  Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-    }
-  }
-
-  // [수정] 저장 함수 (이미지 업로드 기능 포함)
+  // [핵심] 저장 함수 (Storage 로직 제거, 순수 Firestore 저장)
   Future<void> _savePost() async {
-    if (_titleController.text.isEmpty) {
-      // ... (기존 유효성 검사) ...
+    // 1. 필수 필드 검사
+    if (_titleController.text.isEmpty || _contentController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('제목과 내용을 모두 입력해 주세요.')),
+      );
       return;
     }
 
     setState(() { _isLoading = true; });
 
     try {
-      String? imageUrl;
-
-      // 1. 이미지가 선택되었다면 Storage에 업로드
-      if (_selectedImage != null) {
-        // 파일 이름 고유하게 만들기
-        String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-        Reference storageRef = FirebaseStorage.instance
-            .ref()
-            .child('post_images')
-            .child(fileName);
-
-        // 파일 업로드
-        await storageRef.putFile(_selectedImage!);
-        
-        // 업로드된 URL 가져오기
-        imageUrl = await storageRef.getDownloadURL();
-      }
-
-      // 2. Firestore에 데이터 저장 (imageUrl 포함)
-      await FirebaseFirestore.instance.collection('posts').add({
+      // 2. Firestore에 데이터 저장 시도
+      // 경로: villages/{widget.villageId}/posts/
+      await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(widget.villageId)
+          .collection('posts')
+          .add({
         'title': _titleController.text,
         'content': _contentController.text,
         'category': _selectedCategory,
-        'author': '익명', // TODO: 로그인 기능 후 수정
+        'author': '익명', // TODO: 로그인 기능 후 실제 사용자 정보로 교체
         'createdAt': FieldValue.serverTimestamp(),
-        'isNotice': _isNotice,   // [추가] 공지 여부
-        'imageUrl': imageUrl,   // [추가] 이미지 URL (없으면 null)
+        'isNotice': _isNotice,
+        'imageUrl': null, // Storage를 사용하지 않으므로 null 처리
+        'commentCount': 0, 
       });
 
+      // 3. 성공 시 화면 닫기
       if (mounted) Navigator.pop(context);
+      
     } catch (e) {
-      print('저장 실패: $e');
-      // ... (에러 처리) ...
+      // 🚨 [핵심] 에러 발생 시 사용자에게 메시지 표시
+      print('게시글 저장 실패: $e'); 
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('게시글 저장 실패: ${e.toString()}\n(보안 규칙 확인 필요)')),
+        );
+      }
     } finally {
+      // 4. 로딩 상태 해제
       if (mounted) setState(() { _isLoading = false; });
     }
   }
@@ -91,7 +80,7 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ... (카테고리, 제목, 내용 입력창은 기존 코드와 동일) ...
+            // 카테고리 선택 드롭다운
             const Text('카테고리 선택'),
             DropdownButton<String>(
               value: _selectedCategory,
@@ -107,11 +96,15 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
               },
             ),
             const SizedBox(height: 20),
+            
+            // 제목 입력 필드
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(labelText: '제목', border: OutlineInputBorder()),
             ),
             const SizedBox(height: 20),
+            
+            // 내용 입력 필드
             TextField(
               controller: _contentController,
               decoration: const InputDecoration(labelText: '내용', border: OutlineInputBorder()),
@@ -119,23 +112,7 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
             ),
             const SizedBox(height: 20),
 
-            // [추가] 이미지 선택 버튼
-            ElevatedButton.icon(
-              onPressed: _pickImage,
-              icon: const Icon(Icons.image),
-              label: const Text('이미지 선택'),
-            ),
-            
-            // [추가] 이미지 미리보기
-            if (_selectedImage != null)
-              Container(
-                margin: const EdgeInsets.only(top: 10),
-                height: 150,
-                width: 150,
-                child: Image.file(_selectedImage!, fit: BoxFit.cover),
-              ),
-            
-            // [추가] 공지사항 체크박스
+            // 공지사항 체크박스
             CheckboxListTile(
               title: const Text('공지사항으로 등록'),
               value: _isNotice,
@@ -147,6 +124,8 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
             ),
             
             const SizedBox(height: 20),
+            
+            // 게시글 올리기 버튼
             SizedBox(
               width: double.infinity,
               height: 50,

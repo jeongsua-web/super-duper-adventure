@@ -3,10 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final String postId;
+  final String villageId; // ✨ [수정 1] villageId를 받도록 필드를 추가합니다.
 
   const PostDetailScreen({
     super.key,
     required this.postId,
+    required this.villageId, // ✨ [수정 2] villageId를 필수로 받도록 합니다.
   });
 
   @override
@@ -20,10 +22,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Future<void> _addComment() async {
     if (_commentController.text.isEmpty) return;
 
-    // 1. 댓글 내용 저장 (원래 있던 코드)
-    await FirebaseFirestore.instance
+    // ✨ [수정 3] 게시글 참조 경로를 서브컬렉션으로 변경합니다.
+    final postRef = FirebaseFirestore.instance
+        .collection('villages')
+        .doc(widget.villageId)
         .collection('posts')
-        .doc(widget.postId)
+        .doc(widget.postId);
+
+    // 1. 댓글 내용 저장
+    await postRef
         .collection('comments')
         .add({
       'content': _commentController.text,
@@ -34,10 +41,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     // ---------------------------------------------------------
     // [★ 핵심 수정] 게시글의 'comments' 숫자 필드를 +1 해줍니다.
     // ---------------------------------------------------------
-    await FirebaseFirestore.instance
-        .collection('posts')
-        .doc(widget.postId)
-        .update({
+    await postRef.update({ // postRef를 사용하여 경로 중복을 제거
       // 'comments'는 아까 파이어베이스에 만들어둔 필드 이름과 똑같아야 합니다.
       'comments': FieldValue.increment(1), 
     });
@@ -81,7 +85,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     children: [
                       // [1] 게시글 데이터 가져오기 (FutureBuilder)
                       FutureBuilder<DocumentSnapshot>(
+                        // ✨ [수정 4] 게시글 조회 경로를 서브컬렉션으로 변경
                         future: FirebaseFirestore.instance
+                            .collection('villages')
+                            .doc(widget.villageId)
                             .collection('posts')
                             .doc(widget.postId)
                             .get(),
@@ -146,7 +153,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       const SizedBox(height: 10),
 
                       StreamBuilder<QuerySnapshot>(
+                        // ✨ [수정 5] 댓글 조회 경로를 서브컬렉션으로 변경
                         stream: FirebaseFirestore.instance
+                            .collection('villages')
+                            .doc(widget.villageId)
                             .collection('posts')
                             .doc(widget.postId) // 현재 글 안의
                             .collection('comments') // comments 폴더 감시

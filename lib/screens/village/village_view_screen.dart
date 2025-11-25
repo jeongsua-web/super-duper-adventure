@@ -76,10 +76,20 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
     if (category == '주민집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => ResidentProfileScreen(villageName: widget.villageName)));
     } else if (category == '게시판') {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(villageName: widget.villageName)));
+      // 🚨 [수정된 부분]: BoardScreen에 villageId를 전달합니다.
+      if (_resolvedVillageId != null) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(
+          villageName: widget.villageName,
+          villageId: _resolvedVillageId!, // 👈 이 부분이 추가되었습니다.
+        )));
+      } else {
+        // villageId를 찾지 못한 경우 (마을 이름 검색 실패 등)
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('마을 ID를 찾을 수 없습니다.')));
+      }
     } else if (category == '마을 생성자 집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => CreatorHomeScreen(villageName: widget.villageName)));
     } else if (category == '캘린더') {
+      // 캘린더 화면에는 이미 villageId를 전달하고 있었습니다.
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => CalendarScreen(villageName: widget.villageName, villageId: _resolvedVillageId)));
     } 
     
@@ -123,13 +133,13 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
                   Text(widget.villageName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                   GestureDetector(
                     onTap: () {
-                       if (_currentUserRole?.isCreator != true) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('마을 생성자만 접근 가능')));
-                        return;
-                       }
-                       if (_resolvedVillageId != null) {
-                         Navigator.of(context).push(MaterialPageRoute(builder: (_) => VillageSettingsScreen(villageId: _resolvedVillageId!, villageName: widget.villageName)));
-                       }
+                        if (_currentUserRole?.isCreator != true) {
+                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('마을 생성자만 접근 가능')));
+                         return;
+                        }
+                        if (_resolvedVillageId != null) {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => VillageSettingsScreen(villageId: _resolvedVillageId!, villageName: widget.villageName)));
+                        }
                     },
                     child: Container(
                       width: 60, height: 47,

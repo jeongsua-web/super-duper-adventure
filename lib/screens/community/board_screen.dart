@@ -4,11 +4,13 @@ import 'post_create_screen.dart';
 import '../post_detail_screen.dart';
 
 class BoardScreen extends StatefulWidget {
-  final String villageName;
+  final String villageName; // 화면에 보여줄 마을 이름 (예: "행복마을")
+  final String villageId;   // [필수] 데이터베이스에서 사용할 마을 ID (예: "6qUP...")
 
   const BoardScreen({
     super.key,
     required this.villageName,
+    required this.villageId, // 이 부분이 추가되었습니다.
   });
 
   @override
@@ -20,7 +22,11 @@ class _BoardScreenState extends State<BoardScreen> {
   final List<String> _categories = ['전체', '일상', '게임', '취미', '퀴즈'];
 
   Stream<QuerySnapshot> _getPostStream() {
-    Query query = FirebaseFirestore.instance.collection('posts');
+    // [수정 1] 게시글을 불러올 때 'posts'가 아니라 'villages/{villageId}/posts'에서 가져옴
+    Query query = FirebaseFirestore.instance
+        .collection('villages')
+        .doc(widget.villageId) // 받아온 villageId 사용
+        .collection('posts');
 
     if (_selectedCategory != '전체') {
       query = query.where('category', isEqualTo: _selectedCategory);
@@ -37,16 +43,14 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // [핵심] 화면 전체를 Center로 감싸서 어떤 화면 크기든 중앙 정렬
     return Scaffold(
-      backgroundColor: Colors.white, // 배경색 (PC에서는 양옆 여백 색이 됨)
+      backgroundColor: Colors.white,
       body: Center(
         child: Container(
-          width: double.infinity, // 기본적으로 꽉 차게 하되
-          constraints: const BoxConstraints(maxWidth: 600), // 최대 600px까지만 늘어남 (반응형 핵심)
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 600),
           decoration: BoxDecoration(
-            color: Colors.white, // 콘텐츠 영역 배경
-            // (선택사항) PC에서 구분이 잘 가게 옅은 그림자 추가
+            color: Colors.white,
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.1),
@@ -58,14 +62,13 @@ class _BoardScreenState extends State<BoardScreen> {
           child: SafeArea(
             child: Column(
               children: [
-                // ---------------- [1. 헤더 (반응형)] ----------------
+                // ---------------- [1. 헤더] ----------------
                 Container(
                   width: double.infinity,
                   height: 200,
                   color: const Color(0xFFD9D9D9),
                   child: Stack(
                     children: [
-                      // 왼쪽 상단 로고 (항상 왼쪽 고정)
                       const Positioned(
                         left: 16,
                         top: 16,
@@ -79,11 +82,10 @@ class _BoardScreenState extends State<BoardScreen> {
                           ),
                         ),
                       ),
-                      // 중앙 타이틀 (항상 정가운데 고정)
                       const Center(
                         child: Text(
                           '마을 전경',
-                          textAlign: TextAlign.center, // 글자 자체도 가운데 정렬
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w400,
@@ -96,14 +98,13 @@ class _BoardScreenState extends State<BoardScreen> {
                   ),
                 ),
 
-                // ---------------- [2. 카테고리 (반응형)] ----------------
+                // ---------------- [2. 카테고리] ----------------
                 SizedBox(
                   width: double.infinity,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: Row(
-                      // Row는 기본적으로 왼쪽 정렬이지만, 스크롤뷰라서 자연스러움
                       children: [
                         for (final category in _categories)
                           Padding(
@@ -143,11 +144,10 @@ class _BoardScreenState extends State<BoardScreen> {
 
                 const SizedBox(height: 10),
 
-                // ---------------- [3. 검색창 (반응형)] ----------------
+                // ---------------- [3. 검색창] ----------------
                 Container(
                   height: 55,
                   color: const Color(0xFFD9D9D9).withOpacity(0.41),
-                  // Row + MainAxisAlignment.center 조합으로 무조건 가운데 정렬
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,7 +161,7 @@ class _BoardScreenState extends State<BoardScreen> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(width: 20), // 간격 유지
+                      const SizedBox(width: 20),
                       Container(
                         width: 40,
                         height: 40,
@@ -177,7 +177,7 @@ class _BoardScreenState extends State<BoardScreen> {
                   ),
                 ),
 
-                // ---------------- [4. 게시글 목록 (반응형)] ----------------
+                // ---------------- [4. 게시글 목록] ----------------
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream: _getPostStream(),
@@ -202,17 +202,15 @@ class _BoardScreenState extends State<BoardScreen> {
                         itemBuilder: (context, index) {
                           final data = docs[index].data() as Map<String, dynamic>;
                           String category = data['category'] ?? '기타';
-
-                          // [수정됨] Firestore에서 'commentCount' 필드를 가져옵니다.
-                          // 만약 필드가 없다면 0으로 처리합니다.
                           int commentCount = data['commentCount'] ?? 0;
 
                           return _PostCard(
                             postId: docs[index].id,
+                            // [수정 2] PostCard에도 villageId를 전달해야 상세화면으로 넘어갈 수 있음
+                            villageId: widget.villageId, 
                             title: data['title'] ?? '제목 없음',
                             author: '[$category] ${data['author'] ?? '익명'}',
                             time: _formatTimestamp(data['createdAt']),
-                            // [수정됨] 숫자를 문자열로 변환하여 전달
                             comments: commentCount.toString(),
                             hasImage: false,
                           );
@@ -227,20 +225,21 @@ class _BoardScreenState extends State<BoardScreen> {
         ),
       ),
 
-      // ---------------- [5. 글쓰기 버튼 (반응형)] ----------------
-      // 버튼 위치도 화면 중앙 컨테이너 기준으로 잡기 위해 별도 처리
+      // ---------------- [5. 글쓰기 버튼 (여기서 연결)] ----------------
       floatingActionButton: Center(
         child: Container(
-           // 화면 전체 너비 제한과 동일하게 맞춤
           constraints: const BoxConstraints(maxWidth: 600),
           padding: const EdgeInsets.only(bottom: 20, right: 20),
-          // Align을 써서 컨테이너 안에서 오른쪽 아래로 보냄
           alignment: Alignment.bottomRight,
           child: FloatingActionButton(
+            // [수정 3] 여기서 질문하신 코드가 들어갑니다!
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const PostCreateScreen(),
+                  builder: (context) => PostCreateScreen(
+                    // BoardScreen이 가지고 있는 villageId를 그대로 전달
+                    villageId: widget.villageId, 
+                  ),
                 ),
               );
             },
@@ -260,15 +259,15 @@ class _BoardScreenState extends State<BoardScreen> {
           ),
         ),
       ),
-      // 플로팅 버튼 위치를 커스텀하게 잡았으므로 기본 위치는 비활성화
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
 
-// --- _PostCard 위젯 (수정 없음) ---
+// --- _PostCard 위젯 ---
 class _PostCard extends StatelessWidget {
   final String postId;
+  final String villageId; // [수정 4] villageId 필드 추가
   final String title;
   final String author;
   final String time;
@@ -277,6 +276,7 @@ class _PostCard extends StatelessWidget {
 
   const _PostCard({
     required this.postId,
+    required this.villageId, // [수정 4] 생성자에서 받기
     required this.title,
     required this.author,
     required this.time,
@@ -291,7 +291,11 @@ class _PostCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PostDetailScreen(postId: postId),
+            // [수정 5] 상세화면으로 이동할 때도 villageId 전달
+            builder: (context) => PostDetailScreen(
+              postId: postId, 
+              villageId: villageId
+            ),
           ),
         );
       },
