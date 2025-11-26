@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../post_detail_screen.dart';
 import 'post_create_screen.dart';
 import '../village/village_view_screen.dart';
+import 'search_screen.dart';
+import '../main_home_screen.dart';
 
 class BoardListScreen extends StatefulWidget {
   final String category;
@@ -133,9 +135,7 @@ class _BoardListScreenState extends State<BoardListScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => VillageViewScreen(
-                                    villageName: widget.villageName,
-                                  ),
+                                  builder: (context) => const MainHomeScreen(),
                                 ),
                               );
                             },
@@ -190,10 +190,22 @@ class _BoardListScreenState extends State<BoardListScreen> {
                         // 오른쪽: 검색 아이콘
                         Align(
                           alignment: Alignment.centerRight,
-                          child: const Icon(
-                            Icons.search,
-                            color: Colors.white,
-                            size: 28,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SearchScreen(
+                                    villageName: widget.villageName,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Icon(
+                              Icons.search,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
                         ),
                       ],
@@ -361,7 +373,10 @@ class _BoardListScreenState extends State<BoardListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const PostCreateScreen()),
+            MaterialPageRoute(
+              builder: (context) =>
+                  PostCreateScreen(villageName: widget.villageName),
+            ),
           );
         },
         backgroundColor: const Color(0xFF4CDBFF),
