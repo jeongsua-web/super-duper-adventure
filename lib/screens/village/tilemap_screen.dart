@@ -39,6 +39,8 @@ class _TileMapScreenState extends State<TileMapScreen> {
   @override
   void initState() {
     super.initState();
+    gridWidth = 10;
+    gridHeight = 10;
     _transformationController = TransformationController();
     _loadTileMap();
   }
@@ -55,8 +57,8 @@ class _TileMapScreenState extends State<TileMapScreen> {
       if (widget.villageId == null || widget.villageId!.isEmpty) {
         setState(() {
           isLoading = false;
-          gridWidth = 50;
-          gridHeight = 50;
+          gridWidth = 10;
+          gridHeight = 10;
           objects = [];
         });
         return;
@@ -64,8 +66,8 @@ class _TileMapScreenState extends State<TileMapScreen> {
 
       // Firestore에서 타일맵 로드
       tileMapData = await _tileMapService.loadTileMap(widget.villageId!);
-      gridWidth = tileMapData['width'] ?? 50;
-      gridHeight = tileMapData['height'] ?? 50;
+      gridWidth = tileMapData['width'] ?? 10;
+      gridHeight = tileMapData['height'] ?? 10;
 
       // 현재 사용자의 집 추가 (첫 입장 시)
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -82,8 +84,8 @@ class _TileMapScreenState extends State<TileMapScreen> {
       print('타일맵 로드 에러: $e');
       setState(() {
         isLoading = false;
-        gridWidth = 50;
-        gridHeight = 50;
+        gridWidth = 10;
+        gridHeight = 10;
         objects = [];
       });
     }
