@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+// [기존 import 유지]
 import '../community/board_screen.dart';
 import 'creator_home_screen.dart';
 import '../community/calendar_screen.dart';
-import '../community/chat_screen.dart';
 import '../user/resident_profile_screen.dart';
 import 'village_settings_screen.dart';
 import '../../services/village_role_service.dart';
 import '../../models/village_member.dart';
 
-// [★필수] 채팅 목록 화면 import 추가
-import '../community/chat_list_screen.dart'; 
+// [수정] ChatListScreen은 지우고, ChatScreen만 남겨둡니다.
+import '../community/chat_screen.dart'; 
 
 class VillageViewScreen extends StatefulWidget {
   final String villageName;
@@ -76,30 +77,37 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
     if (category == '주민집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => ResidentProfileScreen(villageName: widget.villageName)));
     } else if (category == '게시판') {
-      // 🚨 [수정된 부분]: BoardScreen에 villageId를 전달합니다.
       if (_resolvedVillageId != null) {
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(
           villageName: widget.villageName,
-          villageId: _resolvedVillageId!, // 👈 이 부분이 추가되었습니다.
+          villageId: _resolvedVillageId!,
         )));
       } else {
-        // villageId를 찾지 못한 경우 (마을 이름 검색 실패 등)
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('마을 ID를 찾을 수 없습니다.')));
       }
     } else if (category == '마을 생성자 집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => CreatorHomeScreen(villageName: widget.villageName)));
     } else if (category == '캘린더') {
-      // 캘린더 화면에는 이미 villageId를 전달하고 있었습니다.
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => CalendarScreen(villageName: widget.villageName, villageId: _resolvedVillageId)));
     } 
     
     // -----------------------------------------------------------
-    // [★여기입니다] '채팅' 버튼 누르면 -> ChatListScreen(목록)으로 이동
+    // [★수정] '채팅' 버튼 클릭 시 마을 이름을 함께 전달
     // -----------------------------------------------------------
     else if (category == '채팅') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const ChatListScreen(), 
-      ));
+      if (_resolvedVillageId != null) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ChatScreen(
+            chatRoomId: _resolvedVillageId!, 
+            // ▼▼▼ 이 부분이 추가되었습니다! ▼▼▼
+            villageName: widget.villageName, 
+          ), 
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('마을 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.'))
+        );
+      }
     } 
     
     else {
@@ -165,7 +173,7 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
                     _VillageCell(label: '마을 생성자 집', fontSize: 16, onTap: () => _openCategory(context, '마을 생성자 집')),
                     _VillageCell(label: '', onTap: () {}),
                     
-                    // [★] 이 버튼을 누르면 위 _openCategory 함수가 실행됨
+                    // 채팅 버튼
                     _VillageCell(label: '채팅', onTap: () => _openCategory(context, '채팅')),
                     
                     _VillageCell(label: '게시판', onTap: () => _openCategory(context, '게시판')),
