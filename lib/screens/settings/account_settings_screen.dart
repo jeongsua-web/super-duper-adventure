@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../login_screen.dart';
+import 'package:get/get.dart';
+import '../../routes/app_routes.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({super.key});
@@ -9,10 +10,7 @@ class AccountSettingsScreen extends StatelessWidget {
     try {
       await FirebaseAuth.instance.signOut();
       if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
+        Get.offAllNamed(AppRoutes.login);
       }
     } catch (e) {
       if (context.mounted) {

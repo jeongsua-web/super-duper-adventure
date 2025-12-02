@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
 import 'firebase_options.dart';
+import 'routes/app_routes.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main_home_screen.dart';
 
@@ -19,13 +21,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: '우리 마을',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
         textTheme: GoogleFonts.gowunDodumTextTheme(),
       ),
+      getPages: AppPages.pages,
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
