@@ -192,6 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  // [confetti 패키지 제거됨 - 주석 처리]
   Path _drawHeart(Size size) {
     final path = Path();
     path.moveTo(0.5 * size.width, size.height * 0.35);
