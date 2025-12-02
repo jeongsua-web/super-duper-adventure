@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/services.dart';
-import 'dart:math';
+import 'package:image_picker/image_picker.dart'; 
 import 'dart:async';
+import 'dart:convert'; // Base64 변환용
+// [삭제] import 'dart:io'; <-- 웹에서는 이 라이브러리를 쓰면 안 됩니다!
 
 class ChatScreen extends StatefulWidget {
   final String chatRoomId;
@@ -26,11 +28,12 @@ class _ChatScreenState extends State<ChatScreen> {
   late ConfettiController _partyController;
   late ConfettiController _loveController;
 
-  String? _detectedKeyword; // 현재 감지된 키워드 (party or love)
-  Timer? _buttonTimer; // 버튼 유지 시간을 제어할 타이머
+  String? _detectedKeyword; 
+  Timer? _buttonTimer; 
 
   final String myId = FirebaseAuth.instance.currentUser?.uid ?? 'unknown';
   final String myNickname = FirebaseAuth.instance.currentUser?.displayName ?? '익명';
+  final ImagePicker _picker = ImagePicker(); 
 
   @override
   void initState() {
@@ -48,54 +51,42 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  // [수정] 버튼을 누르면 효과 실행 + 버튼 즉시 제거
   void _triggerEffect() {
     if (_detectedKeyword == 'party') {
       _partyController.play();
     } else if (_detectedKeyword == 'love') {
       _loveController.play();
     }
-    
-    // 타이머 취소 및 버튼 즉시 숨김
     _buttonTimer?.cancel();
     setState(() {
       _detectedKeyword = null;
     });
   }
 
-  void _sendMessage() async {
-    if (_controller.text.trim().isEmpty) return;
-    String msg = _controller.text;
+  // 메시지 전송
+  void _sendMessage({String? text, String? imageBase64}) async {
+    if ((text == null || text.trim().isEmpty) && imageBase64 == null) return;
+
+    String msg = text ?? (imageBase64 != null ? '사진을 보냈습니다.' : '');
     
-    // 메시지 전송 시 키워드 감지
-    String? newKeyword;
-    if (msg.contains('축하')) {
-      newKeyword = 'party';
-    } else if (msg.contains('사랑')) {
-      newKeyword = 'love';
-    }
+    if (text != null) {
+      _controller.clear(); 
+      String? newKeyword;
+      if (text.contains('축하')) {
+        newKeyword = 'party';
+      } else if (text.contains('사랑')) {
+        newKeyword = 'love';
+      }
 
-    _controller.clear();
-
-    if (newKeyword != null) {
-      _buttonTimer?.cancel(); // 기존 타이머 취소
-      
-      setState(() {
-        _detectedKeyword = newKeyword;
-      });
-
-      // [수정] 4초 뒤에 버튼을 숨김
-      _buttonTimer = Timer(const Duration(seconds: 4), () {
-        if (mounted) {
-          setState(() {
-            _detectedKeyword = null;
-          });
-        }
-      });
-    } else {
-      setState(() {
-        _detectedKeyword = null;
-      });
+      if (newKeyword != null) {
+        _buttonTimer?.cancel();
+        setState(() => _detectedKeyword = newKeyword);
+        _buttonTimer = Timer(const Duration(seconds: 4), () {
+          if (mounted) setState(() => _detectedKeyword = null);
+        });
+      } else {
+        setState(() => _detectedKeyword = null);
+      }
     }
 
     await FirebaseFirestore.instance
@@ -103,7 +94,8 @@ class _ChatScreenState extends State<ChatScreen> {
         .doc(widget.chatRoomId)
         .collection('messages')
         .add({
-      'text': msg,
+      'text': text, 
+      'imageBase64': imageBase64, 
       'senderId': myId,
       'nickname': myNickname,
       'createdAt': FieldValue.serverTimestamp(),
@@ -113,11 +105,91 @@ class _ChatScreenState extends State<ChatScreen> {
         .collection('chat_rooms')
         .doc(widget.chatRoomId)
         .set({
-      'lastMessage': msg,
+      'lastMessage': imageBase64 != null ? '사진' : msg, 
       'lastMessageTime': FieldValue.serverTimestamp(),
       'roomName': widget.villageName,
       'participants': FieldValue.arrayUnion([myId]),
     }, SetOptions(merge: true));
+  }
+
+  // [★수정됨] 웹/앱 모두 호환되는 이미지 처리 함수
+  Future<void> _pickAndConvertImage(ImageSource source) async {
+    try {
+      // 1. 이미지 선택 (용량 줄이기 설정 필수)
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 20, // 화질 20%
+        maxWidth: 500,    // 가로 500px 제한 (Firestore 용량 제한 때문)
+        maxHeight: 500,
+      );
+      
+      if (image == null) return;
+
+      // [핵심 변경] File(image.path) 대신 readAsBytes() 사용!
+      // 이렇게 하면 웹 브라우저에서도 문제 없이 데이터를 읽어옵니다.
+      final Uint8List imageBytes = await image.readAsBytes();
+      
+      // Base64 문자열로 변환
+      String base64String = base64Encode(imageBytes);
+
+      // 전송
+      _sendMessage(imageBase64: base64String);
+      
+    } catch (e) {
+      print('이미지 처리 오류: $e');
+      if(mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('사진 전송 중 오류가 발생했습니다.')));
+      }
+    }
+  }
+
+  void _showAttachmentSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height: 150,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _AttachmentOption(
+                    icon: Icons.photo_library,
+                    label: '앨범',
+                    color: Colors.pinkAccent,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickAndConvertImage(ImageSource.gallery);
+                    },
+                  ),
+                  _AttachmentOption(
+                    icon: Icons.camera_alt,
+                    label: '카메라',
+                    color: Colors.blueAccent,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickAndConvertImage(ImageSource.camera);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Path _drawHeart(Size size) {
@@ -145,17 +217,14 @@ class _ChatScreenState extends State<ChatScreen> {
         scrolledUnderElevation: 0,
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFE5E5E5), width: 1),
-        ),
+        shape: const Border(bottom: BorderSide(color: Color(0xFFE5E5E5), width: 1)),
         centerTitle: true,
         leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context)),
         title: Text(
           widget.villageName,
-          style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
         ),
         actions: [
           IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {}),
@@ -183,13 +252,12 @@ class _ChatScreenState extends State<ChatScreen> {
                         .orderBy('createdAt', descending: true)
                         .snapshots(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasError) return Center(child: Text("오류"));
+                      if (snapshot.hasError) return const Center(child: Text("오류"));
                       if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
                       final docs = snapshot.data!.docs;
                       if (docs.isEmpty) {
-                        return const Center(
-                            child: Text("첫 메시지를 남겨보세요!", style: TextStyle(color: Colors.black54)));
+                        return const Center(child: Text("첫 메시지를 남겨보세요!", style: TextStyle(color: Colors.black54)));
                       }
 
                       return ListView.builder(
@@ -199,7 +267,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemBuilder: (context, index) {
                           final data = docs[index].data() as Map<String, dynamic>;
                           return _Bubble(
-                            message: data['text'] ?? '',
+                            message: data['text'], 
+                            imageBase64: data['imageBase64'], 
                             isMe: data['senderId'] == myId,
                             nickname: data['nickname'] ?? '익명',
                             timestamp: data['createdAt'] as Timestamp?,
@@ -210,7 +279,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
 
-                // [버튼 표시 영역] 전송 후 키워드가 감지되면 나타남
                 if (_detectedKeyword != null)
                   GestureDetector(
                     onTap: _triggerEffect,
@@ -221,35 +289,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          )
+                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))
                         ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            _detectedKeyword == 'party' ? '🎉' : '🩷',
-                            style: const TextStyle(fontSize: 18),
-                          ),
+                          Text(_detectedKeyword == 'party' ? '🎉' : '🩷', style: const TextStyle(fontSize: 18)),
                           const SizedBox(width: 8),
                           Text(
                             _detectedKeyword == 'party' ? '축하 폭죽 터트리기' : '하트 날리기',
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
+                            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                // 입력창 영역
                 SafeArea(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -259,7 +315,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.add_circle_outline, color: mainBlue, size: 28),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline, color: mainBlue, size: 28),
+                          onPressed: _showAttachmentSheet, 
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Container(
@@ -278,14 +339,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                 hintStyle: TextStyle(color: Colors.black38),
                                 contentPadding: EdgeInsets.only(bottom: 8),
                               ),
-                              onSubmitted: (_) => _sendMessage(),
+                              onSubmitted: (text) => _sendMessage(text: text),
                             ),
                           ),
                         ),
                         const SizedBox(width: 4),
                         IconButton(
                           icon: const Icon(Icons.send, color: mainBlue),
-                          onPressed: _sendMessage,
+                          onPressed: () => _sendMessage(text: _controller.text),
                         ),
                       ],
                     ),
@@ -293,8 +354,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ],
             ),
-            
-            // 축하 폭죽 (위 -> 아래)
             Align(
               alignment: Alignment.topCenter,
               child: ConfettiWidget(
@@ -305,24 +364,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 gravity: 0.3,
               ),
             ),
-
-            // 하트 효과 (아래 -> 위)
             Align(
               alignment: Alignment.bottomCenter,
               child: ConfettiWidget(
                 confettiController: _loveController,
                 blastDirectionality: BlastDirectionality.explosive,
                 shouldLoop: false,
-                createParticlePath: _drawHeart, 
-                colors: const [
-                  Color(0xFFFFC0CB), 
-                  Color(0xFFFF69B4), 
-                  Color(0xFFFF1493), 
-                  Colors.redAccent,
-                ],
-                gravity: 0.05, // 천천히 떨어지게 설정
+                createParticlePath: _drawHeart,
+                colors: const [Color(0xFFFFC0CB), Color(0xFFFF69B4), Color(0xFFFF1493), Colors.redAccent],
+                gravity: 0.05,
                 emissionFrequency: 0.05,
-                numberOfParticles: 20, 
+                numberOfParticles: 20,
               ),
             ),
           ],
@@ -332,14 +384,47 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+class _AttachmentOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AttachmentOption({required this.icon, required this.label, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 30),
+          ),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+}
+
 class _Bubble extends StatelessWidget {
-  final String message;
+  final String? message; 
+  final String? imageBase64; 
   final bool isMe;
   final String nickname;
   final Timestamp? timestamp;
 
   const _Bubble({
-    required this.message,
+    this.message,
+    this.imageBase64,
     required this.isMe,
     required this.nickname,
     this.timestamp,
@@ -357,6 +442,44 @@ class _Bubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final timeString = _formatTime(timestamp);
 
+    Widget bubbleContent;
+    if (imageBase64 != null) {
+      try {
+        bubbleContent = Container(
+          constraints: const BoxConstraints(maxWidth: 200, maxHeight: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.memory(
+              base64Decode(imageBase64!), 
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(child: Icon(Icons.broken_image, color: Colors.grey));
+              },
+            ),
+          ),
+        );
+      } catch (e) {
+        bubbleContent = const Text("이미지 로딩 실패");
+      }
+    } else {
+      bubbleContent = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isMe ? const Color(0xFFC4ECF6) : Colors.white,
+          border: Border.all(width: 1.5, color: isMe ? Colors.white : Colors.transparent),
+          borderRadius: BorderRadius.circular(18).copyWith(
+            bottomRight: isMe ? const Radius.circular(0) : const Radius.circular(18),
+            topLeft: isMe ? const Radius.circular(18) : const Radius.circular(0),
+          ),
+        ),
+        child: Text(message ?? '', style: const TextStyle(fontSize: 15)),
+      );
+    }
+
     if (isMe) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12, left: 50),
@@ -366,17 +489,7 @@ class _Bubble extends StatelessWidget {
           children: [
             Text(timeString, style: const TextStyle(fontSize: 10, color: Colors.black54)),
             const SizedBox(width: 4),
-            Flexible(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFC4ECF6),
-                  border: Border.all(width: 1.5, color: Colors.white),
-                  borderRadius: BorderRadius.circular(18).copyWith(bottomRight: const Radius.circular(0)),
-                ),
-                child: Text(message, style: const TextStyle(fontSize: 15)),
-              ),
-            ),
+            Flexible(child: bubbleContent),
           ],
         ),
       );
@@ -401,16 +514,7 @@ class _Bubble extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Flexible(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18).copyWith(topLeft: const Radius.circular(0)),
-                          ),
-                          child: Text(message, style: const TextStyle(fontSize: 15)),
-                        ),
-                      ),
+                      Flexible(child: bubbleContent),
                       const SizedBox(width: 4),
                       Text(timeString, style: const TextStyle(fontSize: 10, color: Colors.black54)),
                     ],

@@ -19,8 +19,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   PageController? _pageController;
   int _currentIndex = 0;
 
-  // [★수정] 가로 폭을 더 줄여서(0.65 -> 0.60) 카드를 더 날씬하게 만듦
-  final double _viewportFraction = 0.60; 
+  final double _viewportFraction = 0.55; 
 
   @override
   void dispose() {
@@ -87,7 +86,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    // [★수정] '주민' 대신 실제 닉네임 가져오기 (없으면 이메일 앞부분이라도)
     final String userName = user?.displayName ?? user?.email?.split('@')[0] ?? '주민';
 
     return Scaffold(
@@ -100,10 +98,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 if (!userSnapshot.hasData) return const Center(child: CircularProgressIndicator());
 
                 final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
-                
-                // [★추가] 실시간으로 업데이트된 닉네임 반영
                 final String realTimeName = userData?['displayName'] ?? userName;
-                
                 List<dynamic> villageIds = userData?['villages'] ?? [];
 
                 if (villageIds.isEmpty) return _buildEmptyState(realTimeName);
@@ -151,12 +146,12 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                                               ),
                                             ),
                                             TextSpan(
-                                              text: '$realTimeName님!', // [★수정] 닉네임 부분
+                                              text: '$realTimeName님!',
                                               style: const TextStyle(
                                                 color: Colors.black, 
                                                 fontSize: 17, 
                                                 fontFamily: 'Gowun Dodum', 
-                                                fontWeight: FontWeight.w600, // 이름만 살짝 강조
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                           ],
@@ -174,7 +169,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                                         ),
                                         _CustomTopButton(
                                           label: '우편함', 
-                                          iconData: Icons.mark_as_unread_sharp, // 우편함 느낌 아이콘
+                                          iconData: Icons.mark_as_unread_sharp, 
                                           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MailboxScreen()))
                                         ),
                                       ],
@@ -198,7 +193,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                               
                               const SizedBox(height: 20),
 
-                              // 3. 슬라이드 (PageView)
+                              // 3. 슬라이드 (PageView) - 카드 영역
                               Expanded(
                                 child: ScrollConfiguration(
                                   behavior: ScrollConfiguration.of(context).copyWith(
@@ -210,7 +205,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                                   child: LayoutBuilder(
                                     builder: (context, constraints) {
                                       return SizedBox(
-                                        height: 380, 
+                                        height: 340, 
                                         child: PageView.builder(
                                           controller: _pageController,
                                           itemCount: villages.length > 1 ? null : 1, 
@@ -246,42 +241,104 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 110), 
+                              // [★수정] 하단 공간을 더 늘려서 버튼과 겹치지 않게 함 (110 -> 160)
+                              const SizedBox(height: 160), 
                             ],
                           ),
 
-                          // ---------------- [4. 하단 바] ----------------
+                          // ---------------- [4. 하단 바 디자인] ----------------
                           Positioned(
                             left: 0, right: 0, bottom: 0,
                             child: SizedBox(
-                              height: 130,
+                              // [★수정] 높이를 130 -> 160으로 늘려서 버튼이 잘리지 않게 함
+                              height: 160, 
                               child: Stack(
+                                // [★수정] overflow 허용 (버튼이 튀어나와도 안 잘림)
+                                clipBehavior: Clip.none, 
                                 alignment: Alignment.bottomCenter,
                                 children: [
+                                  // 하단 바 배경
                                   Container(
-                                    height: 80, 
+                                    height: 90, 
                                     width: double.infinity,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFFD9D9D9), 
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(40), topRight: Radius.circular(40)),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [Color(0xFFC4ECF6), Color(0xFFB3E5FC)], 
+                                      ),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(40),
+                                        topRight: Radius.circular(40),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 10,
+                                          offset: Offset(0, -2),
+                                        )
+                                      ]
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.home_filled, size: 40, color: Colors.white),
+                                            onPressed: () {
+                                              if (_pageController != null) {
+                                                int initialPage = (10000 ~/ villages.length) * villages.length;
+                                                _pageController!.animateToPage(
+                                                  initialPage,
+                                                  duration: const Duration(milliseconds: 800),
+                                                  curve: Curves.elasticOut,
+                                                );
+                                              }
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.person, size: 40, color: Colors.white),
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(builder: (_) => const AccountSettingsScreen())
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
+                                  
+                                  // MY마을 버튼 (공중부양)
                                   Positioned(
                                     bottom: 35, 
                                     child: GestureDetector(
                                       onTap: () {
                                         if (_pageController != null && villages.isNotEmpty) {
-                                          int currentPage = _pageController!.page!.round();
-                                          int targetPage = (currentPage ~/ villages.length) * villages.length;
-                                          _pageController!.animateToPage(
-                                            targetPage, 
-                                            duration: const Duration(milliseconds: 600), 
-                                            curve: Curves.easeInOutCubic,
-                                          );
+                                          Map<String, dynamic>? myVillage;
+                                          try {
+                                            myVillage = villages.firstWhere((v) => v['creatorId'] == user.uid);
+                                          } catch (_) {}
+
+                                          if (myVillage != null) {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) => VillageViewScreen(
+                                                  villageName: myVillage!['name'],
+                                                  villageId: myVillage!['id'],
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('생성한 마을이 없습니다!')),
+                                            );
+                                          }
                                         }
                                       },
                                       child: Container(
-                                        width: 90, height: 90,
+                                        width: 100, height: 100,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           gradient: const LinearGradient(
@@ -295,7 +352,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                                         child: const Center(
                                           child: Text(
                                             'MY마을',
-                                            style: TextStyle(color: Colors.black, fontSize: 16, fontFamily: 'Gowun Dodum', fontWeight: FontWeight.w600),
+                                            style: TextStyle(color: Colors.black, fontSize: 16, fontFamily: 'Gowun Dodum', fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                       ),
@@ -345,9 +402,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   }
 }
 
-// ---------------- [위젯 분리] ----------------
-
-// [★수정] 아이콘 디자인 변경 (테두리 없이 색상만 적용)
 class _CustomTopButton extends StatelessWidget {
   final String label;
   final IconData iconData;
@@ -365,13 +419,9 @@ class _CustomTopButton extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          // 아이콘 (테두리 없음, 하늘색)
           Container(
             width: 50, height: 40,
-            decoration: BoxDecoration(
-              // 피그마처럼 은은한 하늘색 배경이 필요하면 color를 0xFFC4ECF6로, 아니면 아이콘 색만 변경
-              // 여기서는 피그마 이미지처럼 아이콘 자체를 하늘색으로 표현
-            ),
+            decoration: const BoxDecoration(),
             child: Icon(iconData, size: 36, color: const Color(0xFFC4ECF6)), 
           ),
           const SizedBox(height: 2),
@@ -407,8 +457,7 @@ class _VillageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 세로 길이는 유지하고, 가로 폭은 viewportFraction(0.6)에 의해 좁아보임
-    final double height = isCenter ? 380 : 340;
+    final double height = isCenter ? 300 : 270;
     final Color bgColor = const Color(0xFFC4ECF6); 
 
     return Center(
@@ -418,7 +467,6 @@ class _VillageCard extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
           height: height,
-          // 마진을 줄여서 카드 사이 간격 조절
           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: bgColor, 
