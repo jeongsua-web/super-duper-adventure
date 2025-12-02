@@ -97,7 +97,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
           : StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
               builder: (context, userSnapshot) {
-                // 데이터 로딩 중이어도 기본 UI는 보여주기 위해 변수 미리 선언
                 String realTimeName = defaultName;
                 List<dynamic> villageIds = [];
                 bool isUserLoading = !userSnapshot.hasData;
@@ -112,12 +111,11 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                   bottom: false,
                   child: Stack(
                     children: [
-                      // ---------------- [메인 컨텐츠 영역] ----------------
                       Column(
                         children: [
                           const SizedBox(height: 10),
                           
-                          // 1. 상단바 (항상 보임)
+                          // 1. 상단바
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24.0),
                             child: Column(
@@ -161,22 +159,37 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
 
                           const SizedBox(height: 30),
 
-                          // 2. 안내 문구 (항상 보임)
-                          const Text(
-                            '어느 마을로 이동할까요?',
-                            style: TextStyle(color: Colors.black, fontSize: 20, fontFamily: 'Gowun Dodum', fontWeight: FontWeight.w400),
+                          // ---------------- [2. 안내 문구 꾸미기] ----------------
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '어느 마을로 이동할까요? 🏡', // 이모지 추가
+                                style: TextStyle(
+                                  color: Colors.black87, 
+                                  fontSize: 22, // 크기 키움
+                                  fontFamily: 'Gowun Dodum', 
+                                  fontWeight: FontWeight.bold, // 굵게
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      offset: const Offset(1, 1),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                           
                           const SizedBox(height: 20),
 
-                          // 3. 중앙 영역 (마을 유무에 따라 다름)
+                          // 3. 중앙 영역
                           Expanded(
                             child: isUserLoading
                                 ? const Center(child: CircularProgressIndicator())
                                 : villageIds.isEmpty
-                                    // [★수정] 마을이 없을 때: 빈 상태 카드 표시 (전체 화면 안 바뀜)
                                     ? _buildNoVillageCard()
-                                    // 마을이 있을 때: 슬라이드 표시
                                     : FutureBuilder<List<Map<String, dynamic>>>(
                                         future: _fetchAllVillages(villageIds, user.uid),
                                         builder: (context, villageSnapshot) {
@@ -242,7 +255,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         ],
                       ),
 
-                      // ---------------- [4. 하단 바 (항상 보임)] ----------------
+                      // 4. 하단 바
                       Positioned(
                         left: 0, right: 0, bottom: 0,
                         child: SizedBox(
@@ -270,7 +283,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                                       IconButton(
                                         icon: const Icon(Icons.home_filled, size: 40, color: Colors.white),
                                         onPressed: () {
-                                          // 마을이 있을 때만 동작
                                           if (_pageController != null && villageIds.isNotEmpty) {
                                             int initialPage = (10000 ~/ villageIds.length) * villageIds.length;
                                             _pageController!.animateToPage(initialPage, duration: const Duration(milliseconds: 800), curve: Curves.elasticOut);
@@ -292,14 +304,10 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                                 bottom: 35, 
                                 child: GestureDetector(
                                   onTap: () async {
-                                    // [★수정] 마을이 없으면 생성 페이지로, 있으면 내 마을로
                                     if (villageIds.isEmpty) {
                                       _navigateToCreateVillage();
                                     } else {
-                                      // 기존 로직: 내 마을 찾아가기
                                       if (_pageController != null) {
-                                        // 여기서는 데이터 로딩이 완료된 시점이므로 정확히 가져오려면 villages 리스트가 필요함.
-                                        // 간단하게 홈으로 돌리거나 알림을 띄웁니다. (StreamBuilder 구조상 villages 변수 접근이 까다로움)
                                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('생성한 마을이 없습니다!')));
                                       }
                                     }
@@ -332,14 +340,14 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     );
   }
 
-  // [★추가] 마을이 없을 때 가운데에 보여줄 카드 위젯
+  // [★수정] 마을이 없을 때 보여주는 카드 디자인 변경
   Widget _buildNoVillageCard() {
     return Center(
       child: Container(
         height: 300,
         width: 250,
         decoration: BoxDecoration(
-          color: const Color(0xFFE6E6E6), // 회색 배경으로 차분하게
+          color: const Color(0xFFC4ECF6), // [수정] 배경색 하늘색으로 변경
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
@@ -348,20 +356,22 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.add_home_work_outlined, size: 70, color: Colors.grey),
+            // 아이콘을 흰색으로 변경해서 하늘색 배경과 어울리게 함
+            const Icon(Icons.add_home_work_outlined, size: 70, color: Colors.white), 
             const SizedBox(height: 20),
             const Text(
               '가입된 마을이 없습니다',
-              style: TextStyle(fontSize: 16, fontFamily: 'Gowun Dodum', color: Colors.black54),
+              style: TextStyle(fontSize: 16, fontFamily: 'Gowun Dodum', color: Colors.black87, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: _navigateToCreateVillage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFC4ECF6),
-                foregroundColor: Colors.black,
+                backgroundColor: Colors.white, // [수정] 버튼 배경을 흰색으로
+                foregroundColor: Colors.black, // 버튼 글씨는 검정
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0, // 깔끔하게 그림자 제거
               ),
               child: const Text('새 마을 만들기', style: TextStyle(fontSize: 16, fontFamily: 'Gowun Dodum', fontWeight: FontWeight.bold)),
             ),
