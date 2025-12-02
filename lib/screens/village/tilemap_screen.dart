@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../models/tile_object.dart';
+import '../../services/tilemap_service.dart';
 
 class TileMapScreen extends StatefulWidget {
   final String villageName;
@@ -19,21 +22,25 @@ class _TileMapScreenState extends State<TileMapScreen> {
   // 타일 크기 (픽셀)
   static const int TILE_SIZE = 50;
   
-  // 그리드 크기 (타일 개수)
-  static const int GRID_WIDTH = 11;
-  static const int GRID_HEIGHT = 10;
-  
-  // 타일 데이터 (0 = 빈 타일, 1 = 건물, 2 = 집)
-  late List<List<int>> tileGrid;
+  // 타일맵 데이터
+  late Map<String, dynamic> tileMapData;
+  late List<TileObject> objects;
   
   // 확대/축소 컨트롤러
   late TransformationController _transformationController;
+  
+  // 서비스
+  final TileMapService _tileMapService = TileMapService();
+  
+  late int gridWidth;
+  late int gridHeight;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _transformationController = TransformationController();
-    _initializeTileGrid();
+    _loadTileMap();
   }
 
   @override
@@ -42,61 +49,77 @@ class _TileMapScreenState extends State<TileMapScreen> {
     super.dispose();
   }
 
-  void _initializeTileGrid() {
-    // 기본 빈 타일맵 생성
-    tileGrid = List.generate(
-      GRID_HEIGHT,
-      (row) => List.generate(GRID_WIDTH, (col) => 0),
-    );
-    
-    // 기본 건물 배치 (5,4), (5,6), (7,4), (7,6)
-    tileGrid[5][4] = 1;
-    tileGrid[5][6] = 1;
-    tileGrid[7][4] = 1;
-    tileGrid[7][6] = 1;
-  }
-
-  void _onTileTap(int row, int col) {
-    setState(() {
-      if (tileGrid[row][col] == 0) {
-        // 빈 타일에 집 배치
-        tileGrid[row][col] = 2;
-      } else if (tileGrid[row][col] == 2) {
-        // 집 제거
-        tileGrid[row][col] = 0;
+  // 타일맵 로드
+  Future<void> _loadTileMap() async {
+    try {
+      if (widget.villageId == null || widget.villageId!.isEmpty) {
+        setState(() {
+          isLoading = false;
+          gridWidth = 50;
+          gridHeight = 50;
+          objects = [];
+        });
+        return;
       }
-      // 건물은 클릭해도 변경 불가
-    });
-  }
 
-  Color _getTileColor(int tileType) {
-    switch (tileType) {
-      case 0: // 빈 타일
-        return Colors.transparent;
-      case 1: // 건물
-        return const Color(0xFFFF6B6B);
-      case 2: // 집
-        return const Color(0xFFFFB347);
-      default:
-        return Colors.transparent;
+      // Firestore에서 타일맵 로드
+      tileMapData = await _tileMapService.loadTileMap(widget.villageId!);
+      gridWidth = tileMapData['width'] ?? 50;
+      gridHeight = tileMapData['height'] ?? 50;
+
+      // 현재 사용자의 집 추가 (첫 입장 시)
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        await _tileMapService.addUserHouse(widget.villageId!, currentUser.uid);
+        // 업데이트된 데이터 다시 로드
+        tileMapData = await _tileMapService.loadTileMap(widget.villageId!);
+      }
+
+      objects = _tileMapService.getTileObjects(tileMapData);
+
+      setState(() => isLoading = false);
+    } catch (e) {
+      print('타일맵 로드 에러: $e');
+      setState(() {
+        isLoading = false;
+        gridWidth = 50;
+        gridHeight = 50;
+        objects = [];
+      });
     }
   }
 
-  String _getTileLabel(int tileType) {
-    switch (tileType) {
-      case 0:
-        return '';
-      case 1:
-        return '🏢';
-      case 2:
-        return '🏠';
-      default:
-        return '';
+  // 객체 클릭 시
+  void _onObjectTap(TileObject obj) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${obj.getLabel()} (${obj.x}, ${obj.y})')),
+    );
+    // TODO: 객체별로 다른 화면으로 이동 로직 추가
+  }
+
+  // 타일 클릭 시
+  void _onTileTap(int row, int col) {
+    // 클릭 위치에 객체가 있는지 확인
+    for (final obj in objects) {
+      if (obj.x == col && obj.y == row) {
+        _onObjectTap(obj);
+        return;
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('${widget.villageName} - 타일맵'),
+          backgroundColor: const Color(0xFF4DDBFF),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -117,23 +140,19 @@ class _TileMapScreenState extends State<TileMapScreen> {
                     const Icon(Icons.grid_on, color: Colors.blue),
                     const SizedBox(height: 4),
                     Text(
-                      '그리드: ${GRID_WIDTH}x${GRID_HEIGHT}',
+                      '그리드: ${gridWidth}x${gridHeight}',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
                 Column(
                   children: [
-                    const Icon(Icons.square, color: Color(0xFFFF6B6B)),
-                    const SizedBox(height: 4),
-                    const Text('건물 4개', style: TextStyle(fontSize: 12)),
-                  ],
-                ),
-                Column(
-                  children: [
                     const Icon(Icons.home, color: Color(0xFFFFB347)),
                     const SizedBox(height: 4),
-                    const Text('집 배치 가능', style: TextStyle(fontSize: 12)),
+                    Text(
+                      '객체: ${objects.length}개',
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   ],
                 ),
               ],
@@ -142,68 +161,84 @@ class _TileMapScreenState extends State<TileMapScreen> {
           // 타일맵
           Expanded(
             child: Container(
-              color: const Color(0xFF4DDBFF),
-              child: Stack(
-                children: [
-                  // 배경 이미지
-                  Positioned.fill(
-                    child: SvgPicture.asset(
-                      'assets/images/backgrand.svg',
-                      fit: BoxFit.cover,
+              color: const Color(0xFFF5F5F5),
+              child: InteractiveViewer(
+                transformationController: _transformationController,
+                boundaryMargin: const EdgeInsets.all(100),
+                minScale: 0.5,
+                maxScale: 3.0,
+                constrained: false,
+                child: Stack(
+                  children: [
+                    // 배경 이미지
+                    Positioned(
+                      width: gridWidth * TILE_SIZE.toDouble(),
+                      height: gridHeight * TILE_SIZE.toDouble(),
+                      child: SvgPicture.asset(
+                        'assets/images/backgrand.svg',
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  // 타일맵
-                  InteractiveViewer(
-                    transformationController: _transformationController,
-                    boundaryMargin: const EdgeInsets.all(100),
-                    minScale: 0.5,
-                    maxScale: 3.0,
-                    constrained: false,
-                    child: Container(
-                      width: GRID_WIDTH * TILE_SIZE.toDouble(),
-                      height: GRID_HEIGHT * TILE_SIZE.toDouble(),
+                    // 타일맵 컨테이너
+                    Container(
+                      width: gridWidth * TILE_SIZE.toDouble(),
+                      height: gridHeight * TILE_SIZE.toDouble(),
                       color: Colors.transparent,
                       child: Stack(
                         children: [
                           // 그리드 라인
                           CustomPaint(
                             painter: GridPainter(
-                              gridWidth: GRID_WIDTH,
-                              gridHeight: GRID_HEIGHT,
+                              gridWidth: gridWidth,
+                              gridHeight: gridHeight,
                               tileSize: TILE_SIZE,
                             ),
                             size: Size(
-                              GRID_WIDTH * TILE_SIZE.toDouble(),
-                              GRID_HEIGHT * TILE_SIZE.toDouble(),
+                              gridWidth * TILE_SIZE.toDouble(),
+                              gridHeight * TILE_SIZE.toDouble(),
                             ),
                           ),
-                          // 타일들
+                          // 타일들 (클릭 감지용)
                           ...List.generate(
-                            GRID_HEIGHT,
+                            gridHeight,
                             (row) => Positioned(
                               top: row * TILE_SIZE.toDouble(),
                               left: 0,
                               child: Row(
                                 children: List.generate(
-                                  GRID_WIDTH,
+                                  gridWidth,
                                   (col) => GestureDetector(
                                     onTap: () => _onTileTap(row, col),
                                     child: Container(
                                       width: TILE_SIZE.toDouble(),
                                       height: TILE_SIZE.toDouble(),
-                                      decoration: BoxDecoration(
-                                        color: _getTileColor(tileGrid[row][col]),
-                                        border: Border.all(
-                                          color: const Color(0xFFAAFA52),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          _getTileLabel(tileGrid[row][col]),
-                                          style: const TextStyle(fontSize: 24),
-                                        ),
-                                      ),
+                                      color: Colors.transparent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // 객체 표시
+                          ...objects.map(
+                            (obj) => Positioned(
+                              left: obj.x * TILE_SIZE.toDouble(),
+                              top: obj.y * TILE_SIZE.toDouble(),
+                              child: GestureDetector(
+                                onTap: () => _onObjectTap(obj),
+                                child: Container(
+                                  width: TILE_SIZE.toDouble(),
+                                  height: TILE_SIZE.toDouble(),
+                                  decoration: BoxDecoration(
+                                    color: obj.type == ObjectType.system
+                                        ? Colors.blue.withOpacity(0.7)
+                                        : Colors.orange.withOpacity(0.7),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      obj.type == ObjectType.system ? '📌' : '🏠',
+                                      style: const TextStyle(fontSize: 24),
                                     ),
                                   ),
                                 ),
@@ -213,8 +248,8 @@ class _TileMapScreenState extends State<TileMapScreen> {
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -238,7 +273,7 @@ class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFAAFA52).withOpacity(0.5)
+      ..color = const Color(0xFFAAFA52).withOpacity(0.3)
       ..strokeWidth = 0.5;
 
     // 수평선

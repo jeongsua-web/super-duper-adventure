@@ -10,11 +10,13 @@ import '../main_home_screen.dart';
 class BoardListScreen extends StatefulWidget {
   final String category;
   final String villageName;
+  final String villageId;
 
   const BoardListScreen({
     super.key,
     required this.category,
     required this.villageName,
+    required this.villageId,
   });
 
   @override

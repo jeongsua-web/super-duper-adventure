@@ -5,8 +5,13 @@ import '../main_home_screen.dart';
 
 class QuizScreen extends StatelessWidget {
   final String villageName;
+  final String villageId;
 
-  const QuizScreen({super.key, required this.villageName});
+  const QuizScreen({
+    super.key,
+    required this.villageName,
+    required this.villageId,
+  });
 
   @override
   Widget build(BuildContext context) {

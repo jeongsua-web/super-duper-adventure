@@ -7,8 +7,13 @@ import '../village/village_view_screen.dart';
 
 class BoardScreen extends StatefulWidget {
   final String villageName;
+  final String villageId;
 
-  const BoardScreen({super.key, required this.villageName});
+  const BoardScreen({
+    super.key,
+    required this.villageName,
+    required this.villageId,
+  });
 
   @override
   State<BoardScreen> createState() => _BoardScreenState();
@@ -229,6 +234,7 @@ class _BoardScreenState extends State<BoardScreen> {
                       builder: (context) => BoardListScreen(
                         category: '전체',
                         villageName: widget.villageName,
+                        villageId: widget.villageId,
                       ),
                     ),
                   );
@@ -256,6 +262,7 @@ class _BoardScreenState extends State<BoardScreen> {
                       builder: (context) => BoardListScreen(
                         category: '일상',
                         villageName: widget.villageName,
+                        villageId: widget.villageId,
                       ),
                     ),
                   );
@@ -283,6 +290,7 @@ class _BoardScreenState extends State<BoardScreen> {
                       builder: (context) => BoardListScreen(
                         category: '게임',
                         villageName: widget.villageName,
+                        villageId: widget.villageId,
                       ),
                     ),
                   );
@@ -310,6 +318,7 @@ class _BoardScreenState extends State<BoardScreen> {
                       builder: (context) => BoardListScreen(
                         category: '취미',
                         villageName: widget.villageName,
+                        villageId: widget.villageId,
                       ),
                     ),
                   );
@@ -335,7 +344,10 @@ class _BoardScreenState extends State<BoardScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          QuizScreen(villageName: widget.villageName),
+                          QuizScreen(
+                            villageName: widget.villageName,
+                            villageId: widget.villageId,
+                          ),
                     ),
                   );
                 },

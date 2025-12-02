@@ -41,8 +41,9 @@ class AppPages {
     GetPage(
       name: AppRoutes.village,
       page: () {
-        final villageName = Get.arguments['villageName'] ?? '';
-        final villageId = Get.arguments['villageId'] ?? '';
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageName = args['villageName'] as String? ?? '마을';
+        final villageId = args['villageId'] as String? ?? '';
         return VillageViewScreen(
           villageName: villageName,
           villageId: villageId,
@@ -53,8 +54,9 @@ class AppPages {
     GetPage(
       name: AppRoutes.board,
       page: () {
-        final villageName = Get.arguments['villageName'] ?? '';
-        final villageId = Get.arguments['villageId'] ?? '';
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageName = args['villageName'] as String? ?? '마을';
+        final villageId = args['villageId'] as String? ?? '';
         return BoardScreen(
           villageName: villageName,
           villageId: villageId,
@@ -65,9 +67,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.boardList,
       page: () {
-        final category = Get.arguments['category'] ?? '전체';
-        final villageName = Get.arguments['villageName'] ?? '';
-        final villageId = Get.arguments['villageId'] ?? '';
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final category = args['category'] as String? ?? '전체';
+        final villageName = args['villageName'] as String? ?? '마을';
+        final villageId = args['villageId'] as String? ?? '';
         return BoardListScreen(
           category: category,
           villageName: villageName,
@@ -79,8 +82,9 @@ class AppPages {
     GetPage(
       name: AppRoutes.quiz,
       page: () {
-        final villageName = Get.arguments['villageName'] ?? '';
-        final villageId = Get.arguments['villageId'] ?? '';
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageName = args['villageName'] as String? ?? '마을';
+        final villageId = args['villageId'] as String? ?? '';
         return QuizScreen(
           villageName: villageName,
           villageId: villageId,
