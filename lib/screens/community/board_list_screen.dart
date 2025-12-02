@@ -367,6 +367,7 @@ class _BoardListScreenState extends State<BoardListScreen> {
                       comments: commentCount.toString(),
                       hasImage: data['imageUrl'] != null,
                       imageUrl: data['imageUrl'] as String?,
+                      villageId: widget.villageId,
                     );
                   },
                 );
@@ -404,6 +405,7 @@ class _PostCard extends StatelessWidget {
   final String comments;
   final bool hasImage;
   final String? imageUrl;
+  final String villageId;
 
   const _PostCard({
     required this.postId,
@@ -413,6 +415,7 @@ class _PostCard extends StatelessWidget {
     required this.comments,
     this.hasImage = false,
     this.imageUrl,
+    required this.villageId,
   });
 
   @override
@@ -422,7 +425,7 @@ class _PostCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PostDetailScreen(postId: postId),
+            builder: (context) => PostDetailScreen(postId: postId, villageId: villageId),
           ),
         );
       },
