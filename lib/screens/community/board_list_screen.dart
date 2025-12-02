@@ -10,11 +10,13 @@ import '../main_home_screen.dart';
 class BoardListScreen extends StatefulWidget {
   final String category;
   final String villageName;
+  final String villageId;
 
   const BoardListScreen({
     super.key,
     required this.category,
     required this.villageName,
+    required this.villageId,
   });
 
   @override
@@ -32,7 +34,10 @@ class _BoardListScreenState extends State<BoardListScreen> {
   }
 
   Stream<QuerySnapshot> _getPostStream() {
-    Query query = FirebaseFirestore.instance.collection('posts');
+    Query query = FirebaseFirestore.instance
+        .collection('villages')
+        .doc(widget.villageId)
+        .collection('posts');
 
     if (_selectedCategory != '전체') {
       query = query.where('category', isEqualTo: _selectedCategory);
@@ -374,8 +379,10 @@ class _BoardListScreenState extends State<BoardListScreen> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) =>
-                  PostCreateScreen(villageName: widget.villageName),
+              builder: (context) => PostCreateScreen(
+                villageName: widget.villageName,
+                villageId: widget.villageId,
+              ),
             ),
           );
         },

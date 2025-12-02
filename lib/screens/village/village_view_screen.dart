@@ -77,7 +77,7 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
     if (category == '주민집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => ResidentProfileScreen(villageName: widget.villageName)));
     } else if (category == '게시판') {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(villageName: widget.villageName)));
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(villageName: widget.villageName, villageId: _resolvedVillageId ?? '')));
     } else if (category == '마을 생성자 집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => CreatorHomeScreen(villageName: widget.villageName)));
     } else if (category == '캘린더') {

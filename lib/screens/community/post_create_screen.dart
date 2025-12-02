@@ -7,8 +7,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 class PostCreateScreen extends StatefulWidget {
   final String villageName;
+  final String villageId;
 
-  const PostCreateScreen({super.key, required this.villageName});
+  const PostCreateScreen({
+    super.key,
+    required this.villageName,
+    required this.villageId,
+  });
 
   @override
   State<PostCreateScreen> createState() => _PostCreateScreenState();
@@ -60,7 +65,11 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
         imageUrl = await storageRef.getDownloadURL();
       }
 
-      await FirebaseFirestore.instance.collection('posts').add({
+      await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(widget.villageId)
+          .collection('posts')
+          .add({
         'title': _titleController.text,
         'content': _contentController.text,
         'category': _selectedCategory,
