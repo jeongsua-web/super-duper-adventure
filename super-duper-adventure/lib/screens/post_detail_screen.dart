@@ -4,10 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PostDetailScreen extends StatefulWidget {
   final String postId;
 
-  const PostDetailScreen({
-    super.key,
-    required this.postId,
-  });
+  const PostDetailScreen({super.key, required this.postId});
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -26,10 +23,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         .doc(widget.postId)
         .collection('comments')
         .add({
-      'content': _commentController.text,
-      'author': '익명', // 나중에 로그인한 사용자 이름으로 교체
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+          'content': _commentController.text,
+          'author': '익명', // 나중에 로그인한 사용자 이름으로 교체
+          'createdAt': FieldValue.serverTimestamp(),
+        });
 
     // ---------------------------------------------------------
     // [★ 핵심 수정] 게시글의 'comments' 숫자 필드를 +1 해줍니다.
@@ -38,9 +35,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         .collection('posts')
         .doc(widget.postId)
         .update({
-      // 'comments'는 아까 파이어베이스에 만들어둔 필드 이름과 똑같아야 합니다.
-      'comments': FieldValue.increment(1), 
-    });
+          // 'comments'는 아까 파이어베이스에 만들어둔 필드 이름과 똑같아야 합니다.
+          'comments': FieldValue.increment(1),
+        });
 
     // 입력창 비우기 및 키보드 내리기
     _commentController.clear();
@@ -87,9 +84,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             .get(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
                           }
-                          final data = snapshot.data!.data() as Map<String, dynamic>?;
+                          final data =
+                              snapshot.data!.data() as Map<String, dynamic>?;
                           if (data == null) return const Text("삭제된 글입니다.");
 
                           return Column(
@@ -108,19 +108,28 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 children: [
                                   const CircleAvatar(
                                     backgroundColor: Color(0xFFD9D9D9),
-                                    child: Icon(Icons.person, color: Colors.grey),
+                                    child: Icon(
+                                      Icons.person,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                   const SizedBox(width: 10),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         data['author'] ?? '익명',
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                       Text(
                                         _formatTimestamp(data['createdAt']),
-                                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -129,7 +138,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               const Divider(height: 40, thickness: 1),
                               Text(
                                 data['content'] ?? '',
-                                style: const TextStyle(fontSize: 16, height: 1.5),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  height: 1.5,
+                                ),
                               ),
                             ],
                           );
@@ -141,7 +153,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       // [2] 댓글 목록 (StreamBuilder로 실시간 감시)
                       const Text(
                         '댓글',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                       const SizedBox(height: 10),
 
@@ -168,11 +183,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           // 댓글 리스트 뿌리기
                           return ListView.builder(
                             shrinkWrap: true, // 스크롤뷰 안에 리스트뷰 넣을 때 필수
-                            physics: const NeverScrollableScrollPhysics(), // 스크롤 막기 (부모 스크롤 사용)
+                            physics:
+                                const NeverScrollableScrollPhysics(), // 스크롤 막기 (부모 스크롤 사용)
                             itemCount: comments.length,
                             itemBuilder: (context, index) {
                               final commentData =
-                                  comments[index].data() as Map<String, dynamic>;
+                                  comments[index].data()
+                                      as Map<String, dynamic>;
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 10),
                                 padding: const EdgeInsets.all(10),
@@ -184,16 +201,24 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           commentData['author'] ?? '익명',
                                           style: const TextStyle(
-                                              fontWeight: FontWeight.bold, fontSize: 13),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
                                         ),
                                         Text(
-                                          _formatTimestamp(commentData['createdAt']),
-                                          style: const TextStyle(color: Colors.grey, fontSize: 11),
+                                          _formatTimestamp(
+                                            commentData['createdAt'],
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 11,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -213,7 +238,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
               // --- [3] 댓글 입력창 (하단 고정) ---
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border(top: BorderSide(color: Colors.grey[300]!)),

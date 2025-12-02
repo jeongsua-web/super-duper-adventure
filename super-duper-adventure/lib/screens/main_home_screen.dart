@@ -33,7 +33,12 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
+      print('===== 마을 로드 시작 =====');
+      print('현재 사용자: ${user?.uid}');
+      print('이메일: ${user?.email}');
+      
       if (user == null) {
+        print('오류: 로그인하지 않았습니다');
         setState(() {
           _isLoading = false;
         });
@@ -45,12 +50,21 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
           .collection('users')
           .doc(user.uid)
           .get();
-
+      
+      print('사용자 문서 존재: ${userDoc.exists}');
+      if (userDoc.exists) {
+        print('사용자 데이터: ${userDoc.data()}');
+        print('Villages 필드: ${userDoc.data()?['villages']}');
+      }
+      
       if (userDoc.exists && userDoc.data()?['villages'] != null) {
         final villagesData = userDoc.data()!['villages'];
+        print('마을 데이터 타입: ${villagesData.runtimeType}');
         final villageIds = (villagesData is List) 
             ? villagesData.map((e) => e.toString()).toList()
             : <String>[];
+        
+        print('마을 ID 목록: $villageIds');
         
         // Fetch village details
         List<Map<String, dynamic>> loadedVillages = [];
@@ -60,23 +74,26 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               .doc(villageId)
               .get();
           
+          print('마을 $villageId 존재: ${villageDoc.exists}');
+          
           if (villageDoc.exists && villageDoc.data() != null) {
             final villageData = {
               'id': villageId,
               'name': villageDoc.data()!['name'] ?? '이름 없음',
               'description': villageDoc.data()!['description'] ?? '',
             };
-            print('마을 로드됨: $villageData');
+            print('로드된 마을: $villageData');
             loadedVillages.add(villageData);
           }
         }
 
-        print('전체 마을 목록: $loadedVillages');
+        print('총 로드된 마을 수: ${loadedVillages.length}');
         setState(() {
           villages = loadedVillages;
           _isLoading = false;
         });
       } else {
+        print('오류: villages 배열이 없거나 null입니다');
         setState(() {
           villages = [];
           _isLoading = false;
@@ -112,228 +129,202 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // 파일명 표시 (테스트용)
-          Container(
-            color: Colors.yellow.withOpacity(0.3),
-            padding: const EdgeInsets.all(4),
-            child: const Text(
-              'main_home_screen.dart',
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          // Top menu bar with two buttons
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                _MenuButton(label: '메뉴', onTap: () {}),
-                GestureDetector(
-                  onTap: () async {
-                    final result = await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const MailboxScreen(),
-                      ),
-                    );
-                    // 초대를 수락했으면 마을 목록 새로고침
-                    if (result == true) {
-                      _loadUserVillages();
-                    }
-                  },
-                  child: Container(
-                    width: 63,
-                    height: 58,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFD9D9D9),
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.mail_outline,
-                        size: 32,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Expanded center area with village cards carousel or empty state
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : villages.isEmpty
-                    ? _buildEmptyState()
-                    : LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Center(
-                            child: SizedBox(
-                              height: 350,
-                              width: constraints.maxWidth,
-                              child: PageView.builder(
-                                controller: _pageController,
-                                onPageChanged: (index) {
-                                  setState(() {
-                                    _currentIndex = index;
-                                  });
-                                },
-                                itemCount: villages.length,
-                                itemBuilder: (context, index) {
-                                  final villageData = villages[index];
-                                  print('카드 생성 - index: $index, id: ${villageData['id']}, name: ${villageData['name']}');
-                                  return Center(
-                                    child: _VillageCard(
-                                      title: villageData['name'],
-                                      villageId: villageData['id'],
-                                      isCenter: index == _currentIndex,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-          ),
-
-          // Bottom navigation bar with circle button
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color(0xFFD9D9D9),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              children: [
-                // Circle button (Go to my village)
-                GestureDetector(
-                  onTap: () {
-                    // Handle "내 마을로 가기" tap
-                  },
-                  child: Container(
-                    width: 101,
-                    height: 100,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFBCBCBC),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        '내 마을로\n가기',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontFamily: 'Inter',
-                          letterSpacing: 0.01,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Tab labels
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 42),
+                // Top menu bar with two buttons
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        '마을 목록',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.01,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
+                      _MenuButton(label: '메뉴', onTap: () {}),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
+                        onTap: () async {
+                          final result = await Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const AccountSettingsScreen(),
+                              builder: (_) => const MailboxScreen(),
                             ),
                           );
+                          if (result == true) {
+                            _loadUserVillages();
+                          }
                         },
-                        child: const Text(
-                          '내 계정',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 0.01,
-                          ),
+                        child: const Icon(
+                          Icons.mail_outline,
+                          size: 32,
+                          color: Color(0xFFC4ECF6),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
+
+                // Expanded center area with village cards carousel
+                Expanded(
+                  child: Center(
+                    child: villages.isEmpty
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_city_outlined,
+                                size: 60,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                '아직 가입한 마을이\n없습니다',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'Gowun Dodum',
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                              ElevatedButton(
+                                onPressed: _navigateToCreateVillage,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFC4ECF6),
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  '새 마을 만들기',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Gowun Dodum',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : SizedBox(
+                            height: 350,
+                            child: PageView.builder(
+                              controller: _pageController,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              },
+                              itemCount: villages.length,
+                              itemBuilder: (context, index) {
+                                final villageData = villages[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                                  child: _VillageCard(
+                                    title: villageData['name'],
+                                    villageId: villageData['id'],
+                                    isCenter: index == _currentIndex,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                  ),
+                ),
+
+                // Bottom navigation bar with circle button
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFD9D9D9),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Column(
+                    children: [
+                      // Circle button (Go to my village)
+                      if (villages.isNotEmpty)
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => VillageViewScreen(
+                                  villageName: villages[_currentIndex]['name'],
+                                  villageId: villages[_currentIndex]['id'],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 101,
+                            height: 100,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFFBCBCBC),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                '내 마을로\n가기',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontFamily: 'Inter',
+                                  letterSpacing: 0.01,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      // Tab labels
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 42),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              '마을 목록',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.01,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const AccountSettingsScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                '내 계정',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0.01,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.location_city_outlined,
-            size: 80,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            '아직 가입한 마을이 없습니다',
-            style: TextStyle(
-              fontSize: 18,
-              fontFamily: 'Gowun Dodum',
-              fontWeight: FontWeight.w400,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: _navigateToCreateVillage,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFC4ECF6),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              elevation: 2,
-            ),
-            child: const Text(
-              '새 마을 만들기',
-              style: TextStyle(
-                fontSize: 16,
-                fontFamily: 'Gowun Dodum',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -351,10 +342,6 @@ class _MenuButton extends StatelessWidget {
       child: Container(
         width: 63,
         height: 58,
-        constraints: const BoxConstraints(
-          minWidth: 63,
-          minHeight: 58,
-        ),
         decoration: const BoxDecoration(
           color: Color(0xFFD9D9D9),
           borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -389,31 +376,24 @@ class _VillageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = isCenter ? 300.0 : 255.0;
-    final cardHeight = isCenter ? 350.0 : 297.0;
-    
-    return Center(
-      child: GestureDetector(
-        onTap: isCenter
-            ? () {
-                print('카드 클릭 - villageId: $villageId, title: $title');
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => VillageViewScreen(
-                      villageName: title,
-                      villageId: villageId,
-                    ),
+    return GestureDetector(
+      onTap: isCenter
+          ? () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => VillageViewScreen(
+                    villageName: title,
+                    villageId: villageId,
                   ),
-                );
-              }
-            : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          width: cardWidth,
-          height: cardHeight,
+                ),
+              );
+            }
+          : null,
+      child: Transform.scale(
+        scale: isCenter ? 1.0 : 0.85,
+        child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFD9D9D9),
+            color: isCenter ? const Color(0xFFD9D9D9) : const Color(0xFFD9D9D9),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -442,20 +422,14 @@ class _VillageCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Inter',
-                    letterSpacing: 0.01,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Inter',
+                  letterSpacing: 0.01,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
                 ),
               ),
             ],

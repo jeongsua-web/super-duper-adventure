@@ -1,16 +1,8 @@
-# my_app
-
-A new Flutter project.
+# 마이마을
+플러터 프로젝트
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### firebase console
+https://console.firebase.google.com/project/my-maeul-373c4/overview
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

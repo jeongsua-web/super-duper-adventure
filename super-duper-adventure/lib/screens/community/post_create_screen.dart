@@ -1,14 +1,19 @@
-import 'dart:io'; // 파일을 다루기 위해 추가
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart'; // 이미지 피커 추가
-import 'package:firebase_storage/firebase_storage.dart'; // 스토리지 추가
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PostCreateScreen extends StatefulWidget {
   final String villageName;
+  final String villageId;
 
-  const PostCreateScreen({super.key, required this.villageName});
+  const PostCreateScreen({
+    super.key,
+    required this.villageName,
+    required this.villageId,
+  });
 
   @override
   State<PostCreateScreen> createState() => _PostCreateScreenState();
@@ -22,12 +27,10 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
   String _selectedCategory = '일상';
   final List<String> _categories = ['일상', '게임', '취미'];
 
-  // [추가] 이미지와 공지사항 여부 변수
   File? _selectedImage;
   bool _isNotice = false;
   final ImagePicker _picker = ImagePicker();
 
-  // [추가] 이미지 선택 함수
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -39,10 +42,8 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
     }
   }
 
-  // [수정] 저장 함수 (이미지 업로드 기능 포함)
   Future<void> _savePost() async {
     if (_titleController.text.isEmpty) {
-      // ... (기존 유효성 검사) ...
       return;
     }
 
@@ -53,37 +54,34 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
     try {
       String? imageUrl;
 
-      // 1. 이미지가 선택되었다면 Storage에 업로드
       if (_selectedImage != null) {
-        // 파일 이름 고유하게 만들기
         String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
         Reference storageRef = FirebaseStorage.instance
             .ref()
             .child('post_images')
             .child(fileName);
 
-        // 파일 업로드
         await storageRef.putFile(_selectedImage!);
-
-        // 업로드된 URL 가져오기
         imageUrl = await storageRef.getDownloadURL();
       }
 
-      // 2. Firestore에 데이터 저장 (imageUrl 포함)
-      await FirebaseFirestore.instance.collection('posts').add({
+      await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(widget.villageId)
+          .collection('posts')
+          .add({
         'title': _titleController.text,
         'content': _contentController.text,
         'category': _selectedCategory,
-        'author': '익명', // TODO: 로그인 기능 후 수정
+        'author': '익명',
         'createdAt': FieldValue.serverTimestamp(),
-        'isNotice': _isNotice, // [추가] 공지 여부
-        'imageUrl': imageUrl, // [추가] 이미지 URL (없으면 null)
+        'isNotice': _isNotice,
+        'imageUrl': imageUrl,
       });
 
       if (mounted) Navigator.pop(context);
     } catch (e) {
       print('저장 실패: $e');
-      // ... (에러 처리) ...
     } finally {
       if (mounted)
         setState(() {

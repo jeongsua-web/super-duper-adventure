@@ -6,15 +6,18 @@ import 'post_create_screen.dart';
 import '../village/village_view_screen.dart';
 import 'search_screen.dart';
 import '../main_home_screen.dart';
+import 'quiz_screen.dart';
 
 class BoardListScreen extends StatefulWidget {
   final String category;
   final String villageName;
+  final String villageId;
 
   const BoardListScreen({
     super.key,
     required this.category,
     required this.villageName,
+    required this.villageId,
   });
 
   @override
@@ -24,6 +27,7 @@ class BoardListScreen extends StatefulWidget {
 class _BoardListScreenState extends State<BoardListScreen> {
   String _selectedCategory = '전체';
   final List<String> _categories = ['전체', '일상', '게임', '취미', '퀴즈'];
+  bool _showDrawer = false;
 
   @override
   void initState() {
@@ -32,7 +36,10 @@ class _BoardListScreenState extends State<BoardListScreen> {
   }
 
   Stream<QuerySnapshot> _getPostStream() {
-    Query query = FirebaseFirestore.instance.collection('posts');
+    Query query = FirebaseFirestore.instance
+        .collection('villages')
+        .doc(widget.villageId)
+        .collection('posts');
 
     if (_selectedCategory != '전체') {
       query = query.where('category', isEqualTo: _selectedCategory);
@@ -49,11 +56,127 @@ class _BoardListScreenState extends State<BoardListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Stack(
+      children: [_buildCategoryView(), if (_showDrawer) _buildDrawerView()],
+    );
+  }
+
+  Widget _buildDrawerView() {
+    return Stack(
+      children: [
+        // 배경 (반투명)
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _showDrawer = false;
+            });
+          },
+          child: Container(color: Colors.black.withOpacity(0.3)),
+        ),
+        // 드로어
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: 200,
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                // 드로어 헤더
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  color: const Color(0xFFC4ECF6),
+                  height: 151,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.notifications,
+                            size: 24,
+                            color: Colors.black,
+                          ),
+                          Text(
+                            '편집',
+                            style: GoogleFonts.gowunDodum(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // 카테고리 목록
+                Expanded(
+                  child: ListView(
+                    children: _categories.map((category) {
+                      return GestureDetector(
+                        onTap: () {
+                          if (category == '퀴즈') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => QuizScreen(
+                                  villageName: widget.villageName,
+                                  villageId: widget.villageId,
+                                ),
+                              ),
+                            );
+                          } else {
+                            setState(() {
+                              _selectedCategory = category;
+                              _showDrawer = false;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(color: Colors.grey[200]!),
+                            ),
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              category,
+                              style: GoogleFonts.gowunDodum(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryView() {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // 상단 그라디언트 헤더
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -228,9 +351,21 @@ class _BoardListScreenState extends State<BoardListScreen> {
                     final isSelected = category == _selectedCategory;
                     return GestureDetector(
                       onTap: () {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
+                        if (category == '퀴즈') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => QuizScreen(
+                                villageName: widget.villageName,
+                                villageId: widget.villageId,
+                              ),
+                            ),
+                          );
+                        } else {
+                          setState(() {
+                            _selectedCategory = category;
+                          });
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -264,7 +399,11 @@ class _BoardListScreenState extends State<BoardListScreen> {
                   }).toList()..add(
                     // 메뉴 아이콘
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        setState(() {
+                          _showDrawer = !_showDrawer;
+                        });
+                      },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         child: Icon(Icons.menu, color: Colors.white, size: 24),
@@ -374,8 +513,10 @@ class _BoardListScreenState extends State<BoardListScreen> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) =>
-                  PostCreateScreen(villageName: widget.villageName),
+              builder: (context) => PostCreateScreen(
+                villageName: widget.villageName,
+                villageId: widget.villageId,
+              ),
             ),
           );
         },

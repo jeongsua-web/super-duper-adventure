@@ -10,7 +10,9 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   void _open(BuildContext context, Widget page) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => page),
+    );
   }
 
   @override
@@ -28,16 +30,9 @@ class HomeScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '우리 마을',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
+                      Text('우리 마을', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text(
-                        '오늘의 소식과 기능을 확인하세요',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      Text('오늘의 소식과 기능을 확인하세요', style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
                   const Spacer(),
@@ -57,9 +52,7 @@ class HomeScreen extends StatelessWidget {
               // Search bar
               Card(
                 elevation: 1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Row(
@@ -77,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                       IconButton(
                         onPressed: () {},
                         icon: const Icon(Icons.filter_list),
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -86,12 +79,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 18),
 
               // Horizontal village cards
-              Text(
-                '주요 지역',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
+              Text('주요 지역', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               SizedBox(
                 height: 120,
@@ -108,12 +96,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 18),
 
               // Feature grid
-              Text(
-                '바로가기',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
+              Text('바로가기', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Expanded(
                 child: GridView.count(
@@ -125,26 +108,23 @@ class HomeScreen extends StatelessWidget {
                     _FeatureCard(
                       icon: Icons.forum_outlined,
                       label: '게시판',
-                      onTap: () => _open(
-                        context,
-                        const BoardScreen(villageName: '우리 마을'),
-                      ),
+                      onTap: () => _open(context, const BoardScreen(
+                        villageName: '우리 마을',
+                        villageId: 'default_village',
+                      )),
                     ),
                     _FeatureCard(
                       icon: Icons.quiz_outlined,
                       label: '퀴즈',
-                      onTap: () => _open(
-                        context,
-                        const QuizScreen(villageName: '우리 마을'),
-                      ),
+                      onTap: () => _open(context, const QuizScreen(
+                        villageName: '우리 마을',
+                        villageId: 'default_village',
+                      )),
                     ),
                     _FeatureCard(
                       icon: Icons.calendar_today_outlined,
                       label: '일정',
-                      onTap: () => _open(
-                        context,
-                        const CalendarScreen(villageName: '우리 마을'),
-                      ),
+                      onTap: () => _open(context, const CalendarScreen(villageName: '우리 마을')),
                     ),
                     _FeatureCard(
                       icon: Icons.person_outline,
@@ -171,11 +151,7 @@ class _FeatureCard extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _FeatureCard({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _FeatureCard({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -197,12 +173,7 @@ class _FeatureCard extends StatelessWidget {
                 child: Icon(icon, color: Colors.blue),
               ),
               const Spacer(),
-              Text(
-                label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-              ),
+              Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
             ],
           ),
         ),

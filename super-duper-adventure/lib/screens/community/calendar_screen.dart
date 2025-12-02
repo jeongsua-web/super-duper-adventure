@@ -119,15 +119,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _addEvent() async {
-    if (_resolvedVillageId == null) return;
-    if (_eventController.text.trim().isEmpty) return;
-    if (_selectedDay == null) return;
+    print('===== 일정 추가 시작 =====');
+    print('VillageId: $_resolvedVillageId');
+    print('EventTitle: ${_eventController.text}');
+    print('SelectedDay: $_selectedDay');
+    
+    if (_resolvedVillageId == null) {
+      print('오류: villageId가 null입니다');
+      return;
+    }
+    if (_eventController.text.trim().isEmpty) {
+      print('오류: 일정 제목이 비어있습니다');
+      return;
+    }
+    if (_selectedDay == null) {
+      print('오류: 선택된 날짜가 없습니다');
+      return;
+    }
 
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    print('현재 사용자: ${user?.uid}');
+    if (user == null) {
+      print('오류: 로그인하지 않았습니다');
+      return;
+    }
 
     try {
       final normalizedDate = DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day);
+      
+      print('저장할 데이터:');
+      print('  - title: ${_eventController.text.trim()}');
+      print('  - date: $normalizedDate');
+      print('  - creatorId: ${user.uid}');
+      print('  - creatorName: ${user.displayName ?? user.email ?? "익명"}');
       
       await FirebaseFirestore.instance
           .collection('villages')
@@ -138,9 +162,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
         'date': Timestamp.fromDate(normalizedDate),
         'creatorId': user.uid,
         'creatorName': user.displayName ?? user.email ?? '익명',
-        'createdAt': FieldValue.serverTimestamp(),
+        'createdAt': Timestamp.now(),
       });
 
+      print('일정 추가 성공!');
       _eventController.clear();
       await _loadEvents();
       
@@ -150,10 +175,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
         );
       }
     } catch (e) {
-      print('일정 추가 오류: $e');
+      print('===== 일정 추가 오류 =====');
+      print('오류: $e');
+      print('========================');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('일정 추가에 실패했습니다')),
+          SnackBar(content: Text('일정 추가 실패: $e')),
         );
       }
     }
