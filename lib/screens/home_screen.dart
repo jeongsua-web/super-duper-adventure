@@ -108,18 +108,12 @@ class HomeScreen extends StatelessWidget {
                     _FeatureCard(
                       icon: Icons.forum_outlined,
                       label: '게시판',
-                      onTap: () => _open(context, const BoardScreen(
-                        villageName: '우리 마을',
-                        villageId: 'default_village',
-                      )),
+                      onTap: () => _open(context, const BoardScreen(villageName: '우리 마을', villageId: '')),
                     ),
                     _FeatureCard(
                       icon: Icons.quiz_outlined,
                       label: '퀴즈',
-                      onTap: () => _open(context, const QuizScreen(
-                        villageName: '우리 마을',
-                        villageId: 'default_village',
-                      )),
+                      onTap: () => _open(context, const QuizScreen(villageName: '우리 마을', villageId: '')),
                     ),
                     _FeatureCard(
                       icon: Icons.calendar_today_outlined,

@@ -6,8 +6,8 @@ import '../main_home_screen.dart';
 import '../village/village_view_screen.dart';
 
 class BoardScreen extends StatefulWidget {
-  final String villageName; // 화면에 보여줄 마을 이름
-  final String villageId;   // [필수] 데이터베이스에서 사용할 마을 ID
+  final String villageName;
+  final String villageId;
 
   const BoardScreen({
     super.key,
@@ -343,10 +343,11 @@ class _BoardScreenState extends State<BoardScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => QuizScreen(
-                        villageName: widget.villageName,
-                        villageId: widget.villageId,
-                      ),
+                      builder: (context) =>
+                          QuizScreen(
+                            villageName: widget.villageName,
+                            villageId: widget.villageId,
+                          ),
                     ),
                   );
                 },
