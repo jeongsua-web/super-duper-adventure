@@ -15,7 +15,22 @@ class TileMapService {
           .get();
 
       if (doc.exists) {
-        return doc.data() ?? _createDefaultTileMap();
+        final data = doc.data() ?? _createDefaultTileMap();
+        
+        // 기존 50x50 데이터를 10x10으로 초기화
+        if ((data['width'] ?? 0) == 50 || (data['height'] ?? 0) == 50) {
+          print('기존 50x50 타일맵을 10x10으로 초기화합니다');
+          final defaultMap = _createDefaultTileMap();
+          await _db
+              .collection('villages')
+              .doc(villageId)
+              .collection('settings')
+              .doc('tilemap')
+              .set(defaultMap);
+          return defaultMap;
+        }
+        
+        return data;
       }
       return _createDefaultTileMap();
     } catch (e) {
