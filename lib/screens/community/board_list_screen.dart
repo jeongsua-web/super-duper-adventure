@@ -374,7 +374,8 @@ class _BoardListScreenState extends State<BoardListScreen> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const PostCreateScreen(),
+              builder: (context) =>
+                  PostCreateScreen(villageName: widget.villageName),
             ),
           );
         },

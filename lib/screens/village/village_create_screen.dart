@@ -43,6 +43,27 @@ class _VillageCreateScreenState extends State<VillageCreateScreen> {
         throw Exception('로그인이 필요합니다');
       }
 
+      // 사용자가 이미 생성한 마을이 있는지 확인
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists && userDoc.data()?['villages'] != null) {
+        final villages = userDoc.data()!['villages'];
+        if (villages is List && villages.isNotEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('한 사람당 하나의 마을만 생성할 수 있습니다')),
+            );
+          }
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
       final roleService = VillageRoleService();
 
       // Create village in Firestore

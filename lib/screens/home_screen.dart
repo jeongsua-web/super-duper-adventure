@@ -113,7 +113,7 @@ class HomeScreen extends StatelessWidget {
                     _FeatureCard(
                       icon: Icons.quiz_outlined,
                       label: '퀴즈',
-                      onTap: () => _open(context, const QuizScreen()),
+                      onTap: () => _open(context, const QuizScreen(villageName: '우리 마을')),
                     ),
                     _FeatureCard(
                       icon: Icons.calendar_today_outlined,

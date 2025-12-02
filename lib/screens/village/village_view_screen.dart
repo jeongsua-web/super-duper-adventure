@@ -3,13 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../community/board_screen.dart';
 import 'creator_home_screen.dart';
 import '../community/calendar_screen.dart';
+
 import '../user/resident_profile_screen.dart';
 import 'village_settings_screen.dart';
 import '../../services/village_role_service.dart';
 import '../../models/village_member.dart';
 
 // [★필수] 채팅 목록 화면 import 추가
-import '../community/chat_list_screen.dart'; 
+import '../community/chat_list_screen.dart';
+import 'tilemap_screen.dart'; 
 
 class VillageViewScreen extends StatefulWidget {
   final String villageName;
@@ -120,21 +122,38 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
                     ),
                   ),
                   Text(widget.villageName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                  GestureDetector(
-                    onTap: () {
-                       if (_currentUserRole?.isCreator != true) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('마을 생성자만 접근 가능')));
-                        return;
-                       }
-                       if (_resolvedVillageId != null) {
-                         Navigator.of(context).push(MaterialPageRoute(builder: (_) => VillageSettingsScreen(villageId: _resolvedVillageId!, villageName: widget.villageName)));
-                       }
-                    },
-                    child: Container(
-                      width: 60, height: 47,
-                      decoration: BoxDecoration(color: const Color(0xFFD9D9D9), border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(4)),
-                      child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 32))),
-                    ),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (_resolvedVillageId != null) {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => TileMapScreen(villageName: widget.villageName, villageId: _resolvedVillageId)));
+                          }
+                        },
+                        child: Container(
+                          width: 47, height: 47,
+                          decoration: BoxDecoration(color: const Color(0xFFD9D9D9), border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(4)),
+                          child: const Center(child: Text('🗺️', style: TextStyle(fontSize: 28))),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                           if (_currentUserRole?.isCreator != true) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('마을 생성자만 접근 가능')));
+                            return;
+                           }
+                           if (_resolvedVillageId != null) {
+                             Navigator.of(context).push(MaterialPageRoute(builder: (_) => VillageSettingsScreen(villageId: _resolvedVillageId!, villageName: widget.villageName)));
+                           }
+                        },
+                        child: Container(
+                          width: 47, height: 47,
+                          decoration: BoxDecoration(color: const Color(0xFFD9D9D9), border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(4)),
+                          child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 28))),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

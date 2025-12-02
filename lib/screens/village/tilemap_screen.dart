@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class TileMapScreen extends StatefulWidget {
   final String villageName;
@@ -146,11 +147,9 @@ class _TileMapScreenState extends State<TileMapScreen> {
                 children: [
                   // 배경 이미지
                   Positioned.fill(
-                    child: Container(
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Text('배경 이미지'),
-                      ),
+                    child: SvgPicture.asset(
+                      'assets/images/backgrand.svg',
+                      fit: BoxFit.cover,
                     ),
                   ),
                   // 타일맵
