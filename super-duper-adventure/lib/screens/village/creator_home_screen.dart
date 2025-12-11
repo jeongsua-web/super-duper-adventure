@@ -1,198 +1,321 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../community/quiz_screen.dart';
 
 class CreatorHomeScreen extends StatelessWidget {
   final String villageName;
 
-  const CreatorHomeScreen({
-    super.key,
-    required this.villageName,
-  });
+  const CreatorHomeScreen({super.key, required this.villageName});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            // Main container with rounded background
-            Positioned(
-              left: 9,
-              top: 125,
-              child: Container(
-                width: 374,
-                height: 750,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F3F3),
-                  borderRadius: BorderRadius.circular(43),
-                ),
-              ),
-            ),
-
-            // Back button (top left)
-            Positioned(
-              left: 16,
-              top: 12,
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 63,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '뒤로가기',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Profile circle (top center)
-            Positioned(
-              left: 126,
-              top: 44,
-              child: Container(
-                width: 142,
-                height: 142,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFD9D9D9),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.person,
-                    size: 60,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-            ),
-
-            // Profile title
-            Positioned(
-              left: 141,
-              top: 105,
-              child: Text(
-                '프로필',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 40,
-                  height: 0.45,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Name button/box
-            Positioned(
-              left: 88,
-              top: 169,
-              child: Container(
-                width: 215,
-                height: 53,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFC5C5),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: const Center(
-                  child: Text(
-                    '이름',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 40,
-                      height: 0.45,
-                      letterSpacing: 0.01,
+            // 상단 바
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Icon(
+                      Icons.arrow_back,
                       color: Colors.black,
+                      size: 28,
                     ),
                   ),
-                ),
+                  const Spacer(),
+                ],
               ),
             ),
-
-            // First info box - 전체 주민 친밀도 순위
-            Positioned(
-              left: 23,
-              top: 239,
-              child: GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('전체 주민 친밀도 순위')),
-                  );
-                },
-                child: Container(
-                  width: 346,
-                  height: 244,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '전체 주민\n친밀도 순위',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 34,
-                        height: 1.176,
-                        letterSpacing: 0.01,
-                        color: Colors.black,
+            // 프로필 영역
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    // 별과 함께 프로필 원형 이미지
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.white, width: 4),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // 파란색 카드 영역
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB3E5FC),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        children: [
+                          // 이름과 하트
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4CDBFF),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '❤️지쑤킴❤️',
+                              style: GoogleFonts.gowunDodum(
+                                color: Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // 구분선
+                          Container(height: 2, color: Colors.white),
+                          const SizedBox(height: 16),
+                          // 주민 친밀도 순위
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Center(
+                                  child: Text(
+                                    '주민 친밀도 순위',
+                                    style: GoogleFonts.gowunDodum(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                _buildRankItem('1위', '정수아', '반짝반짝 빛나는✨', '98%'),
+                                _buildRankItem(
+                                  '2위',
+                                  '손민경',
+                                  '🌸뭔가 좋은 칭호✨',
+                                  '80%',
+                                ),
+                                _buildRankItem(
+                                  '3위',
+                                  '이영미',
+                                  '지수야 사랑해~🤍',
+                                  '70%',
+                                ),
+                                _buildRankItem('4위', '김민크', '꼬질꼬질 따끔따끔', '60%'),
+                                _buildRankItem('5위', '장대한', '빛나는 대야리✨', '50%'),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // 최근 퀴즈 정답
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Center(
+                                  child: Text(
+                                    '최근 퀴즈 정답',
+                                    style: GoogleFonts.gowunDodum(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                _buildQuizItem(
+                                  'Q. 김지수의 MBTI는?',
+                                  'A. ESTP',
+                                  '2025.11.25',
+                                ),
+                                _buildQuizItem(
+                                  'Q. 김지수의 생일은?',
+                                  'A. 8월 25일',
+                                  '2025.11.23',
+                                ),
+                                _buildQuizItem(
+                                  'Q. 김지수의 별자리는?',
+                                  'A. 처녀자리',
+                                  '2025.11.10',
+                                ),
+                                _buildQuizItem(
+                                  'Q. 김지수의 거주지는?',
+                                  'A. 분당구 정자동',
+                                  '2025.11.07',
+                                ),
+                                _buildQuizItem(
+                                  'Q. 김지수의 영어이름은?',
+                                  'A. Katherin',
+                                  '2025.11.02',
+                                ),
+                                const SizedBox(height: 12),
+                                Center(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => QuizScreen(
+                                            villageName: villageName,
+                                            villageId: '',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      '퀴즈 게시판으로 이동',
+                                      style: GoogleFonts.gowunDodum(
+                                        color: Colors.grey,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Second info box - 관리자에 대한 모든 것
-            Positioned(
-              left: 23,
-              top: 508,
-              child: GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('역대 퀴즈 정답')),
-                  );
-                },
-                child: Container(
-                  width: 346,
-                  height: 244,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '관리자에 대한\n모든 것\n(역대 퀴즈 정답)',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 34,
-                        height: 1.176,
-                        letterSpacing: 0.01,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRankItem(
+    String rank,
+    String name,
+    String comment,
+    String percentage,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Text(
+            rank,
+            style: GoogleFonts.gowunDodum(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(width: 12),
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: Colors.grey[300],
+            child: const Icon(Icons.person, size: 16, color: Colors.grey),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: GoogleFonts.gowunDodum(
+                    color: Colors.black,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                Text(
+                  comment,
+                  style: GoogleFonts.gowunDodum(
+                    color: Colors.grey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            percentage,
+            style: GoogleFonts.gowunDodum(
+              color: Colors.black,
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuizItem(String question, String answer, String date) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  question,
+                  style: GoogleFonts.gowunDodum(
+                    color: Colors.black,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                Text(
+                  answer,
+                  style: GoogleFonts.gowunDodum(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            date,
+            style: GoogleFonts.gowunDodum(
+              color: Colors.grey,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
       ),
     );
   }
