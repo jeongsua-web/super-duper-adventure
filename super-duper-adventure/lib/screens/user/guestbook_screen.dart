@@ -233,12 +233,12 @@ class _GuestbookScreenState extends State<GuestbookScreen> {
                     width: 45,
                     height: 45,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CDBFF),
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.send,
-                      color: Colors.white,
+                      color: Color(0xFF4CDBFF),
                       size: 20,
                     ),
                   ),

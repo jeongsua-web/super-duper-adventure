@@ -7,11 +7,7 @@ class CalendarScreen extends StatefulWidget {
   final String villageName;
   final String? villageId;
 
-  const CalendarScreen({
-    super.key,
-    required this.villageName,
-    this.villageId,
-  });
+  const CalendarScreen({super.key, required this.villageName, this.villageId});
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
@@ -85,13 +81,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
           .get();
 
       Map<DateTime, List<Map<String, dynamic>>> events = {};
-      
+
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final Timestamp timestamp = data['date'];
         final DateTime eventDate = timestamp.toDate();
-        final DateTime normalizedDate = DateTime(eventDate.year, eventDate.month, eventDate.day);
-        
+        final DateTime normalizedDate = DateTime(
+          eventDate.year,
+          eventDate.month,
+          eventDate.day,
+        );
+
         final eventData = {
           'id': doc.id,
           'title': data['title'],
@@ -123,7 +123,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     print('VillageId: $_resolvedVillageId');
     print('EventTitle: ${_eventController.text}');
     print('SelectedDay: $_selectedDay');
-    
+
     if (_resolvedVillageId == null) {
       print('오류: villageId가 null입니다');
       return;
@@ -145,43 +145,47 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     try {
-      final normalizedDate = DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day);
-      
+      final normalizedDate = DateTime(
+        _selectedDay!.year,
+        _selectedDay!.month,
+        _selectedDay!.day,
+      );
+
       print('저장할 데이터:');
       print('  - title: ${_eventController.text.trim()}');
       print('  - date: $normalizedDate');
       print('  - creatorId: ${user.uid}');
       print('  - creatorName: ${user.displayName ?? user.email ?? "익명"}');
-      
+
       await FirebaseFirestore.instance
           .collection('villages')
           .doc(_resolvedVillageId)
           .collection('events')
           .add({
-        'title': _eventController.text.trim(),
-        'date': Timestamp.fromDate(normalizedDate),
-        'creatorId': user.uid,
-        'creatorName': user.displayName ?? user.email ?? '익명',
-        'createdAt': Timestamp.now(),
-      });
+            'title': _eventController.text.trim(),
+            'date': Timestamp.fromDate(normalizedDate),
+            'creatorId': user.uid,
+            'creatorName': user.displayName ?? user.email ?? '익명',
+            'createdAt': Timestamp.now(),
+          });
 
       print('일정 추가 성공!');
       _eventController.clear();
       await _loadEvents();
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('일정이 추가되었습니다')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('일정이 추가되었습니다')));
       }
     } catch (e) {
       print('===== 일정 추가 오류 =====');
       print('오류: $e');
       print('========================');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('일정 추가 실패: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('일정 추가 실패: $e')));
       }
     }
   }
@@ -189,9 +193,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> _deleteEvent(String eventId, String creatorId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.uid != creatorId) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('본인이 만든 일정만 삭제할 수 있습니다')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('본인이 만든 일정만 삭제할 수 있습니다')));
       return;
     }
 
@@ -224,18 +228,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
           .delete();
 
       await _loadEvents();
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('일정이 삭제되었습니다')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('일정이 삭제되었습니다')));
       }
     } catch (e) {
       print('일정 삭제 오류: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('일정 삭제에 실패했습니다')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('일정 삭제에 실패했습니다')));
       }
     }
   }
@@ -312,10 +316,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _addEvent,
-                  child: const Text('추가'),
-                ),
+                ElevatedButton(onPressed: _addEvent, child: const Text('추가')),
               ],
             ),
           ),
@@ -335,9 +336,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     if (events.isEmpty) {
-      return const Center(
-        child: Text('이 날짜에 일정이 없습니다'),
-      );
+      return const Center(child: Text('이 날짜에 일정이 없습니다'));
     }
 
     return ListView.builder(
@@ -355,7 +354,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             trailing: isCreator
                 ? IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteEvent(event['id'], event['creatorId']),
+                    onPressed: () =>
+                        _deleteEvent(event['id'], event['creatorId']),
                   )
                 : null,
           ),

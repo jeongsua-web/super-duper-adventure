@@ -28,23 +28,15 @@ class _BoardScreenState extends State<BoardScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
-        width: 393,
-        height: 852,
-        clipBehavior: Clip.antiAlias,
-        decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
-          ),
-        ),
+        color: Colors.white,
         child: Stack(
           children: [
             // 그라디언트 배경
             Positioned(
               left: 0,
               top: 0,
+              right: 0,
               child: Container(
-                width: 393,
                 height: 296,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -60,8 +52,8 @@ class _BoardScreenState extends State<BoardScreen> {
             Positioned(
               left: 0,
               top: 296,
+              right: 0,
               child: Container(
-                width: 393,
                 height: 45,
                 decoration: const BoxDecoration(
                   color: Color(0xFFC4ECF6),
@@ -115,87 +107,6 @@ class _BoardScreenState extends State<BoardScreen> {
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-
-            // 상단바 (시간, 배터리 등)
-            Positioned(
-              left: -4,
-              top: 2,
-              child: Container(
-                width: 402,
-                padding: const EdgeInsets.only(
-                  top: 21,
-                  left: 16,
-                  right: 16,
-                  bottom: 19,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      height: 22,
-                      padding: const EdgeInsets.only(top: 2),
-                      child: const Text(
-                        '9:41',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 17,
-                          fontFamily: 'SF Pro',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Opacity(
-                          opacity: 0.35,
-                          child: Container(
-                            width: 25,
-                            height: 13,
-                            decoration: ShapeDecoration(
-                              shape: RoundedRectangleBorder(
-                                side: const BorderSide(
-                                  width: 1,
-                                  color: Colors.black,
-                                ),
-                                borderRadius: BorderRadius.circular(4.30),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 7),
-                        Container(
-                          width: 21,
-                          height: 9,
-                          decoration: ShapeDecoration(
-                            color: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(2.50),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // 다이나믹 아일랜드
-            Positioned(
-              left: 129,
-              top: 16,
-              child: Container(
-                width: 131,
-                height: 33,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFF383838),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40),
-                  ),
                 ),
               ),
             ),
