@@ -3,376 +3,383 @@ import 'package:flutter/material.dart';
 class ResidentProfileScreen extends StatelessWidget {
   final String villageName;
 
-  const ResidentProfileScreen({
-    super.key,
-    required this.villageName,
-  });
+  const ResidentProfileScreen({super.key, required this.villageName});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
+      backgroundColor: const Color(0xFFE8D7C3),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            // Back button (top left)
-            Positioned(
-              left: 16,
-              top: 12,
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 63,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(4),
+            // Top Header Section
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFF87CEEB),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Profile section with avatar and info
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Profile avatar
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/profile.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      // Text info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '❤지쑤킴❤',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              '마을 관리자와의 친밀도',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // Progress bar
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: LinearProgressIndicator(
+                                value: 0.8,
+                                minHeight: 12,
+                                backgroundColor: Colors.white,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.pink.shade200,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            const Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '80%',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  child: const Center(
-                    child: Text(
-                      '뒤로가기',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
+                ],
+              ),
+            ),
+
+            // Room area with furniture
+            Container(
+              width: double.infinity,
+              height: 300,
+              color: const Color(0xFFE8D7C3),
+              child: Stack(
+                children: [
+                  // Wardrobe (옷장)
+                  Positioned(
+                    top: 30,
+                    left: 20,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 130,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFB8860B),
+                            border: Border.all(color: Colors.black, width: 2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Left door
+                              Container(
+                                width: 40,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDEB887),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.circle,
+                                    size: 8,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Right door
+                              Container(
+                                width: 40,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDEB887),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.circle,
+                                    size: 8,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: 100,
+                          height: 8,
+                          color: const Color(0xFF8B7355),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Desk (책상)
+                  Positioned(
+                    bottom: 40,
+                    right: 30,
+                    child: SizedBox(
+                      width: 120,
+                      height: 62,
+                      child: Stack(
+                        children: [
+                          // Table top
+                          Container(
+                            width: 120,
+                            height: 12,
+                            color: const Color(0xFF8B4513),
+                          ),
+                          // Left leg
+                          Positioned(
+                            left: 0,
+                            top: 12,
+                            child: Container(
+                              width: 8,
+                              height: 50,
+                              color: const Color(0xFF654321),
+                            ),
+                          ),
+                          // Right leg
+                          Positioned(
+                            right: 0,
+                            top: 12,
+                            child: Container(
+                              width: 8,
+                              height: 50,
+                              color: const Color(0xFF654321),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
 
-            // Rounded header background
-            Positioned(
-              left: 10,
-              top: -47,
-              child: Transform.scale(
-                scaleY: -1,
-                child: Container(
-                  width: 374,
-                  height: 190,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F3F3),
-                    borderRadius: BorderRadius.circular(43),
-                  ),
-                ),
-              ),
-            ),
-
-            // Profile circle avatar
-            Positioned(
-              left: 22,
-              top: 26,
-              child: Container(
-                width: 83,
-                height: 84,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFD9D9D9),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-            ),
-
-            // Profile label
-            Positioned(
-              left: 30,
-              top: 59,
-              child: Text(
-                '프로필',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 24,
-                  height: 0.75,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Nickname
-            Positioned(
-              left: 119,
-              top: 50,
-              child: Text(
-                '닉네임',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 28,
-                  height: 0.64,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Nickname bar
-            Positioned(
-              left: 119,
-              top: 81,
-              child: Container(
-                width: 247,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
-            ),
-
-            // Intimacy bar label
-            Positioned(
-              left: 140,
-              top: 81,
-              child: Text(
-                '친밀도 막대',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 23,
-                  height: 0.78,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Diamond rotated background
-            Positioned(
-              left: 21,
-              top: 331,
-              child: Transform.rotate(
-                angle: 0.7854, // 45 degrees
-                child: Container(
-                  width: 244.66,
-                  height: 243.95,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F3F3),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ),
-
-            // Achievement boxes
-            // Box 1 (left)
-            Positioned(
-              left: 44,
-              top: 333,
-              child: Container(
-                width: 96,
-                height: 163,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-
-            // Box 2 (top center)
-            Positioned(
-              left: 149,
-              top: 239,
-              child: Container(
-                width: 96,
-                height: 163,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-
-            // Box 3 (right)
-            Positioned(
-              left: 258,
-              top: 333,
-              child: Container(
-                width: 96,
-                height: 163,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-
-            // Box 4 (bottom center)
-            Positioned(
-              left: 149,
-              top: 422,
-              child: Container(
-                width: 96,
-                height: 163,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-
-            // Achievement title
-            Positioned(
-              left: 143,
-              top: 367,
-              child: Text(
-                '업적가구들',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 23,
-                  height: 0.78,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-
-            // Achievement description
-            Positioned(
-              left: 272,
-              top: 376,
-              child: SizedBox(
-                width: 68,
-                child: Text(
-                  '퀴즈보상, 마을상점, 마을 업정 달성 시 받을 수 있음',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w400,
-                    fontSize: 13,
-                    height: 1.385,
-                    letterSpacing: 0.01,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-
-            // Heart emoji circle
-            Positioned(
-              left: 108,
-              top: 709,
-              child: Container(
-                width: 41,
-                height: 41,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFD9D9D9),
-                ),
-                child: const Center(
-                  child: Text(
-                    '🩷',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
+            // Chat section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Column(
+                children: [
+                  // Left message (from character)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 45,
+                          height: 45,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey,
+                          ),
+                          child: const Icon(Icons.pets, color: Colors.white),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.cyan.shade100,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 10,
+                          ),
+                          child: const Text(
+                            '집 이쁘다',
+                            style: TextStyle(fontSize: 14, color: Colors.black),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
-            ),
-
-            // Poop emoji circle
-            Positioned(
-              left: 173,
-              top: 684,
-              child: Container(
-                width: 41,
-                height: 41,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFD9D9D9),
-                ),
-                child: const Center(
-                  child: Text(
-                    '💩',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
+                  const SizedBox(height: 15),
+                  // Right message (from user)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 10,
+                          ),
+                          child: const Text(
+                            '지수야 방 좀 치워라',
+                            style: TextStyle(fontSize: 14, color: Colors.black),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 45,
+                          height: 45,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: const Icon(
+                            Icons.pets,
+                            color: Colors.pink,
+                            size: 25,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
               ),
             ),
 
-            // Skull emoji circle
-            Positioned(
-              left: 237,
-              top: 714,
-              child: Container(
-                width: 41,
-                height: 41,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFD9D9D9),
-                ),
-                child: const Center(
-                  child: Text(
-                    '☠️',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Sticker button
-            Positioned(
-              left: 160,
-              top: 750,
-              child: GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('스티커 붙히기')),
-                  );
-                },
-                child: Container(
-                  width: 62,
-                  height: 62,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '스티커',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        height: 1.385,
-                        letterSpacing: 0.01,
-                        color: Colors.black,
+            // Action buttons
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('댓글달기')));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.cyan.shade200,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        '댓글달기',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('방명록 쓰기')));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.cyan.shade200,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        '방명록 쓰기',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-
-            // Sticker label
-            Positioned(
-              left: 174,
-              top: 764,
-              child: Text(
-                '스티커 붙히기',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  height: 1.385,
-                  letterSpacing: 0.01,
-                  color: Colors.black,
+            const SizedBox(height: 20),
+            // Back button
+            Padding(
+              padding: const EdgeInsets.only(left: 20, bottom: 20),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF87CEEB),
+                        size: 24,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        '밖으로',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -14,12 +14,12 @@ import '../community/chat_list_screen.dart';
 import 'tilemap_screen.dart'; 
 
 class VillageViewScreen extends StatefulWidget {
-  final String villageName;
+  final String? villageName;
   final String? villageId;
 
   const VillageViewScreen({
     super.key,
-    required this.villageName,
+    this.villageName,
     this.villageId,
   });
 
@@ -75,13 +75,13 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
   // [버튼 클릭 시 이동 로직]
   void _openCategory(BuildContext context, String category) {
     if (category == '주민집') {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => ResidentProfileScreen(villageName: widget.villageName)));
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => ResidentProfileScreen(villageName: widget.villageName ?? '마을')));
     } else if (category == '게시판') {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(villageName: widget.villageName, villageId: _resolvedVillageId ?? '')));
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(villageName: widget.villageName ?? '마을', villageId: _resolvedVillageId ?? '')));
     } else if (category == '마을 생성자 집') {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => CreatorHomeScreen(villageName: widget.villageName)));
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => CreatorHomeScreen(villageName: widget.villageName ?? '마을')));
     } else if (category == '캘린더') {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => CalendarScreen(villageName: widget.villageName, villageId: _resolvedVillageId)));
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => CalendarScreen(villageName: widget.villageName ?? '마을', villageId: _resolvedVillageId)));
     } 
     
     // -----------------------------------------------------------
@@ -121,13 +121,13 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
                       child: const Center(child: Text('뒤로가기', style: TextStyle(fontSize: 14))),
                     ),
                   ),
-                  Text(widget.villageName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                  Text(widget.villageName ?? '마을', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                   Row(
                     children: [
                       GestureDetector(
                         onTap: () {
                           if (_resolvedVillageId != null) {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => TileMapScreen(villageName: widget.villageName, villageId: _resolvedVillageId)));
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => TileMapScreen(villageName: widget.villageName ?? '마을', villageId: _resolvedVillageId)));
                           }
                         },
                         child: Container(
@@ -144,7 +144,7 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
                             return;
                            }
                            if (_resolvedVillageId != null) {
-                             Navigator.of(context).push(MaterialPageRoute(builder: (_) => VillageSettingsScreen(villageId: _resolvedVillageId!, villageName: widget.villageName)));
+                             Navigator.of(context).push(MaterialPageRoute(builder: (_) => VillageSettingsScreen(villageId: _resolvedVillageId!, villageName: widget.villageName ?? '마을')));
                            }
                         },
                         child: Container(

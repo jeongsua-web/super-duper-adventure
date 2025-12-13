@@ -48,6 +48,30 @@ class _BoardListScreenState extends State<BoardListScreen> {
     return query.orderBy('createdAt', descending: true).snapshots();
   }
 
+  Future<DocumentSnapshot?> _getPinnedPost() async {
+    try {
+      final QuerySnapshot result = await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(widget.villageId)
+          .collection('posts')
+          .where('isPinned', isEqualTo: true)
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .get();
+
+      debugPrint('공지 조회 결과: ${result.docs.length}개');
+      if (result.docs.isNotEmpty) {
+        final data = result.docs.first.data() as Map<String, dynamic>;
+        debugPrint('공지 데이터: $data');
+        return result.docs.first;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('공지 조회 오류: $e');
+      return null;
+    }
+  }
+
   String _formatTimestamp(Timestamp? timestamp) {
     if (timestamp == null) return '방금 전';
     DateTime date = timestamp.toDate();
@@ -414,52 +438,84 @@ class _BoardListScreenState extends State<BoardListScreen> {
           ),
 
           // 공지 영역
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFB9B9B9).withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
+          FutureBuilder<DocumentSnapshot?>(
+            future: _getPinnedPost(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox.shrink();
+              }
+
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const SizedBox.shrink();
+              }
+
+              final pinnedPost = snapshot.data!.data() as Map<String, dynamic>;
+              final pinnedTitle = pinnedPost['title'] ?? '공지';
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => PostDetailScreen(
+                        postId: snapshot.data!.id,
+                        villageId: widget.villageId,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                    horizontal: 17,
+                    vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CDBFF),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFB9B9B9).withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    '공지',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4CDBFF),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '공지',
+                          style: GoogleFonts.gowunDodum(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          pinnedTitle,
+                          style: GoogleFonts.gowunDodum(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    '공지제목',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
 
           // 게시글 목록
@@ -495,6 +551,7 @@ class _BoardListScreenState extends State<BoardListScreen> {
 
                     return _PostCard(
                       postId: docs[index].id,
+                      villageId: widget.villageId,
                       title: data['title'] ?? '제목 없음',
                       author: author,
                       time: _formatTimestamp(data['createdAt']),
@@ -532,6 +589,7 @@ class _BoardListScreenState extends State<BoardListScreen> {
 
 class _PostCard extends StatelessWidget {
   final String postId;
+  final String villageId;
   final String title;
   final String author;
   final String time;
@@ -541,6 +599,7 @@ class _PostCard extends StatelessWidget {
 
   const _PostCard({
     required this.postId,
+    required this.villageId,
     required this.title,
     required this.author,
     required this.time,
@@ -556,7 +615,8 @@ class _PostCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PostDetailScreen(postId: postId),
+            builder: (context) =>
+                PostDetailScreen(postId: postId, villageId: villageId),
           ),
         );
       },

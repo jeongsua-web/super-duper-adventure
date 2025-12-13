@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:get/get.dart';
 import 'signup_screen.dart';
-import '../main_home_screen.dart';
+import '../../routes/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -50,12 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('로그인 성공!')),
-        );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainHomeScreen()),
-        );
+        Get.offAllNamed(AppRoutes.mainHome);
       }
     } on FirebaseAuthException catch (e) {
       String message;
@@ -86,9 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleSignUp() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const SignupScreen()),
-    );
+    Get.to(() => const SignupScreen());
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -116,12 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google 로그인 성공!')),
-        );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainHomeScreen()),
-        );
+        Get.offAllNamed(AppRoutes.mainHome);
       }
     } catch (e) {
       if (mounted) {
@@ -159,12 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Apple 로그인 성공!')),
-        );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainHomeScreen()),
-        );
+        Get.offAllNamed(AppRoutes.mainHome);
       }
     } catch (e) {
       if (mounted) {
@@ -332,12 +316,12 @@ class _LoginScreenState extends State<LoginScreen> {
               //   ),
               // ),
 
-              // ID label
+              // Email label
               const Positioned(
                 left: 43,
                 top: 298,
                 child: Text(
-                  '아이디',
+                  '이메일',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 13,
@@ -348,22 +332,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              // ID input field
+              // Email input field
               Positioned(
                 left: 43,
                 top: 324,
                 child: Container(
                   width: 306,
-                  height: 29,
+                  height: 45,
                   decoration: ShapeDecoration(
                     color: const Color(0xFFE7E7E7),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
                   ),
                   child: TextField(
                     controller: _idController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                     style: const TextStyle(fontSize: 13),
                   ),
@@ -373,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Password label
               const Positioned(
                 left: 43,
-                top: 371,
+                top: 385,
                 child: Text(
                   '비밀번호',
                   style: TextStyle(
@@ -389,10 +374,10 @@ class _LoginScreenState extends State<LoginScreen> {
               // Password input field
               Positioned(
                 left: 43,
-                top: 397,
+                top: 411,
                 child: Container(
                   width: 306,
-                  height: 29,
+                  height: 45,
                   decoration: ShapeDecoration(
                     color: const Color(0xFFE7E7E7),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
@@ -402,7 +387,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                     style: const TextStyle(fontSize: 13),
                   ),
@@ -412,7 +397,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Save checkbox
               Positioned(
                 left: 43,
-                top: 431,
+                top: 469,
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -435,7 +420,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Save password text
               const Positioned(
                 left: 59,
-                top: 428,
+                top: 466,
                 child: Text(
                   '아이디/비밀번호 저장',
                   style: TextStyle(
@@ -451,7 +436,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Find ID/Password link
               Positioned(
                 left: 147,
-                top: 472,
+                top: 507,
                 child: GestureDetector(
                   onTap: () {
                     // Handle find ID/password
@@ -472,7 +457,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Login button
               Positioned(
                 left: 74,
-                top: 490,
+                top: 530,
                 child: GestureDetector(
                   onTap: _handleLogin,
                   child: Container(
@@ -509,7 +494,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // "또는" text
               const Positioned(
                 left: 182,
-                top: 555,
+                top: 595,
                 child: Text(
                   '또는',
                   style: TextStyle(
@@ -525,7 +510,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Social login button 1 (Google)
               Positioned(
                 left: 98,
-                top: 584,
+                top: 624,
                 child: GestureDetector(
                   onTap: _handleGoogleSignIn,
                   child: Column(
@@ -535,14 +520,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 55,
                         decoration: ShapeDecoration(
                           image: const DecorationImage(
-                            image: NetworkImage("https://via.placeholder.com/55x55"),
+                            image: AssetImage("assets/images/google.png"),
                             fit: BoxFit.cover,
                           ),
-                          shape: OvalBorder(
-                            side: BorderSide(
-                              width: 1,
-                              color: const Color(0xFFC5C5C5),
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                       ),
@@ -564,7 +546,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Social login button 2 (Apple)
               Positioned(
                 left: 237,
-                top: 584,
+                top: 624,
                 child: GestureDetector(
                   onTap: _handleAppleSignIn,
                   child: Column(
@@ -574,14 +556,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 55,
                         decoration: ShapeDecoration(
                           image: const DecorationImage(
-                            image: NetworkImage("https://via.placeholder.com/55x55"),
+                            image: AssetImage("assets/images/apple.png"),
                             fit: BoxFit.cover,
                           ),
-                          shape: OvalBorder(
-                            side: BorderSide(
-                              width: 1,
-                              color: const Color(0xFFC5C5C5),
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                       ),
@@ -603,7 +582,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Divider line
               Positioned(
                 left: 43,
-                top: 657,
+                top: 713,
                 child: Container(
                   width: 306,
                   decoration: ShapeDecoration(
@@ -621,7 +600,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // "아직 계정이 없으신가요?" text
               const Positioned(
                 left: 126,
-                top: 695,
+                top: 743,
                 child: Text(
                   '아직 계정이 없으신가요?',
                   style: TextStyle(
@@ -637,7 +616,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Sign up button
               Positioned(
                 left: 74,
-                top: 719,
+                top: 767,
                 child: GestureDetector(
                   onTap: _handleSignUp,
                   child: Container(
