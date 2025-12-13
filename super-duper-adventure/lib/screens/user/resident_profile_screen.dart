@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'guestbook_screen.dart';
 
 class ResidentProfileScreen extends StatelessWidget {
   final String villageName;
@@ -311,7 +312,7 @@ class ResidentProfileScreen extends StatelessWidget {
                         ).showSnackBar(const SnackBar(content: Text('댓글달기')));
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.cyan.shade200,
+                        backgroundColor: const Color(0xFFC4ECF6),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -330,12 +331,16 @@ class ResidentProfileScreen extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(
+                        Navigator.push(
                           context,
-                        ).showSnackBar(const SnackBar(content: Text('방명록 쓰기')));
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                GuestbookScreen(residentName: '❤지쑤킴❤'),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.cyan.shade200,
+                        backgroundColor: const Color(0xFFC4ECF6),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
