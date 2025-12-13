@@ -98,8 +98,10 @@ class _BoardScreenState extends State<BoardScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                SearchScreen(villageName: widget.villageName),
+                            builder: (context) => SearchScreen(
+                              villageName: widget.villageName,
+                              villageId: widget.villageId,
+                            ),
                           ),
                         );
                       },

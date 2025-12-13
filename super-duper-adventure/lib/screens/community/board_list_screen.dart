@@ -557,6 +557,7 @@ class _BoardListScreenState extends State<BoardListScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => SearchScreen(
                                     villageName: widget.villageName,
+                                    villageId: widget.villageId,
                                   ),
                                 ),
                               );
