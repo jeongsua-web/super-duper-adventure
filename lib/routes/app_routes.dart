@@ -23,6 +23,9 @@ import 'package:my_app/pages/community/views/board_list_view.dart';
 import 'package:my_app/pages/community/controllers/board_list_controller.dart';
 import 'package:my_app/pages/community/views/quiz_view.dart';
 import 'package:my_app/pages/community/controllers/quiz_controller.dart';
+import 'package:my_app/pages/community/views/search_view.dart';
+import 'package:my_app/pages/community/controllers/search_controller.dart'
+    as community;
 
 abstract class AppRoutes {
   static const String splash = '/';
@@ -36,6 +39,7 @@ abstract class AppRoutes {
   static const String board = '/board';
   static const String boardList = '/board-list';
   static const String quiz = '/quiz';
+  static const String search = '/search';
   static const String mailbox = '/mailbox';
   static const String settings = '/settings';
 }
@@ -89,10 +93,12 @@ class AppPages {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageName = args['villageName'] as String?;
         final villageId = args['villageId'] as String?;
-        Get.lazyPut(() => VillageViewController(
-          villageName: villageName,
-          villageId: villageId,
-        ));
+        Get.lazyPut(
+          () => VillageViewController(
+            villageName: villageName,
+            villageId: villageId,
+          ),
+        );
       }),
       transition: Transition.rightToLeft,
     ),
@@ -103,10 +109,10 @@ class AppPages {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageName = args['villageName'] as String? ?? '마을';
         final villageId = args['villageId'] as String?;
-        Get.lazyPut(() => TileMapController(
-          villageName: villageName,
-          villageId: villageId,
-        ));
+        Get.lazyPut(
+          () =>
+              TileMapController(villageName: villageName, villageId: villageId),
+        );
       }),
       transition: Transition.rightToLeft,
     ),
@@ -117,10 +123,9 @@ class AppPages {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageName = args['villageName'] as String? ?? '마을';
         final villageId = args['villageId'] as String? ?? '';
-        Get.lazyPut(() => BoardController(
-          villageName: villageName,
-          villageId: villageId,
-        ));
+        Get.lazyPut(
+          () => BoardController(villageName: villageName, villageId: villageId),
+        );
       }),
       transition: Transition.rightToLeft,
     ),
@@ -132,11 +137,13 @@ class AppPages {
         final category = args['category'] as String? ?? '전체';
         final villageName = args['villageName'] as String? ?? '마을';
         final villageId = args['villageId'] as String? ?? '';
-        Get.lazyPut(() => BoardListController(
-          category: category,
-          villageName: villageName,
-          villageId: villageId,
-        ));
+        Get.lazyPut(
+          () => BoardListController(
+            category: category,
+            villageName: villageName,
+            villageId: villageId,
+          ),
+        );
       }),
       transition: Transition.rightToLeft,
     ),
@@ -147,10 +154,21 @@ class AppPages {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageName = args['villageName'] as String? ?? '마을';
         final villageId = args['villageId'] as String? ?? '';
-        Get.lazyPut(() => QuizController(
-          villageName: villageName,
-          villageId: villageId,
-        ));
+        Get.lazyPut(
+          () => QuizController(villageName: villageName, villageId: villageId),
+        );
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.search,
+      page: () => const SearchView(),
+      binding: BindingsBuilder(() {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageName = args['villageName'] as String? ?? '마을';
+        Get.lazyPut(
+          () => community.CommunitySearchController(villageName: villageName),
+        );
       }),
       transition: Transition.rightToLeft,
     ),
