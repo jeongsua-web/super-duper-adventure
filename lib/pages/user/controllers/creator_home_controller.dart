@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import '../../community/controllers/quiz_controller.dart';
 import '../../community/views/quiz_view.dart';
 
@@ -13,8 +14,12 @@ class CreatorHomeController extends GetxController {
   final Rx<String?> resolvedVillageId = Rx<String?>(null);
   final RxBool isLoading = true.obs;
 
+  // 현재 사용자 이름
+  final RxString currentUserName = '사용자'.obs;
+
   // 주민 친밀도 데이터
-  final RxList<Map<String, dynamic>> memberRankings = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> memberRankings =
+      <Map<String, dynamic>>[].obs;
 
   // 임시 퀴즈 정답 데이터
   final RxList<Map<String, dynamic>> recentQuizzes = <Map<String, dynamic>>[
@@ -26,7 +31,27 @@ class CreatorHomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadCurrentUserName();
     _resolveVillageId();
+  }
+
+  /// 현재 로그인한 사용자 이름 로드
+  Future<void> _loadCurrentUserName() async {
+    try {
+      final currentUser = auth.FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+        if (userDoc.exists && userDoc.data() != null) {
+          final name = userDoc.data()?['name'] ?? '사용자';
+          currentUserName.value = name;
+        }
+      }
+    } catch (e) {
+      print('사용자 이름 로드 오류: $e');
+    }
   }
 
   Future<void> _resolveVillageId() async {
@@ -71,14 +96,14 @@ class CreatorHomeController extends GetxController {
       for (var memberDoc in membersSnapshot.docs) {
         final userId = memberDoc.id;
         final memberData = memberDoc.data();
-        
+
         // 사용자 정보 가져오기
         final userDoc = await _firestore.collection('users').doc(userId).get();
-        
+
         if (userDoc.exists) {
           final userData = userDoc.data();
           final intimacy = memberData['intimacy'] ?? 0.0;
-          
+
           members.add({
             'userId': userId,
             'name': userData?['name'] ?? userData?['displayName'] ?? '알 수 없음',
@@ -117,10 +142,12 @@ class CreatorHomeController extends GetxController {
     Get.to(
       () => const QuizView(),
       binding: BindingsBuilder(() {
-        Get.lazyPut(() => QuizController(
-          villageName: villageName,
-          villageId: resolvedVillageId.value!,
-        ));
+        Get.lazyPut(
+          () => QuizController(
+            villageName: villageName,
+            villageId: resolvedVillageId.value!,
+          ),
+        );
       }),
     );
   }

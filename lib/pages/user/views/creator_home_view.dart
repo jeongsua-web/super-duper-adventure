@@ -6,7 +6,12 @@ import '../controllers/creator_home_controller.dart';
 class CreatorHomeView extends GetView<CreatorHomeController> {
   const CreatorHomeView({super.key});
 
-  Widget _buildRankItem(String rank, String name, String title, String intimacy) {
+  Widget _buildRankItem(
+    String rank,
+    String name,
+    String title,
+    String intimacy,
+  ) {
     // 1위, 3위, 5위인지 확인
     bool isHighlight = rank == '1위' || rank == '3위' || rank == '5위';
 
@@ -71,7 +76,12 @@ class CreatorHomeView extends GetView<CreatorHomeController> {
     );
   }
 
-  Widget _buildQuizItem(String question, String answer, String date, int index) {
+  Widget _buildQuizItem(
+    String question,
+    String answer,
+    String date,
+    int index,
+  ) {
     // 1번, 3번, 5번 항목인지 확인 (index는 0부터 시작하므로 0, 2, 4)
     bool isHighlight = index == 0 || index == 2 || index == 4;
 
@@ -178,15 +188,21 @@ class CreatorHomeView extends GetView<CreatorHomeController> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4DDBFF),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFF4DDBFF),
+                      width: 2,
+                    ),
                   ),
-                  child: Text(
-                    '❤️지쑤킴❤️',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
+                  child: Obx(
+                    () => Text(
+                      controller.currentUserName.value,
+                      style: GoogleFonts.gowunDodum(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
@@ -220,7 +236,7 @@ class CreatorHomeView extends GetView<CreatorHomeController> {
                             child: Center(child: CircularProgressIndicator()),
                           );
                         }
-                        
+
                         if (controller.memberRankings.isEmpty) {
                           return const Padding(
                             padding: EdgeInsets.all(20.0),
@@ -232,17 +248,21 @@ class CreatorHomeView extends GetView<CreatorHomeController> {
                             ),
                           );
                         }
-                        
+
                         return Column(
-                          children: controller.memberRankings.asMap().entries.map((entry) {
-                            final member = entry.value;
-                            return _buildRankItem(
-                              member['rank'],
-                              member['name'],
-                              member['title'],
-                              '${member['intimacyPercent']}%',
-                            );
-                          }).toList(),
+                          children: controller.memberRankings
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                                final member = entry.value;
+                                return _buildRankItem(
+                                  member['rank'],
+                                  member['name'],
+                                  member['title'],
+                                  '${member['intimacyPercent']}%',
+                                );
+                              })
+                              .toList(),
                         );
                       }),
                     ],
@@ -271,18 +291,24 @@ class CreatorHomeView extends GetView<CreatorHomeController> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Obx(() => Column(
-                        children: controller.recentQuizzes.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final quiz = entry.value;
-                          return _buildQuizItem(
-                            quiz['question'],
-                            quiz['answer'],
-                            quiz['date'],
-                            index,
-                          );
-                        }).toList(),
-                      )),
+                      Obx(
+                        () => Column(
+                          children: controller.recentQuizzes
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                                final index = entry.key;
+                                final quiz = entry.value;
+                                return _buildQuizItem(
+                                  quiz['question'],
+                                  quiz['answer'],
+                                  quiz['date'],
+                                  index,
+                                );
+                              })
+                              .toList(),
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       Center(
                         child: GestureDetector(
