@@ -114,28 +114,31 @@ class BoardListController extends GetxController {
   }
 
   void goToSearch() {
-    Get.toNamed('/search', arguments: {'villageName': villageName});
+    Get.toNamed(
+      '/search',
+      arguments: {'villageName': villageName, 'villageId': villageId},
+    );
   }
 
   void goToPostDetail(String postId) {
-    Get.toNamed('/post-detail', arguments: {
-      'postId': postId,
-      'villageId': villageId,
-    });
+    Get.toNamed(
+      '/post-detail',
+      arguments: {'postId': postId, 'villageId': villageId},
+    );
   }
 
   void goToPostCreate() {
-    Get.toNamed('/post-create', arguments: {
-      'villageName': villageName,
-      'villageId': villageId,
-    });
+    Get.toNamed(
+      '/post-create',
+      arguments: {'villageName': villageName, 'villageId': villageId},
+    );
   }
 
   void goToQuiz() {
-    Get.toNamed('/quiz', arguments: {
-      'villageName': villageName,
-      'villageId': villageId,
-    });
+    Get.toNamed(
+      '/quiz',
+      arguments: {'villageName': villageName, 'villageId': villageId},
+    );
   }
 
   void showAddCategoryDialog(BuildContext context) {
@@ -147,9 +150,7 @@ class BoardListController extends GetxController {
           controller: textController,
           decoration: InputDecoration(
             hintText: '카테고리 이름 입력',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),
         actions: [
@@ -160,7 +161,8 @@ class BoardListController extends GetxController {
           TextButton(
             onPressed: () {
               final categoryName = textController.text.trim();
-              if (categoryName.isNotEmpty && !categories.contains(categoryName)) {
+              if (categoryName.isNotEmpty &&
+                  !categories.contains(categoryName)) {
                 addCategory(categoryName);
                 Get.back();
               } else {

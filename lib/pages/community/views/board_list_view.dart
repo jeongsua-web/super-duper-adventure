@@ -486,7 +486,10 @@ class _BoardListViewState extends State<BoardListView> {
                             onTap: () {
                               Get.toNamed(
                                 AppRoutes.search,
-                                arguments: {'villageName': widget.villageName},
+                                arguments: {
+                                  'villageName': widget.villageName,
+                                  'villageId': widget.villageId,
+                                },
                               );
                             },
                             child: const Icon(

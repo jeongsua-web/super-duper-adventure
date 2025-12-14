@@ -26,6 +26,8 @@ import 'package:my_app/pages/community/controllers/quiz_controller.dart';
 import 'package:my_app/pages/community/views/search_view.dart';
 import 'package:my_app/pages/community/controllers/search_controller.dart'
     as community;
+import 'package:my_app/pages/community/views/post_detail_view.dart';
+import 'package:my_app/pages/community/controllers/post_detail_controller.dart';
 
 abstract class AppRoutes {
   static const String splash = '/';
@@ -40,6 +42,7 @@ abstract class AppRoutes {
   static const String boardList = '/board-list';
   static const String quiz = '/quiz';
   static const String search = '/search';
+  static const String postDetail = '/post-detail';
   static const String mailbox = '/mailbox';
   static const String settings = '/settings';
 }
@@ -162,7 +165,12 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.search,
-      page: () => const SearchView(),
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageName = args['villageName'] as String? ?? '마을';
+        final villageId = args['villageId'] as String? ?? '';
+        return SearchScreen(villageName: villageName, villageId: villageId);
+      },
       binding: BindingsBuilder(() {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageName = args['villageName'] as String? ?? '마을';
@@ -186,6 +194,20 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut(() => AccountSettingsController());
       }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.postDetail,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final postId = args['postId'] as String? ?? '';
+        final villageId = args['villageId'] as String? ?? '';
+
+        // 컨트롤러 먼저 초기화 (기존 인스턴스 제거 후 새로 생성)
+        Get.delete<PostDetailController>();
+        Get.put(PostDetailController(postId: postId, villageId: villageId));
+        return PostDetailView();
+      },
       transition: Transition.rightToLeft,
     ),
   ];
