@@ -47,6 +47,7 @@ dependencies:
   get: ^4.6.6
   confetti: ^0.7.0
   shared_preferences: ^2.3.4
+  flutter_screenutil: ^5.9.3
   # provider: ^6.1.5+1
   # provider: ^6.1.5+1
 

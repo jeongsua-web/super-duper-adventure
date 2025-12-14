@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../controllers/user_controller.dart';
 import '../controllers/account_settings_controller.dart';
 
 class AccountSettingsView extends GetView<AccountSettingsController> {
@@ -37,12 +38,9 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   Future<void> _logout(BuildContext context) async {
     try {
       print('[AccountSettings] 로그아웃 버튼 클릭됨');
-      await FirebaseAuth.instance.signOut();
-      print('[AccountSettings] Firebase 로그아웃 완료');
-      if (context.mounted) {
-        Get.back();
-        print('[AccountSettings] Get.back() 호출 완료');
-      }
+      final userController = Get.find<UserController>();
+      await userController.logout();
+      print('[AccountSettings] UserController 로그아웃 완료');
     } catch (e) {
       print('[AccountSettings] 로그아웃 실패: $e');
       if (context.mounted) {

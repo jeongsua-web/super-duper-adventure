@@ -38,8 +38,12 @@ class ResidentProfileController extends GetxController {
         final data = userDoc.data()!;
         resident.value = models.User(
           id: userDoc.id,
+          username: data['username'] ?? '',
           name: data['name'] ?? '알 수 없음',
+          realName: data['realName'] ?? data['name'] ?? '알 수 없음',
           email: data['email'] ?? '',
+          gender: data['gender'],
+          job: data['job'],
         );
       }
 

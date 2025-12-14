@@ -55,7 +55,9 @@ class AuthService {
         final email = _firebaseAuth.currentUser?.email ?? 'unknown@email.com';
         return models.User(
           id: uid,
+          username: email.split('@')[0],
           name: email.split('@')[0],
+          realName: email.split('@')[0],
           email: email,
         );
       }

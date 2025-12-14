@@ -213,17 +213,38 @@ class CreatorHomeView extends GetView<CreatorHomeController> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Obx(() => Column(
-                        children: controller.memberRankings.asMap().entries.map((entry) {
-                          final member = entry.value;
-                          return _buildRankItem(
-                            member['rank'],
-                            member['name'],
-                            member['title'],
-                            member['intimacy'],
+                      Obx(() {
+                        if (controller.isLoading.value) {
+                          return const Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Center(child: CircularProgressIndicator()),
                           );
-                        }).toList(),
-                      )),
+                        }
+                        
+                        if (controller.memberRankings.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Center(
+                              child: Text(
+                                '아직 주민이 없습니다',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          );
+                        }
+                        
+                        return Column(
+                          children: controller.memberRankings.asMap().entries.map((entry) {
+                            final member = entry.value;
+                            return _buildRankItem(
+                              member['rank'],
+                              member['name'],
+                              member['title'],
+                              '${member['intimacyPercent']}%',
+                            );
+                          }).toList(),
+                        );
+                      }),
                     ],
                   ),
                 ),

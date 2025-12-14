@@ -50,8 +50,16 @@ class UserController extends GetxController {
 
       debugPrint('[UserController] 토큰 발견: $token -> Firebase Auth 확인 중...');
 
-      // Firebase Auth 현재 사용자 확인
-      final currentUser = auth.FirebaseAuth.instance.currentUser;
+      // Firebase Auth가 초기화될 때까지 대기 (최대 3초)
+      auth.User? currentUser = auth.FirebaseAuth.instance.currentUser;
+      int waitCount = 0;
+      
+      while (currentUser == null && waitCount < 15) {
+        debugPrint('[UserController] Firebase Auth 초기화 대기 중... (${waitCount + 1}/15)');
+        await Future.delayed(const Duration(milliseconds: 200));
+        currentUser = auth.FirebaseAuth.instance.currentUser;
+        waitCount++;
+      }
       
       if (currentUser != null && currentUser.uid == token) {
         debugPrint('[UserController] Firebase Auth 세션 유효함');
@@ -59,7 +67,9 @@ class UserController extends GetxController {
         // 일단 기본 사용자 정보로 설정 (즉시 로그인)
         _user.value = User(
           id: token,
+          username: currentUser.email?.split('@')[0] ?? '사용자',
           name: currentUser.email?.split('@')[0] ?? '사용자',
+          realName: currentUser.email?.split('@')[0] ?? '사용자',
           email: currentUser.email ?? '',
         );
         
@@ -139,8 +149,12 @@ class UserController extends GetxController {
         final data = userDoc.data()!;
         _user.value = User(
           id: userId,
+          username: data['username'] ?? currentUser.email?.split('@')[0] ?? '사용자',
           name: data['name'] ?? currentUser.email?.split('@')[0] ?? '사용자',
+          realName: data['realName'] ?? data['name'] ?? currentUser.email?.split('@')[0] ?? '사용자',
           email: data['email'] ?? currentUser.email ?? '',
+          gender: data['gender'],
+          job: data['job'],
         );
         debugPrint('[UserController] Firestore 사용자 정보 업데이트 완료');
       }

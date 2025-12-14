@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../controllers/splash_controller.dart';
 
 class SplashView extends GetView<SplashController> {
@@ -10,107 +11,131 @@ class SplashView extends GetView<SplashController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: double.infinity,
-        height: double.infinity,
+        width: 1.sw,
+        height: 1.sh,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment(0.50, 1.00),
-            end: Alignment(0.50, 0.00),
+            end: Alignment(0.50, -0.00),
             colors: [Color(0xFFC4ECF6), Colors.white],
           ),
         ),
         child: Stack(
           children: [
-            // 중앙 상단 - "마이" 텍스트
+            // 로고
             Positioned(
-              left: 106,
-              top: 211,
+              left: 96.w,
+              top: 250.h,
               child: SizedBox(
-                width: 179,
-                height: 123,
-                child: Text(
-                  '마이',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.bagelFatOne(
-                    color: const Color(0xFFC4ECF6),
-                    fontSize: 96,
-                    fontWeight: FontWeight.w400,
-                    height: 0.23,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-            ),
-            
-            // 중앙 하단 - "마을" 텍스트
-            Positioned(
-              left: 108,
-              top: 303,
-              child: SizedBox(
-                width: 179,
-                height: 123,
-                child: Text(
-                  '마을',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.bagelFatOne(
-                    color: const Color(0xFFC4ECF6),
-                    fontSize: 96,
-                    fontWeight: FontWeight.w400,
-                    height: 0.23,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-            ),
-            
-            // 중앙 하단 - 마을 아이콘
-            Positioned(
-              left: 116,
-              top: 710,
-              child: Container(
-                width: 162,
-                height: 147,
-                clipBehavior: Clip.antiAlias,
-                decoration: const BoxDecoration(),
+                width: 200.w,
+                height: 200.h,
                 child: Image.asset(
-                  'assets/images/village.png',
+                  'assets/images/app_logo.png',
                   fit: BoxFit.contain,
                 ),
               ),
             ),
-            
-            // 왼쪽 하단 - 집 아이콘 (회전)
+            // 하트 아이콘
             Positioned(
-              left: -4.76,
-              top: 760.96,
-              child: Transform.rotate(
-                angle: -0.45,
+              left: 260.w,
+              top: 260.h,
+              child: SizedBox(
+                width: 40.w,
+                height: 40.h,
+                child: Image.asset(
+                  'assets/images/heart.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            // 큰 하트 아이콘 (오른쪽 대각선 위)
+            Positioned(
+              left: 280.w,
+              top: 200.h,
+              child: SizedBox(
+                width: 60.w,
+                height: 60.h,
+                child: Image.asset(
+                  'assets/images/heart.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            // 로딩 인디케이터
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 460.h,
+              child: Center(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC4ECF6)),
+                    strokeWidth: 3,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 100.w,
+              top: 550.h,
+              child: Container(
+                width: 130.w,
+                height: 120.h,
+                clipBehavior: Clip.antiAlias,
+                decoration: const BoxDecoration(),
+                child: Image.asset(
+                  'assets/images/boy1.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 20.w,
+              top: 700.h,
+              child: Transform(
+                transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(-0.45),
                 child: Container(
-                  width: 92,
-                  height: 92,
+                  width: 92.w,
+                  height: 92.h,
                   clipBehavior: Clip.antiAlias,
                   decoration: const BoxDecoration(),
                   child: Image.asset(
-                    'assets/images/house.png',
+                    'assets/images/boy2.png',
                     fit: BoxFit.contain,
                   ),
                 ),
               ),
             ),
-            
-            // 오른쪽 하단 - 우체통 아이콘 (회전)
             Positioned(
-              left: 314.43,
-              top: 701,
-              child: Transform.rotate(
-                angle: 0.40,
+              left: 280.w,
+              top: 640.h,
+              child: Transform(
+                transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(0.40),
                 child: Container(
-                  width: 81,
-                  height: 81,
+                  width: 81.w,
+                  height: 81.h,
                   clipBehavior: Clip.antiAlias,
                   decoration: const BoxDecoration(),
                   child: Image.asset(
-                    'assets/images/mailBox.png',
+                    'assets/images/girl.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            // 하단 집 아이콘
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Center(
+                child: SizedBox(
+                  width: 150.w,
+                  height: 150.h,
+                  child: Image.asset(
+                    'assets/images/house.png',
                     fit: BoxFit.contain,
                   ),
                 ),

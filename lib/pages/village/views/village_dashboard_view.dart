@@ -9,9 +9,9 @@ import '../../community/controllers/chat_list_controller.dart';
 import '../../community/views/chat_list_view.dart';
 import '../../user/controllers/resident_profile_controller.dart';
 import '../../user/views/resident_profile_view.dart';
-import '../controllers/creator_home_controller.dart';
+import '../../user/controllers/creator_home_controller.dart';
+import '../../user/views/creator_home_view.dart';
 import '../controllers/village_view_controller.dart';
-import '../views/creator_home_view.dart';
 
 class VillageDashboardView extends GetView<VillageViewController> {
   const VillageDashboardView({super.key});
