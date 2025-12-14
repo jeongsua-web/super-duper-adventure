@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../controllers/splash_controller.dart';
 
@@ -71,7 +70,9 @@ class SplashView extends GetView<SplashController> {
                   width: 40,
                   height: 40,
                   child: const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC4ECF6)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFFC4ECF6),
+                    ),
                     strokeWidth: 3,
                   ),
                 ),
@@ -95,7 +96,9 @@ class SplashView extends GetView<SplashController> {
               left: 20.w,
               top: 700.h,
               child: Transform(
-                transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(-0.45),
+                transform: Matrix4.identity()
+                  ..translate(0.0, 0.0)
+                  ..rotateZ(-0.45),
                 child: Container(
                   width: 92.w,
                   height: 92.h,
@@ -112,7 +115,9 @@ class SplashView extends GetView<SplashController> {
               left: 280.w,
               top: 640.h,
               child: Transform(
-                transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(0.40),
+                transform: Matrix4.identity()
+                  ..translate(0.0, 0.0)
+                  ..rotateZ(0.40),
                 child: Container(
                   width: 81.w,
                   height: 81.h,
