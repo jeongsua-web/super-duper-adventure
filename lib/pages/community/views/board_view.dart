@@ -93,7 +93,10 @@ class _BoardScreenState extends State<BoardScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Get.to(() => SearchView());
+                        Get.toNamed(
+                          AppRoutes.search,
+                          arguments: {'villageName': widget.villageName},
+                        );
                       },
                       child: const Padding(
                         padding: EdgeInsets.only(right: 16),
