@@ -798,19 +798,22 @@ class CalendarView extends GetView<CalendarController> {
                       const SizedBox(height: 8),
                       Align(
                         alignment: Alignment.bottomRight,
-                        child: Text(
-                          'blind',
-                          style: TextStyle(
-                            color: Color(0xFF8183F1),
-                            fontSize: 16,
-                            fontFamily: 'Jersey 20',
-                            fontWeight: FontWeight.w400,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: Text(
+                            'blind',
+                            style: TextStyle(
+                              color: Color(0xFF8183F1),
+                              fontSize: 12,
+                              fontFamily: 'Jersey 20',
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 46),
+                  const SizedBox(height: 25),
                   // 시간
                   const Text(
                     '시간',
@@ -834,7 +837,11 @@ class CalendarView extends GetView<CalendarController> {
                             decoration: BoxDecoration(
                               color: isAllDay.value
                                   ? const Color(0xFF4CDBFF)
-                                  : const Color(0xFFD9D9D9),
+                                  : Colors.white,
+                              border: Border.all(
+                                color: const Color(0xFF4CDBFF),
+                                width: 1,
+                              ),
                             ),
                             child: isAllDay.value
                                 ? const Icon(
@@ -863,16 +870,16 @@ class CalendarView extends GetView<CalendarController> {
                   const Text(
                     '시작 시간',
                     style: TextStyle(
-                      color: Color(0xFF4CDBFF),
-                      fontSize: 16,
+                      color: Colors.black,
+                      fontSize: 15,
                       fontFamily: 'Gowun Dodum',
                       fontWeight: FontWeight.w400,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    width: 144,
-                    height: 17,
+                    width: 110,
+                    height: 28,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
@@ -902,16 +909,16 @@ class CalendarView extends GetView<CalendarController> {
                   const Text(
                     '끝나는 시간',
                     style: TextStyle(
-                      color: Color(0xFF4CDBFF),
-                      fontSize: 16,
+                      color: Colors.black,
+                      fontSize: 15,
                       fontFamily: 'Gowun Dodum',
                       fontWeight: FontWeight.w400,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    width: 144,
-                    height: 17,
+                    width: 110,
+                    height: 28,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
@@ -936,7 +943,7 @@ class CalendarView extends GetView<CalendarController> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 68),
+                  const SizedBox(height: 35),
                   // 메모
                   const Text(
                     '메모',
@@ -989,8 +996,8 @@ class CalendarView extends GetView<CalendarController> {
                       GestureDetector(
                         onTap: () => Get.back(),
                         child: Container(
-                          width: 80,
-                          height: 27,
+                          width: 65,
+                          height: 37,
                           decoration: ShapeDecoration(
                             shape: RoundedRectangleBorder(
                               side: const BorderSide(
@@ -1005,7 +1012,7 @@ class CalendarView extends GetView<CalendarController> {
                               '취소',
                               style: TextStyle(
                                 color: Color(0xFFC73838),
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontFamily: 'Gowun Dodum',
                                 fontWeight: FontWeight.w400,
                               ),
@@ -1025,8 +1032,8 @@ class CalendarView extends GetView<CalendarController> {
                           }
                         },
                         child: Container(
-                          width: 80,
-                          height: 27,
+                          width: 65,
+                          height: 37,
                           decoration: ShapeDecoration(
                             color: const Color(0xFFC4ECF6),
                             shape: RoundedRectangleBorder(
@@ -1038,7 +1045,7 @@ class CalendarView extends GetView<CalendarController> {
                               '저장',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontFamily: 'Gowun Dodum',
                                 fontWeight: FontWeight.w400,
                               ),
