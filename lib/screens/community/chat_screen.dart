@@ -3,11 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart'; 
+import 'package:image_picker/image_picker.dart';
 import 'dart:async';
 import 'dart:convert'; // Base64 변환용
-// [삭제] import 'dart:io'; <-- 웹에서는 이 라이브러리를 쓰면 안 됩니다!
 
+// ==========================================
+// [1] 채팅방 화면 (ChatScreen)
+// ==========================================
 class ChatScreen extends StatefulWidget {
   final String chatRoomId;
   final String villageName;
@@ -24,16 +26,16 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  
+
   late ConfettiController _partyController;
   late ConfettiController _loveController;
 
-  String? _detectedKeyword; 
-  Timer? _buttonTimer; 
+  String? _detectedKeyword;
+  Timer? _buttonTimer;
 
   final String myId = FirebaseAuth.instance.currentUser?.uid ?? 'unknown';
   final String myNickname = FirebaseAuth.instance.currentUser?.displayName ?? '익명';
-  final ImagePicker _picker = ImagePicker(); 
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -68,9 +70,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if ((text == null || text.trim().isEmpty) && imageBase64 == null) return;
 
     String msg = text ?? (imageBase64 != null ? '사진을 보냈습니다.' : '');
-    
+
     if (text != null) {
-      _controller.clear(); 
+      _controller.clear();
       String? newKeyword;
       if (text.contains('축하')) {
         newKeyword = 'party';
@@ -94,8 +96,8 @@ class _ChatScreenState extends State<ChatScreen> {
         .doc(widget.chatRoomId)
         .collection('messages')
         .add({
-      'text': text, 
-      'imageBase64': imageBase64, 
+      'text': text,
+      'imageBase64': imageBase64,
       'senderId': myId,
       'nickname': myNickname,
       'createdAt': FieldValue.serverTimestamp(),
@@ -105,36 +107,30 @@ class _ChatScreenState extends State<ChatScreen> {
         .collection('chat_rooms')
         .doc(widget.chatRoomId)
         .set({
-      'lastMessage': imageBase64 != null ? '사진' : msg, 
+      'lastMessage': imageBase64 != null ? '사진' : msg,
       'lastMessageTime': FieldValue.serverTimestamp(),
       'roomName': widget.villageName,
       'participants': FieldValue.arrayUnion([myId]),
     }, SetOptions(merge: true));
   }
 
-  // [★수정됨] 웹/앱 모두 호환되는 이미지 처리 함수
+  // 웹/앱 호환 이미지 처리 함수
   Future<void> _pickAndConvertImage(ImageSource source) async {
     try {
-      // 1. 이미지 선택 (용량 줄이기 설정 필수)
       final XFile? image = await _picker.pickImage(
         source: source,
-        imageQuality: 20, // 화질 20%
-        maxWidth: 500,    // 가로 500px 제한 (Firestore 용량 제한 때문)
+        imageQuality: 20,
+        maxWidth: 500,
         maxHeight: 500,
       );
-      
+
       if (image == null) return;
 
-      // [핵심 변경] File(image.path) 대신 readAsBytes() 사용!
-      // 이렇게 하면 웹 브라우저에서도 문제 없이 데이터를 읽어옵니다.
       final Uint8List imageBytes = await image.readAsBytes();
-      
-      // Base64 문자열로 변환
       String base64String = base64Encode(imageBytes);
 
-      // 전송
       _sendMessage(imageBase64: base64String);
-      
+
     } catch (e) {
       print('이미지 처리 오류: $e');
       if(mounted) {
@@ -192,7 +188,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // [confetti 패키지 제거됨 - 주석 처리]
   Path _drawHeart(Size size) {
     final path = Path();
     path.moveTo(0.5 * size.width, size.height * 0.35);
@@ -229,7 +224,16 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () {}),
+          // [★수정됨] 메뉴 버튼 누르면 ChatSettingScreen으로 이동
+          IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black), 
+            onPressed: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => const ChatSettingScreen())
+              );
+            }
+          ),
         ],
       ),
       body: Container(
@@ -268,8 +272,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemBuilder: (context, index) {
                           final data = docs[index].data() as Map<String, dynamic>;
                           return _Bubble(
-                            message: data['text'], 
-                            imageBase64: data['imageBase64'], 
+                            message: data['text'],
+                            imageBase64: data['imageBase64'],
                             isMe: data['senderId'] == myId,
                             nickname: data['nickname'] ?? '익명',
                             timestamp: data['createdAt'] as Timestamp?,
@@ -318,7 +322,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.add_circle_outline, color: mainBlue, size: 28),
-                          onPressed: _showAttachmentSheet, 
+                          onPressed: _showAttachmentSheet,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
@@ -385,6 +389,190 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+// ==========================================
+// [2] 설정 화면 (ChatSettingScreen) - 새로 추가됨
+// ==========================================
+class ChatSettingScreen extends StatefulWidget {
+  const ChatSettingScreen({super.key});
+
+  @override
+  State<ChatSettingScreen> createState() => _ChatSettingScreenState();
+}
+
+class _ChatSettingScreenState extends State<ChatSettingScreen> {
+  // 스위치 상태 관리 변수들
+  bool _isTypingStatusEnabled = false;
+  bool _isAutoBackupEnabled = true; // 디자인상 켜져있는 것 같아 true로 설정
+  bool _isAutoPlayEnabled = false;
+  bool _isSwipeReplyEnabled = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          '채팅방 설정',
+          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        children: [
+          _buildSectionTitle('채팅방'),
+          _buildToggleRow(
+            title: '메시지 입력 중 상태 보기',
+            description: '채팅방에서 친구가 메시지 입력 중인 상태를 확인하고,\n내 상태도 공유 할 수 있습니다.',
+            value: _isTypingStatusEnabled,
+            onChanged: (val) => setState(() => _isTypingStatusEnabled = val),
+          ),
+          
+          const SizedBox(height: 30),
+          _buildSectionTitle('백업'),
+          _buildToggleRow(
+            title: '대화 자동 백업',
+            description: '모든 기기의 대화와 사진, 동영상, 파일을 자동으로 백업하고\n언제든 복원할 수 있습니다.',
+            value: _isAutoBackupEnabled,
+            activeColor: const Color(0xFFC4ECF6), // 디자인에 있는 하늘색
+            onChanged: (val) => setState(() => _isAutoBackupEnabled = val),
+          ),
+          const SizedBox(height: 20),
+          _buildInfoRow(
+            title: '대화 임시 백업',
+            description: '이 기기의 대화를 직접 백업하고 14일 이내 앱 재설치 시\n복원할 수 있습니다',
+          ),
+
+          const SizedBox(height: 30),
+          _buildSectionTitle('미디어'),
+          _buildToggleRow(
+            title: '동영상 말풍선 자동재생',
+            description: '채팅방에서 내려받은 동영상을 말풍선에서 자동으로 재생합니다.',
+            value: _isAutoPlayEnabled,
+            onChanged: (val) => setState(() => _isAutoPlayEnabled = val),
+          ),
+
+          const SizedBox(height: 30),
+          _buildSectionTitle('말풍선'),
+          _buildToggleRow(
+            title: '스와이프로 답장하기',
+            description: '말풍선을 왼쪽으로 밀어 답장 기능을 사용할 수 있습니다.',
+            value: _isSwipeReplyEnabled,
+            onChanged: (val) => setState(() => _isSwipeReplyEnabled = val),
+          ),
+          const SizedBox(height: 50),
+        ],
+      ),
+    );
+  }
+
+  // 섹션 제목 위젯
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 20,
+          fontFamily: 'Gowun Dodum', // 폰트가 없으면 기본 폰트로 나옵니다
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  // 토글 스위치가 있는 행 위젯
+  Widget _buildToggleRow({
+    required String title,
+    required String description,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    Color activeColor = const Color(0xFFC4ECF6),
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 17,
+                fontFamily: 'Gowun Dodum',
+                color: Colors.black,
+              ),
+            ),
+            Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                value: value,
+                onChanged: onChanged,
+                activeColor: Colors.white,
+                activeTrackColor: activeColor,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFD9D9D9),
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4, right: 40),
+          child: Text(
+            description,
+            style: const TextStyle(
+              fontSize: 12,
+              fontFamily: 'Gowun Dodum',
+              color: Colors.grey,
+              height: 1.5,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 토글 없이 정보만 있는 행 위젯
+  Widget _buildInfoRow({required String title, required String description}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 17,
+            fontFamily: 'Gowun Dodum',
+            color: Colors.black,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(
+            description,
+            style: const TextStyle(
+              fontSize: 12,
+              fontFamily: 'Gowun Dodum',
+              color: Colors.grey,
+              height: 1.5,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+
+// ==========================================
+// [3] 부가적인 위젯들 (Bubble, AttachmentOption)
+// ==========================================
 class _AttachmentOption extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -417,8 +605,8 @@ class _AttachmentOption extends StatelessWidget {
 }
 
 class _Bubble extends StatelessWidget {
-  final String? message; 
-  final String? imageBase64; 
+  final String? message;
+  final String? imageBase64;
   final bool isMe;
   final String nickname;
   final Timestamp? timestamp;
@@ -455,7 +643,7 @@ class _Bubble extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.memory(
-              base64Decode(imageBase64!), 
+              base64Decode(imageBase64!),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return const Center(child: Icon(Icons.broken_image, color: Colors.grey));

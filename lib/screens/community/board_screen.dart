@@ -182,31 +182,34 @@ class _BoardScreenState extends State<BoardScreen> {
     );
   }
 
-  /// ===== 퀴즈 =====
-  Widget _quizItem() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => QuizScreen(
-              villageName: widget.villageName,
-              villageId: widget.villageId,
-            ),
-          ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Text(
-          '퀴즈',
-          style: GoogleFonts.gowunDodum(
-            fontSize: 28,
-            fontWeight:
-                _selectedCategory == '퀴즈' ? FontWeight.w700 : FontWeight.w400,
+ /// ===== 퀴즈 =====
+Widget _quizItem() {
+  return GestureDetector(
+    onTap: () {
+      setState(() => _selectedCategory = '퀴즈'); // (선택 강조용)
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => QuizScreen(
+            villageName: widget.villageName,
+            villageId: widget.villageId,
           ),
         ),
+      );
+    },
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Text(
+        '퀴즈',
+        style: GoogleFonts.gowunDodum(
+          fontSize: 28,
+          fontWeight:
+              _selectedCategory == '퀴즈'
+                  ? FontWeight.w700
+                  : FontWeight.w400,
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
