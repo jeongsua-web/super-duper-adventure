@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:my_app/pages/splash/views/splash_view.dart';
+import 'package:my_app/pages/splash/controllers/splash_controller.dart';
 import 'package:my_app/pages/auth/views/login_view.dart';
 import 'package:my_app/pages/auth/controllers/login_controller.dart';
 import 'package:my_app/pages/auth/views/signup_view.dart';
@@ -11,7 +13,7 @@ import 'package:my_app/pages/settings/views/account_settings_view.dart';
 import 'package:my_app/pages/settings/controllers/account_settings_controller.dart';
 import 'package:my_app/pages/mailbox/views/mailbox_view.dart';
 import 'package:my_app/pages/mailbox/controllers/mailbox_controller.dart';
-import 'package:my_app/pages/village/views/village_view_view.dart';
+import 'package:my_app/pages/village/views/village_dashboard_view.dart';
 import 'package:my_app/pages/village/controllers/village_view_controller.dart';
 import 'package:my_app/pages/community/views/board_view.dart';
 import 'package:my_app/pages/community/controllers/board_controller.dart';
@@ -21,6 +23,7 @@ import 'package:my_app/pages/community/views/quiz_view.dart';
 import 'package:my_app/pages/community/controllers/quiz_controller.dart';
 
 abstract class AppRoutes {
+  static const String splash = '/';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String home = '/home';
@@ -36,6 +39,14 @@ abstract class AppRoutes {
 
 class AppPages {
   static final pages = [
+    GetPage(
+      name: AppRoutes.splash,
+      page: () => const SplashView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => SplashController());
+      }),
+      transition: Transition.fadeIn,
+    ),
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginView(),
@@ -70,7 +81,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.village,
-      page: () => const VillageViewView(),
+      page: () => const VillageDashboardView(),
       binding: BindingsBuilder(() {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageName = args['villageName'] as String?;
