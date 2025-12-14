@@ -7,7 +7,24 @@ class ResidentProfileView extends GetView<ResidentProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Scaffold(
+          backgroundColor: Color(0xFFE8D7C3),
+          body: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      final resident = controller.resident.value;
+      if (resident == null) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFE8D7C3),
+          appBar: AppBar(title: const Text('주민 프로필')),
+          body: const Center(child: Text('주민 정보를 찾을 수 없습니다')),
+        );
+      }
+
+      return Scaffold(
       backgroundColor: const Color(0xFFE8D7C3),
       body: Column(
         children: [
@@ -56,9 +73,9 @@ class ResidentProfileView extends GetView<ResidentProfileController> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    '❤지쑤킴❤',
-                                    style: TextStyle(
+                                  Text(
+                                    resident.name,
+                                    style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
@@ -77,7 +94,7 @@ class ResidentProfileView extends GetView<ResidentProfileController> {
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
                                     child: LinearProgressIndicator(
-                                      value: 0.8,
+                                      value: controller.intimacy.value,
                                       minHeight: 12,
                                       backgroundColor: Colors.white,
                                       valueColor: AlwaysStoppedAnimation<Color>(
@@ -86,11 +103,11 @@ class ResidentProfileView extends GetView<ResidentProfileController> {
                                     ),
                                   ),
                                   const SizedBox(height: 5),
-                                  const Align(
+                                  Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      '80%',
-                                      style: TextStyle(
+                                      '${controller.intimacyPercent}%',
+                                      style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
@@ -277,5 +294,6 @@ class ResidentProfileView extends GetView<ResidentProfileController> {
         ],
       ),
     );
+    });
   }
 }

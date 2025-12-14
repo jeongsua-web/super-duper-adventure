@@ -1,6 +1,8 @@
 import 'dart:async'; // 타임아웃 처리를 위해 필수
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user.dart';
 import '../services/storage_service.dart';
 import '../services/auth_service.dart';
@@ -10,6 +12,7 @@ class UserController extends GetxController {
   // 서비스 인스턴스
   late final StorageService _storage;
   final AuthService _authService = AuthService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // 반응형 사용자 상태
   final Rx<User?> _user = Rx<User?>(null);
@@ -45,22 +48,31 @@ class UserController extends GetxController {
         return; // finally로 이동
       }
 
-      debugPrint('[UserController] 토큰 발견: $token -> 서버 확인 중...');
+      debugPrint('[UserController] 토큰 발견: $token -> Firebase Auth 확인 중...');
 
-      // ★ 5초 타임아웃 설정 (무한 로딩 방지)
-      final userData = await _authService.getUserData(token)
-          .timeout(const Duration(seconds: 5));
-
-      if (userData != null) {
-        _user.value = userData;
-        debugPrint('[UserController] 자동 로그인 성공: ${userData.name}');
+      // Firebase Auth 현재 사용자 확인
+      final currentUser = auth.FirebaseAuth.instance.currentUser;
+      
+      if (currentUser != null && currentUser.uid == token) {
+        debugPrint('[UserController] Firebase Auth 세션 유효함');
+        
+        // 일단 기본 사용자 정보로 설정 (즉시 로그인)
+        _user.value = User(
+          id: token,
+          name: currentUser.email?.split('@')[0] ?? '사용자',
+          email: currentUser.email ?? '',
+        );
+        
+        // Firestore에서 추가 정보 가져오기 (백그라운드에서)
+        _loadUserDataFromFirestore(token, currentUser);
+        
+        debugPrint('[UserController] 자동 로그인 성공: ${_user.value!.name}');
       } else {
-        debugPrint('[UserController] 유저 데이터 없음 -> 토큰 삭제');
+        debugPrint('[UserController] Firebase Auth 세션 없음 -> 토큰 삭제');
         await _storage.remove('uToken');
       }
     } on TimeoutException catch (_) {
       debugPrint('[UserController] ⚠️ 자동 로그인 시간 초과 (네트워크 지연)');
-      // 필요하다면 여기서 스낵바를 띄우거나, 토큰을 유지한 채로 일단 로그인 화면으로 보낼 수도 있음
     } catch (e) {
       debugPrint('[UserController] ⚠️ 자동 로그인 오류: $e');
       await _storage.remove('uToken');
@@ -98,13 +110,14 @@ class UserController extends GetxController {
   /// 로그아웃
   Future<void> logout() async {
     try {
+      debugPrint('[UserController] 로그아웃 시작');
       await _storage.remove('uToken');
       await _authService.signOut();
       _user.value = null;
       Get.offAllNamed(AppRoutes.login);
-      debugPrint('로그아웃 완료');
+      debugPrint('[UserController] 로그아웃 완료');
     } catch (e) {
-      debugPrint('로그아웃 오류: $e');
+      debugPrint('[UserController] 로그아웃 오류: $e');
     }
   }
 
@@ -114,5 +127,25 @@ class UserController extends GetxController {
 
   void clearUser() {
     _user.value = null;
+  }
+
+  /// Firestore에서 사용자 정보 로드 (백그라운드)
+  Future<void> _loadUserDataFromFirestore(String userId, auth.User currentUser) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get()
+          .timeout(const Duration(seconds: 10));
+      
+      if (userDoc.exists && userDoc.data() != null) {
+        final data = userDoc.data()!;
+        _user.value = User(
+          id: userId,
+          name: data['name'] ?? currentUser.email?.split('@')[0] ?? '사용자',
+          email: data['email'] ?? currentUser.email ?? '',
+        );
+        debugPrint('[UserController] Firestore 사용자 정보 업데이트 완료');
+      }
+    } catch (e) {
+      debugPrint('[UserController] Firestore 사용자 정보 로드 실패 (기본값 유지): $e');
+    }
   }
 }

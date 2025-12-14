@@ -12,7 +12,8 @@ class ChatListController extends GetxController {
     return _firestore
         .collection('chat_rooms')
         .where('participants', arrayContains: currentUserId)
-        .orderBy('lastMessageTime', descending: true)
+        // orderBy는 Firestore 복합 인덱스 필요 - 임시로 주석 처리
+        // .orderBy('lastMessageTime', descending: true)
         .snapshots();
   }
 
@@ -27,7 +28,10 @@ class ChatListController extends GetxController {
       'participants': [currentUserId, tempRecipientId],
     });
 
-    Get.toNamed('/chat', arguments: {'chatRoomId': newRoom.id});
+    Get.toNamed('/chat', arguments: {
+      'chatRoomId': newRoom.id,
+      'villageName': '새로운 대화방',
+    });
   }
 
   String formatTime(Timestamp? timestamp) {

@@ -36,11 +36,15 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
   Future<void> _logout(BuildContext context) async {
     try {
+      print('[AccountSettings] 로그아웃 버튼 클릭됨');
       await FirebaseAuth.instance.signOut();
+      print('[AccountSettings] Firebase 로그아웃 완료');
       if (context.mounted) {
         Get.back();
+        print('[AccountSettings] Get.back() 호출 완료');
       }
     } catch (e) {
+      print('[AccountSettings] 로그아웃 실패: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,

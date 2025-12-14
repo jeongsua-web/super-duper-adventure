@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../routes/app_routes.dart';
+import '../../../controllers/user_controller.dart';
+import '../../../services/storage_service.dart';
 
 class LoginController extends GetxController {
   // TextEditingController
@@ -14,6 +16,17 @@ class LoginController extends GetxController {
   // 반응형 변수
   final RxBool savePassword = false.obs;
   final RxBool isLoading = false.obs;
+
+  // 서비스
+  late final UserController _userController;
+  late final StorageService _storage;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _userController = Get.find<UserController>();
+    _storage = Get.find<StorageService>();
+  }
 
   @override
   void onClose() {
@@ -39,12 +52,18 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      Get.offAllNamed(AppRoutes.mainHome);
+      if (userCredential.user != null) {
+        // UserController를 통해 토큰 저장 및 사용자 정보 설정
+        await _storage.saveString('uToken', userCredential.user!.uid);
+        
+        // UserController의 user 업데이트는 자동으로 Firebase Auth 리스너가 처리
+        Get.offAllNamed(AppRoutes.mainHome);
+      }
     } on FirebaseAuthException catch (e) {
       String message;
       if (e.code == 'user-not-found') {

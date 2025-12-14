@@ -28,6 +28,12 @@ import 'package:my_app/pages/community/controllers/search_controller.dart'
     as community;
 import 'package:my_app/pages/community/views/post_detail_view.dart';
 import 'package:my_app/pages/community/controllers/post_detail_controller.dart';
+import 'package:my_app/pages/village/views/village_settings_view.dart';
+import 'package:my_app/pages/village/controllers/village_settings_controller.dart';
+import 'package:my_app/pages/community/views/chat_view.dart';
+import 'package:my_app/pages/community/controllers/chat_controller.dart';
+import 'package:my_app/pages/community/views/chat_list_view.dart';
+import 'package:my_app/pages/community/controllers/chat_list_controller.dart';
 
 abstract class AppRoutes {
   static const String splash = '/';
@@ -45,6 +51,9 @@ abstract class AppRoutes {
   static const String postDetail = '/post-detail';
   static const String mailbox = '/mailbox';
   static const String settings = '/settings';
+  static const String villageSettings = '/village-settings';
+  static const String chat = '/chat';
+  static const String chatList = '/chat-list';
 }
 
 class AppPages {
@@ -208,6 +217,44 @@ class AppPages {
         Get.put(PostDetailController(postId: postId, villageId: villageId));
         return PostDetailView();
       },
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.villageSettings,
+      page: () => const VillageSettingsView(),
+      binding: BindingsBuilder(() {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageId = args['villageId'] as String? ?? '';
+        final villageName = args['villageName'] as String? ?? '마을';
+        Get.lazyPut(
+          () => VillageSettingsController(
+            villageId: villageId,
+            villageName: villageName,
+          ),
+        );
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.chatList,
+      page: () => const ChatListView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => ChatListController());
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.chat,
+      page: () => const ChatView(),
+      binding: BindingsBuilder(() {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final chatRoomId = args['chatRoomId'] as String? ?? '';
+        final villageName = args['villageName'] as String? ?? '마을 채팅방';
+        Get.lazyPut(
+          () =>
+              ChatController(chatRoomId: chatRoomId, villageName: villageName),
+        );
+      }),
       transition: Transition.rightToLeft,
     ),
   ];
