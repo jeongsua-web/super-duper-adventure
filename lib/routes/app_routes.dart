@@ -43,7 +43,7 @@ class AppPages {
       name: AppRoutes.splash,
       page: () => const SplashView(),
       binding: BindingsBuilder(() {
-        Get.lazyPut(() => SplashController());
+        Get.put(SplashController());
       }),
       transition: Transition.fadeIn,
     ),

@@ -62,16 +62,26 @@ class TileMapController extends GetxController {
       gridWidth.value = data['width'] ?? 10;
       gridHeight.value = data['height'] ?? 10;
 
-      // 현재 사용자의 집 추가 (첫 입장 시)
+      // 객체 리스트 먼저 가져오기
+      objects.value = _tileMapService.getTileObjects(tileMapData);
+
+      // 현재 사용자의 집 추가 (첫 입장 시 - 중복 방지)
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
-        await _tileMapService.addUserHouse(villageId!, currentUser.uid);
-        // 업데이트된 데이터 다시 로드
-        final updatedData = await _tileMapService.loadTileMap(villageId!);
-        tileMapData.value = updatedData;
+        // 이미 내 집이 있는지 확인
+        final hasMyHouse = objects.any((obj) => 
+          obj.type == ObjectType.house && obj.userId == currentUser.uid
+        );
+        
+        // 집이 없을 때만 추가
+        if (!hasMyHouse) {
+          await _tileMapService.addUserHouse(villageId!, currentUser.uid);
+          // 업데이트된 데이터 다시 로드
+          final updatedData = await _tileMapService.loadTileMap(villageId!);
+          tileMapData.value = updatedData;
+          objects.value = _tileMapService.getTileObjects(tileMapData);
+        }
       }
-
-      objects.value = _tileMapService.getTileObjects(tileMapData);
     } catch (e) {
       print('타일맵 로드 에러: $e');
       gridWidth.value = 10;

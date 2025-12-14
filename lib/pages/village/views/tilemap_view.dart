@@ -72,87 +72,80 @@ class TileMapView extends GetView<TileMapController> {
                       minScale: 0.5,
                       maxScale: 3.0,
                       constrained: false,
-                      child: Stack(
-                        children: [
-                          // 배경 이미지
-                          Positioned(
-                            width: controller.gridWidth.value * TileMapController.tileSize.toDouble(),
-                            height: controller.gridHeight.value * TileMapController.tileSize.toDouble(),
-                            child: SvgPicture.asset(
-                              'assets/images/backgrand.svg',
-                              fit: BoxFit.cover,
+                      child: GestureDetector(
+                        // 전체 타일맵을 감싸는 단일 GestureDetector
+                        onTapUp: (TapUpDetails details) {
+                          // 탭 위치를 타일 인덱스로 변환
+                          final tileSize = TileMapController.tileSize.toDouble();
+                          final col = (details.localPosition.dx / tileSize).floor();
+                          final row = (details.localPosition.dy / tileSize).floor();
+                          
+                          // 그리드 범위 내에서만 처리
+                          if (col >= 0 && col < controller.gridWidth.value &&
+                              row >= 0 && row < controller.gridHeight.value) {
+                            controller.onTileTap(row, col);
+                          }
+                        },
+                        child: Stack(
+                          children: [
+                            // 배경 이미지
+                            Positioned(
+                              width: controller.gridWidth.value * TileMapController.tileSize.toDouble(),
+                              height: controller.gridHeight.value * TileMapController.tileSize.toDouble(),
+                              child: SvgPicture.asset(
+                                'assets/images/backgrand.svg',
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                          // 타일맵 컨테이너
-                          Container(
-                            width: controller.gridWidth.value * TileMapController.tileSize.toDouble(),
-                            height: controller.gridHeight.value * TileMapController.tileSize.toDouble(),
-                            color: Colors.transparent,
-                            child: Stack(
-                              children: [
-                                // 그리드 라인
-                                CustomPaint(
-                                  painter: GridPainter(
-                                    gridWidth: controller.gridWidth.value,
-                                    gridHeight: controller.gridHeight.value,
-                                    tileSize: TileMapController.tileSize,
+                            // 타일맵 컨테이너
+                            Container(
+                              width: controller.gridWidth.value * TileMapController.tileSize.toDouble(),
+                              height: controller.gridHeight.value * TileMapController.tileSize.toDouble(),
+                              color: Colors.transparent,
+                              child: Stack(
+                                children: [
+                                  // 그리드 라인
+                                  CustomPaint(
+                                    painter: GridPainter(
+                                      gridWidth: controller.gridWidth.value,
+                                      gridHeight: controller.gridHeight.value,
+                                      tileSize: TileMapController.tileSize,
+                                    ),
+                                    size: Size(
+                                      controller.gridWidth.value * TileMapController.tileSize.toDouble(),
+                                      controller.gridHeight.value * TileMapController.tileSize.toDouble(),
+                                    ),
                                   ),
-                                  size: Size(
-                                    controller.gridWidth.value * TileMapController.tileSize.toDouble(),
-                                    controller.gridHeight.value * TileMapController.tileSize.toDouble(),
-                                  ),
-                                ),
-                                // 타일들 (클릭 감지용)
-                                ...List.generate(
-                                  controller.gridHeight.value,
-                                  (row) => Positioned(
-                                    top: row * TileMapController.tileSize.toDouble(),
-                                    left: 0,
-                                    child: Row(
-                                      children: List.generate(
-                                        controller.gridWidth.value,
-                                        (col) => GestureDetector(
-                                          onTap: () => controller.onTileTap(row, col),
-                                          child: Container(
-                                            width: TileMapController.tileSize.toDouble(),
-                                            height: TileMapController.tileSize.toDouble(),
-                                            color: Colors.transparent,
+                                  // 객체 표시 (GestureDetector 제거하고 포인터만 표시)
+                                  ...controller.objects.map(
+                                    (obj) => Positioned(
+                                      left: obj.x * TileMapController.tileSize.toDouble(),
+                                      top: obj.y * TileMapController.tileSize.toDouble(),
+                                      child: IgnorePointer(
+                                        child: Container(
+                                          width: TileMapController.tileSize.toDouble(),
+                                          height: TileMapController.tileSize.toDouble(),
+                                          decoration: BoxDecoration(
+                                            color: obj.type == ObjectType.system
+                                                ? Colors.blue.withOpacity(0.7)
+                                                : Colors.orange.withOpacity(0.7),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              obj.type == ObjectType.system ? '📌' : '🏠',
+                                              style: const TextStyle(fontSize: 24),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                // 객체 표시
-                                ...controller.objects.map(
-                                  (obj) => Positioned(
-                                    left: obj.x * TileMapController.tileSize.toDouble(),
-                                    top: obj.y * TileMapController.tileSize.toDouble(),
-                                    child: GestureDetector(
-                                      onTap: () => controller.onObjectTap(obj),
-                                      child: Container(
-                                        width: TileMapController.tileSize.toDouble(),
-                                        height: TileMapController.tileSize.toDouble(),
-                                        decoration: BoxDecoration(
-                                          color: obj.type == ObjectType.system
-                                              ? Colors.blue.withOpacity(0.7)
-                                              : Colors.orange.withOpacity(0.7),
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            obj.type == ObjectType.system ? '📌' : '🏠',
-                                            style: const TextStyle(fontSize: 24),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     )),
               ),

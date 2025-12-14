@@ -1,44 +1,60 @@
+import 'dart:async'; // Timer 사용을 위해 필요
 import 'package:get/get.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/storage_service.dart';
 
 class SplashController extends GetxController {
-  final UserController _userController = Get.find<UserController>();
-  final StorageService _storage = Get.find<StorageService>();
+  // late로 지연 초기화
+  late final UserController _userController;
 
   @override
   void onInit() {
     super.onInit();
-    _initialize();
+    // onInit에서 UserController 찾기
+    _userController = Get.find<UserController>();
+    print('[SplashController] onInit - UserController 찾음');
   }
 
-  Future<void> _initialize() async {
-    // 스플래시 화면 최소 표시 시간 (UX)
-    await Future.delayed(const Duration(seconds: 2));
+  @override
+  void onReady() {
+    super.onReady();
+    print('[SplashController] onReady 호출됨');
+    _handleStartUpLogic();
+  }
 
-    // 토큰 확인
-    final token = _storage.readString('uToken');
+  Future<void> _handleStartUpLogic() async {
+    print('[Splash] 앱 시작 로직 실행');
+
+    // 1. 로고 보여주기 (최소 1.5초 대기)
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    // 2. [비상 탈출] 무한 로딩 방지용 타이머
+    // 0.2초마다 검사해서 isAutoLoginChecked가 true면 이동
+    // 최대 5초(25번)까지만 기다림
+    int retryCount = 0;
     
-    if (token == null || token.isEmpty) {
-      // 토큰 없음 - 로그인 화면으로
-      Get.offAllNamed(AppRoutes.login);
-      return;
+    while (!_userController.isAutoLoginChecked.value) {
+      if (retryCount >= 25) { 
+        print('[Splash] ⚠️ 시간 초과! (5초 경과) -> 강제로 이동합니다.');
+        break; // 루프 탈출
+      }
+      
+      print('[Splash] 아직 로딩 중... (${retryCount + 1}/25)');
+      await Future.delayed(const Duration(milliseconds: 200)); // 0.2초 대기
+      retryCount++;
     }
 
-    // 자동 로그인 완료 대기 (최대 3초)
-    int waitCount = 0;
-    while (waitCount < 30 && _userController.user == null) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      waitCount++;
-    }
+    // 3. 루프 탈출 후 이동 (성공이든 실패든 무조건 이동)
+    print('[Splash] 로딩 종료 -> 화면 이동');
+    _navigateToNextScreen();
+  }
 
-    // 로그인 상태 확인
+  void _navigateToNextScreen() {
     if (_userController.user != null) {
-      // 자동 로그인 성공 - 메인 홈으로
+      print('[Splash] 로그인 상태 O -> 메인으로');
       Get.offAllNamed(AppRoutes.mainHome);
     } else {
-      // 자동 로그인 실패 - 로그인 화면으로
+      print('[Splash] 로그인 상태 X -> 로그인 화면으로');
       Get.offAllNamed(AppRoutes.login);
     }
   }
