@@ -485,11 +485,8 @@ class _BoardListViewState extends State<BoardListView> {
                           child: GestureDetector(
                             onTap: () {
                               Get.toNamed(
-                                AppRoutes.settings,
-                                arguments: {
-                                  'villageName': widget.villageName,
-                                  'villageId': widget.villageId,
-                                },
+                                AppRoutes.search,
+                                arguments: {'villageName': widget.villageName},
                               );
                             },
                             child: const Icon(
