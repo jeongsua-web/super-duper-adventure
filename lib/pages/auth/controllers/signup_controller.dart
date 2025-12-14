@@ -176,4 +176,15 @@ class SignupController extends GetxController {
   void goBack() {
     Get.back();
   }
+
+  // 아이디(Username) 중복확인
+  Future<bool> checkUsernameDuplicate(String username) async {
+    if (username.isEmpty) return false;
+    final query = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .limit(1)
+        .get();
+    return query.docs.isNotEmpty;
+  }
 }

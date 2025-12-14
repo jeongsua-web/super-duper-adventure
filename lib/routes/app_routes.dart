@@ -33,6 +33,10 @@ import 'package:my_app/pages/community/controllers/chat_controller.dart';
 import 'package:my_app/pages/community/views/chat_list_view.dart';
 import 'package:my_app/pages/community/controllers/chat_list_controller.dart';
 
+// village create import
+import 'package:my_app/pages/village/views/village_create_view.dart';
+import 'package:my_app/pages/village/controllers/village_create_controller.dart';
+
 abstract class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
@@ -95,6 +99,15 @@ class AppPages {
         Get.lazyPut(() => MainHomeController());
       }),
       transition: Transition.fadeIn,
+    ),
+    // 새 마을 만들기 라우트 추가
+    GetPage(
+      name: AppRoutes.villageCreate,
+      page: () => const VillageCreateView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => VillageCreateController());
+      }),
+      transition: Transition.rightToLeft,
     ),
     GetPage(
       name: AppRoutes.village,

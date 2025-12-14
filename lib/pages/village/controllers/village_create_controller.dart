@@ -95,7 +95,8 @@ class VillageCreateController extends GetxController {
       }, SetOptions(merge: true));
 
       Get.snackbar('성공', '마을이 생성되었습니다!');
-      Get.back(result: true);
+      // 홈(메인홈)으로 이동
+      Get.offAllNamed('/main-home');
     } catch (e) {
       Get.snackbar('오류', '마을 생성 실패: $e');
     } finally {
