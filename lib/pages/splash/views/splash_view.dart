@@ -10,70 +10,113 @@ class SplashView extends GetView<SplashController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF4DDBFF), Color(0xFFC4ECF6)],
+            begin: Alignment(0.50, 1.00),
+            end: Alignment(0.50, 0.00),
+            colors: [Color(0xFFC4ECF6), Colors.white],
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 로고 또는 아이콘
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.home_rounded,
-                  size: 70,
-                  color: Color(0xFF4DDBFF),
+        child: Stack(
+          children: [
+            // 중앙 상단 - "마이" 텍스트
+            Positioned(
+              left: 106,
+              top: 211,
+              child: SizedBox(
+                width: 179,
+                height: 123,
+                child: Text(
+                  '마이',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.bagelFatOne(
+                    color: const Color(0xFFC4ECF6),
+                    fontSize: 96,
+                    fontWeight: FontWeight.w400,
+                    height: 0.23,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
-              
-              // 앱 이름
-              Text(
-                '마이',
-                style: GoogleFonts.bagelFatOne(
-                  color: Colors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 2,
-                  height: 1.2,
+            ),
+            
+            // 중앙 하단 - "마을" 텍스트
+            Positioned(
+              left: 108,
+              top: 303,
+              child: SizedBox(
+                width: 179,
+                height: 123,
+                child: Text(
+                  '마을',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.bagelFatOne(
+                    color: const Color(0xFFC4ECF6),
+                    fontSize: 96,
+                    fontWeight: FontWeight.w400,
+                    height: 0.23,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
-              Text(
-                '마을',
-                style: GoogleFonts.bagelFatOne(
-                  color: Colors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 2,
-                  height: 1.2,
+            ),
+            
+            // 중앙 하단 - 마을 아이콘
+            Positioned(
+              left: 116,
+              top: 710,
+              child: Container(
+                width: 162,
+                height: 147,
+                clipBehavior: Clip.antiAlias,
+                decoration: const BoxDecoration(),
+                child: Image.asset(
+                  'assets/images/village.png',
+                  fit: BoxFit.contain,
                 ),
               ),
-              const SizedBox(height: 60),
-              
-              // 로딩 인디케이터
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                strokeWidth: 3,
+            ),
+            
+            // 왼쪽 하단 - 집 아이콘 (회전)
+            Positioned(
+              left: -4.76,
+              top: 760.96,
+              child: Transform.rotate(
+                angle: -0.45,
+                child: Container(
+                  width: 92,
+                  height: 92,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const BoxDecoration(),
+                  child: Image.asset(
+                    'assets/images/house.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
-            ],
-          ),
+            ),
+            
+            // 오른쪽 하단 - 우체통 아이콘 (회전)
+            Positioned(
+              left: 314.43,
+              top: 701,
+              child: Transform.rotate(
+                angle: 0.40,
+                child: Container(
+                  width: 81,
+                  height: 81,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const BoxDecoration(),
+                  child: Image.asset(
+                    'assets/images/mailBox.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -22,6 +22,10 @@ class CalendarController extends GetxController {
   final RxMap<DateTime, List<Map<String, dynamic>>> events = 
       <DateTime, List<Map<String, dynamic>>>{}.obs;
   
+  // 뷰 모드: 0=연간, 1=월간, 2=주간, 3=일간
+  final RxInt viewMode = 1.obs;
+  final RxInt selectedYear = DateTime.now().year.obs;
+  
   final TextEditingController eventController = TextEditingController();
 
   @override
