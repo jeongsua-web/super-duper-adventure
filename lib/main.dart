@@ -5,14 +5,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'firebase_options.dart';
 import 'routes/app_routes.dart';
-import 'screens/auth/login_screen.dart';
-import 'screens/main_home_screen.dart';
+import 'pages/auth/views/login_view.dart';
+import 'pages/home/views/main_home_view.dart';
+import 'pages/user/controllers/user_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // GetX 컨트롤러 의존성 주입
+  Get.put(UserController());
+  
   runApp(const MyApp());
 }
 
@@ -28,6 +33,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.gowunDodumTextTheme(),
       ),
+      initialRoute: AppRoutes.login,
       getPages: AppPages.pages,
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -39,11 +45,11 @@ class MyApp extends StatelessWidget {
             );
           }
           
-          // 로그인 되어 있으면 MainHomeScreen, 아니면 LoginScreen
+          // 로그인 되어 있으면 MainHomeView, 아니면 LoginView
           if (snapshot.hasData) {
-            return const MainHomeScreen();
+            return const MainHomeView();
           } else {
-            return const LoginScreen();
+            return const LoginView();
           }
         },
       ),
