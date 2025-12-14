@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../routes/app_routes.dart';
-import '../../../controllers/user_controller.dart';
 import '../../../services/storage_service.dart';
 
 class LoginController extends GetxController {
@@ -18,13 +17,11 @@ class LoginController extends GetxController {
   final RxBool isLoading = false.obs;
 
   // 서비스
-  late final UserController _userController;
   late final StorageService _storage;
 
   @override
   void onInit() {
     super.onInit();
-    _userController = Get.find<UserController>();
     _storage = Get.find<StorageService>();
   }
 
@@ -52,15 +49,13 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
 
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
 
       if (userCredential.user != null) {
         // UserController를 통해 토큰 저장 및 사용자 정보 설정
         await _storage.saveString('uToken', userCredential.user!.uid);
-        
+
         // UserController의 user 업데이트는 자동으로 Firebase Auth 리스너가 처리
         Get.offAllNamed(AppRoutes.mainHome);
       }
@@ -78,17 +73,9 @@ class LoginController extends GetxController {
         message = '로그인 실패: ${e.message}';
       }
 
-      Get.snackbar(
-        '로그인 실패',
-        message,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('로그인 실패', message, snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar(
-        '오류 발생',
-        '$e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('오류 발생', '$e', snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
@@ -113,7 +100,8 @@ class LoginController extends GetxController {
           return;
         }
 
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
         final credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
@@ -125,11 +113,7 @@ class LoginController extends GetxController {
       Get.offAllNamed(AppRoutes.mainHome);
     } catch (e) {
       print('Google 로그인 에러: $e');
-      Get.snackbar(
-        'Google 로그인 실패',
-        '$e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Google 로그인 실패', '$e', snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
@@ -166,11 +150,7 @@ class LoginController extends GetxController {
       Get.offAllNamed(AppRoutes.mainHome);
     } catch (e) {
       print('Apple 로그인 에러: $e');
-      Get.snackbar(
-        'Apple 로그인 실패',
-        '$e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Apple 로그인 실패', '$e', snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
