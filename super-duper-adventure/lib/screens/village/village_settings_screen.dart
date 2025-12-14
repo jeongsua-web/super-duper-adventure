@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../services/village_role_service.dart';
 import '../../models/village_member.dart';
 
@@ -20,7 +21,11 @@ class VillageSettingsScreen extends StatefulWidget {
 
 class _VillageSettingsScreenState extends State<VillageSettingsScreen> {
   bool _showEmailInput = false;
+  bool _isEditingDescription = false;
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController(
+    text: 'OO이가 관리하는 예쁘고 평화로운 마을입니다.\n저희 마을에서 욕은 안돼요~~',
+  );
   VillageMember? _currentUserRole;
   bool _isLoadingRole = true;
   final VillageRoleService _roleService = VillageRoleService();
@@ -58,7 +63,33 @@ class _VillageSettingsScreenState extends State<VillageSettingsScreen> {
   @override
   void dispose() {
     _emailController.dispose();
+    _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveDescription() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('villages')
+          .doc(widget.villageId)
+          .update({'description': _descriptionController.text});
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('마을 설명이 저장되었습니다')));
+      }
+
+      setState(() {
+        _isEditingDescription = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('저장 실패: $e')));
+      }
+    }
   }
 
   void _sendInvitation() async {
@@ -138,262 +169,289 @@ class _VillageSettingsScreenState extends State<VillageSettingsScreen> {
         ),
         leadingWidth: 60,
       ),
-      body: Stack(
-        children: [
-          // 파일명 표시 (테스트용)
-          Positioned(
-            left: 0,
-            top: 0,
-            right: 0,
-            child: Container(
-              color: Colors.yellow.withOpacity(0.3),
-              padding: const EdgeInsets.all(4),
-              child: const Text(
-                'village_settings_screen.dart',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          Positioned(left: 24, top: 20, child: Container()),
-          const Positioned(
-            left: 24,
-            top: 48,
-            child: Text(
-              '마을 관리',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 19,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
-                height: 0.95,
-                letterSpacing: 0.19,
-              ),
-            ),
-          ),
-          const Positioned(
-            left: 35,
-            top: 115,
-            child: SizedBox(
-              width: 100,
-              height: 41,
-              child: Text(
-                '마을 설명',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0.17,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 35,
-            top: 167,
-            child: Container(
-              width: 321,
-              height: 90,
-              padding: const EdgeInsets.all(16),
-              decoration: ShapeDecoration(
-                color: const Color(0xFFD9D9D9),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'OO이가 관리하는 예쁘고 평화로운 마을입니다.\n저희 마을에서 욕은 안돼요~~',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 13,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                  height: 1.54,
-                  letterSpacing: 0.13,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 317,
-            top: 121,
-            child: GestureDetector(
-              onTap: () {
-                // 수정 기능
-              },
-              child: Container(
-                width: 31,
-                height: 40,
-                decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
-                child: const Center(
+      body: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 마을 정보 섹션
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
-                    '수정',
-                    style: TextStyle(
+                    '마을 정보',
+                    style: GoogleFonts.gowunDodum(
                       color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.13,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          const Positioned(
-            left: 35,
-            top: 278,
-            child: Text(
-              '초대장 보내기',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 17,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.17,
-              ),
-            ),
-          ),
-          // 이메일 입력창 또는 링크 표시
-          if (!_showEmailInput)
-            Positioned(
-              left: 36,
-              top: 318,
-              child: Container(
-                width: 259,
-                height: 32,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: ShapeDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!_isEditingDescription)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '마을 설명',
+                              style: GoogleFonts.gowunDodum(
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isEditingDescription = true;
+                                });
+                              },
+                              child: Text(
+                                '수정',
+                                style: GoogleFonts.gowunDodum(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (_isEditingDescription)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '마을 설명 수정',
+                              style: GoogleFonts.gowunDodum(
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: _saveDescription,
+                                  child: Text(
+                                    '저장',
+                                    style: GoogleFonts.gowunDodum(
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _isEditingDescription = false;
+                                    });
+                                  },
+                                  child: Text(
+                                    '취소',
+                                    style: GoogleFonts.gowunDodum(
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: _isEditingDescription
+                            ? Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: TextField(
+                                  controller: _descriptionController,
+                                  minLines: 1,
+                                  maxLines: null,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.all(12),
+                                  ),
+                                  style: GoogleFonts.gowunDodum(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _descriptionController.text,
+                                  style: GoogleFonts.gowunDodum(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
                   ),
                 ),
-                child: const Align(
-                  alignment: Alignment.centerLeft,
+
+                // 초대장 섹션
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
-                    'design/4N6oqrDpi0nSrF8ct0',
-                    style: TextStyle(
+                    '초대장 보내기',
+                    style: GoogleFonts.gowunDodum(
                       color: Colors.black,
-                      fontSize: 17,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.17,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ),
-            ),
-          // 이메일 입력창
-          if (_showEmailInput)
-            Positioned(
-              left: 36,
-              top: 318,
-              child: Container(
-                width: 259,
-                height: 32,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: const BorderSide(color: Colors.black, width: 1),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!_showEmailInput)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'design/4N6oqrDpi0nSrF8ct0',
+                                style: GoogleFonts.gowunDodum(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showEmailInput = true;
+                                });
+                              },
+                              child: Text(
+                                '링크복사',
+                                style: GoogleFonts.gowunDodum(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (_showEmailInput)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                height: 40,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: TextField(
+                                  controller: _emailController,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '이메일 입력',
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                  style: GoogleFonts.gowunDodum(fontSize: 14),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 12),
+                              child: GestureDetector(
+                                onTap: _sendInvitation,
+                                child: Text(
+                                  '보내기',
+                                  style: GoogleFonts.gowunDodum(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
-                child: TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: '이메일 입력',
-                    hintStyle: TextStyle(fontSize: 12, color: Colors.grey),
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  style: const TextStyle(fontSize: 14, fontFamily: 'Inter'),
-                ),
-              ),
-            ),
-          // 보내기/링크복사 버튼
-          Positioned(
-            left: 309,
-            top: 317,
-            child: GestureDetector(
-              onTap: () {
-                if (_showEmailInput) {
-                  _sendInvitation();
-                } else {
-                  setState(() {
-                    _showEmailInput = true;
-                  });
-                }
-              },
-              child: Container(
-                width: 63,
-                height: 35,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-                child: Center(
+
+                // 주민 목록 섹션
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
-                    _showEmailInput ? '보내기' : '링크복사',
-                    style: const TextStyle(
+                    '주민 목록',
+                    style: GoogleFonts.gowunDodum(
                       color: Colors.black,
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.14,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          const Positioned(
-            left: 35,
-            top: 497,
-            child: Text(
-              '주민 목록',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 17,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.17,
-              ),
-            ),
-          ),
-          Positioned(
-            left: 30,
-            top: 538,
-            child: Container(
-              width: 339,
-              height: 275,
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
-              child: const Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  '김갑동\n이을서\n박병남\n최정북\n정무기',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 17,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w400,
-                    height: 2.35,
-                    letterSpacing: 0.17,
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 40),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '김갑동\n이을서\n박병남\n최정북\n정무기',
+                      style: GoogleFonts.gowunDodum(
+                        color: Colors.black,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                        height: 2,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
