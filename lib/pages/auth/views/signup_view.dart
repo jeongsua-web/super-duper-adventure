@@ -552,57 +552,79 @@ class SignupView extends GetView<SignupController> {
                 Positioned(
                   left: 265,
                   top: 398,
-                  child: Obx(() => GestureDetector(
-                    onTap: controller.isLoading.value
-                        ? null
-                        : () async {
-                            final username = controller.usernameController.text.trim();
-                            if (username.isEmpty) {
-                              Get.snackbar('입력 오류', '아이디를 입력하세요', snackPosition: SnackPosition.BOTTOM);
-                              return;
-                            }
-                            controller.isLoading.value = true;
-                            final isDuplicate = await controller.checkUsernameDuplicate(username);
-                            controller.isLoading.value = false;
-                            if (isDuplicate) {
-                              Get.snackbar('중복확인', '이미 사용 중인 아이디입니다', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red[100]);
-                            } else {
-                              Get.snackbar('중복확인', '사용 가능한 아이디입니다', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green[100]);
-                            }
-                          },
-                    child: Container(
-                      width: 88,
-                      height: 29,
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                            width: 1,
-                            color: Color(0xFF4CDBFF),
+                  child: Obx(
+                    () => GestureDetector(
+                      onTap: controller.isLoading.value
+                          ? null
+                          : () async {
+                              final username = controller
+                                  .usernameController
+                                  .text
+                                  .trim();
+                              if (username.isEmpty) {
+                                Get.snackbar(
+                                  '입력 오류',
+                                  '아이디를 입력하세요',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                                return;
+                              }
+                              controller.isLoading.value = true;
+                              final isDuplicate = await controller
+                                  .checkUsernameDuplicate(username);
+                              controller.isLoading.value = false;
+                              if (isDuplicate) {
+                                Get.snackbar(
+                                  '중복확인',
+                                  '이미 사용 중인 아이디입니다',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red[100],
+                                );
+                              } else {
+                                Get.snackbar(
+                                  '중복확인',
+                                  '사용 가능한 아이디입니다',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.green[100],
+                                );
+                              }
+                            },
+                      child: Container(
+                        width: 88,
+                        height: 29,
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: const BorderSide(
+                              width: 1,
+                              color: Color(0xFF4CDBFF),
+                            ),
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        child: Center(
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  '중복확인',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontFamily: 'Gowun Dodum',
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.25,
+                                    letterSpacing: 0.16,
+                                  ),
+                                ),
                         ),
                       ),
-                      child: Center(
-                        child: controller.isLoading.value
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text(
-                                '중복확인',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontFamily: 'Gowun Dodum',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.25,
-                                  letterSpacing: 0.16,
-                                ),
-                              ),
-                      ),
                     ),
-                  )),
+                  ),
                 ),
                 // 비밀번호 라벨
                 Positioned(
@@ -1137,23 +1159,6 @@ class SignupView extends GetView<SignupController> {
             child: controller.selectedJob.value == jobValue
                 ? const Icon(Icons.check, size: 10, color: Colors.white)
                 : null,
-          ),
-        ),
-      ),
-    );
-  }
-
-  static Widget _buildCheckbox(double left, double top) {
-    return Positioned(
-      left: left,
-      top: top,
-      child: Container(
-        width: 13,
-        height: 13,
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1),
-            borderRadius: BorderRadius.circular(2),
           ),
         ),
       ),
