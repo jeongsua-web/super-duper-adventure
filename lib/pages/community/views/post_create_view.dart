@@ -26,58 +26,6 @@ class PostCreateView extends GetView<PostCreateController> {
               bottom: false,
               child: Column(
                 children: [
-                  // 상단바 (시간, 배터리)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          '9:41',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.signal_cellular_4_bar, size: 16),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.wifi, size: 16),
-                            const SizedBox(width: 4),
-                            Container(
-                              width: 24,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  width: 18,
-                                  height: 8,
-                                  margin: const EdgeInsets.all(1),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(1),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
                   // 헤더 (X, 제목, 완료 버튼)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -103,14 +51,20 @@ class PostCreateView extends GetView<PostCreateController> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        Obx(() => GestureDetector(
-                          onTap: controller.isLoading.value ? null : controller.savePost,
-                          child: Icon(
-                            Icons.edit,
-                            color: controller.isLoading.value ? Colors.grey : Colors.white,
-                            size: 28,
+                        Obx(
+                          () => GestureDetector(
+                            onTap: controller.isLoading.value
+                                ? null
+                                : controller.savePost,
+                            child: Icon(
+                              Icons.edit,
+                              color: controller.isLoading.value
+                                  ? Colors.grey
+                                  : Colors.white,
+                              size: 28,
+                            ),
                           ),
-                        )),
+                        ),
                       ],
                     ),
                   ),
@@ -136,32 +90,34 @@ class PostCreateView extends GetView<PostCreateController> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Obx(() => Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: DropdownButton<String>(
-                      value: controller.selectedCategory.value,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      items: controller.categories.map((String category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(
-                            category,
-                            style: GoogleFonts.gowunDodum(
-                              color: Colors.black,
-                              fontSize: 16,
+                  Obx(
+                    () => Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: DropdownButton<String>(
+                        value: controller.selectedCategory.value,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        items: controller.categories.map((String category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(
+                              category,
+                              style: GoogleFonts.gowunDodum(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: controller.updateCategory,
+                          );
+                        }).toList(),
+                        onChanged: controller.updateCategory,
+                      ),
                     ),
-                  )),
+                  ),
                   const SizedBox(height: 24),
 
                   // 제목 입력
@@ -222,9 +178,18 @@ class PostCreateView extends GetView<PostCreateController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildBottomButton(Icons.camera_alt, controller.onCameraPressed),
-                  _buildBottomButton(Icons.attach_file, controller.onAttachPressed),
-                  _buildBottomButton(Icons.text_fields, controller.onTextFormatPressed),
+                  _buildBottomButton(
+                    Icons.camera_alt,
+                    controller.onCameraPressed,
+                  ),
+                  _buildBottomButton(
+                    Icons.attach_file,
+                    controller.onAttachPressed,
+                  ),
+                  _buildBottomButton(
+                    Icons.text_fields,
+                    controller.onTextFormatPressed,
+                  ),
                 ],
               ),
             ),

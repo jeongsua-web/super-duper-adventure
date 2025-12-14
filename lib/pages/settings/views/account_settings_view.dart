@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/account_settings_controller.dart';
+import '../../../routes/app_routes.dart';
 
 class AccountSettingsView extends GetView<AccountSettingsController> {
   const AccountSettingsView({super.key});
@@ -38,7 +39,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
     try {
       await FirebaseAuth.instance.signOut();
       if (context.mounted) {
-        Get.back();
+        Get.offAllNamed(AppRoutes.login);
       }
     } catch (e) {
       if (context.mounted) {

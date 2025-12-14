@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'post_detail_view.dart';
+import '../controllers/post_detail_controller.dart';
 import '../controllers/search_controller.dart' as community;
 
 class SearchView extends GetView<community.CommunitySearchController> {
@@ -227,12 +228,19 @@ class _SearchScreenState extends State<SearchScreen> {
                               int viewCount = data['viewCount'] ?? 0;
                               return InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const PostDetailView(),
+                                  Get.to(
+                                    () => PostDetailView(
+                                      postId: post.id,
+                                      villageId: widget.villageId,
                                     ),
+                                    binding: BindingsBuilder(() {
+                                      Get.lazyPut(
+                                        () => PostDetailController(
+                                          postId: post.id,
+                                          villageId: widget.villageId,
+                                        ),
+                                      );
+                                    }),
                                   );
                                 },
                                 child: Container(

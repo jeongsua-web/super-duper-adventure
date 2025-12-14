@@ -5,8 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'firebase_options.dart';
 import 'routes/app_routes.dart';
-import 'pages/auth/views/login_view.dart';
-import 'pages/home/views/main_home_view.dart';
 import 'pages/user/controllers/user_controller.dart';
 
 void main() async {

@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'post_detail_view.dart';
 import 'post_create_view.dart';
+import 'search_view.dart';
 import '../../village/views/village_view_view.dart';
 import '../controllers/post_create_controller.dart';
+import '../controllers/post_detail_controller.dart';
 import '../../../routes/app_routes.dart';
 
 class BoardListView extends StatefulWidget {
@@ -490,12 +492,11 @@ class _BoardListViewState extends State<BoardListView> {
                           alignment: Alignment.centerRight,
                           child: GestureDetector(
                             onTap: () {
-                              Get.toNamed(
-                                AppRoutes.settings,
-                                arguments: {
-                                  'villageName': widget.villageName,
-                                  'villageId': widget.villageId,
-                                },
+                              Get.to(
+                                () => SearchScreen(
+                                  villageName: widget.villageName,
+                                  villageId: widget.villageId,
+                                ),
                               );
                             },
                             child: const Icon(
@@ -756,9 +757,13 @@ class _PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PostDetailView()),
+        Get.to(
+          () => PostDetailView(postId: postId, villageId: villageId),
+          binding: BindingsBuilder(() {
+            Get.lazyPut(
+              () => PostDetailController(postId: postId, villageId: villageId),
+            );
+          }),
         );
       },
       child: Container(

@@ -22,109 +22,6 @@ class LoginView extends GetView<LoginController> {
           ),
           child: Stack(
             children: [
-              // Status bar notch
-              Positioned(
-                left: 129,
-                top: 16,
-                child: Container(
-                  width: 131,
-                  height: 33,
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFF383838),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Status bar
-              Positioned(
-                left: -4,
-                top: 2,
-                child: Container(
-                  width: 402,
-                  padding: const EdgeInsets.only(
-                    top: 21,
-                    left: 16,
-                    right: 16,
-                    bottom: 19,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 22,
-                          padding: const EdgeInsets.only(top: 2),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                '9:41',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 17,
-                                  fontFamily: 'SF Pro',
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.29,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 154),
-                      Expanded(
-                        child: Container(
-                          height: 22,
-                          padding: const EdgeInsets.only(top: 1),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Opacity(
-                                opacity: 0.35,
-                                child: Container(
-                                  width: 25,
-                                  height: 13,
-                                  decoration: ShapeDecoration(
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                        width: 1,
-                                        color: Colors.black,
-                                      ),
-                                      borderRadius: BorderRadius.circular(4.30),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 7),
-                              Container(
-                                width: 21,
-                                height: 9,
-                                decoration: ShapeDecoration(
-                                  color: Colors.black,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(2.50),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
               // Logo
               Positioned(
                 left: 50,
@@ -164,14 +61,19 @@ class LoginView extends GetView<LoginController> {
                   height: 45,
                   decoration: ShapeDecoration(
                     color: const Color(0xFFE7E7E7),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                   child: TextField(
                     controller: controller.emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
                     ),
                     style: const TextStyle(fontSize: 13),
                   ),
@@ -203,14 +105,19 @@ class LoginView extends GetView<LoginController> {
                   height: 45,
                   decoration: ShapeDecoration(
                     color: const Color(0xFFE7E7E7),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                   child: TextField(
                     controller: controller.passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
                     ),
                     style: const TextStyle(fontSize: 13),
                   ),
@@ -221,21 +128,23 @@ class LoginView extends GetView<LoginController> {
               Positioned(
                 left: 43,
                 top: 469,
-                child: Obx(() => GestureDetector(
-                  onTap: controller.toggleSavePassword,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: ShapeDecoration(
-                      color: controller.savePassword.value 
-                          ? const Color(0xFFC4ECF6) 
-                          : Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 0.50),
+                child: Obx(
+                  () => GestureDetector(
+                    onTap: controller.toggleSavePassword,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: ShapeDecoration(
+                        color: controller.savePassword.value
+                            ? const Color(0xFFC4ECF6)
+                            : Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(width: 0.50),
+                        ),
                       ),
                     ),
                   ),
-                )),
+                ),
               ),
 
               // Save password text
@@ -277,48 +186,56 @@ class LoginView extends GetView<LoginController> {
               Positioned(
                 left: 74,
                 top: 530,
-                child: Obx(() => GestureDetector(
-                  onTap: controller.isLoading.value ? null : controller.handleLogin,
-                  child: Container(
-                    width: 243,
-                    height: 33,
-                    decoration: ShapeDecoration(
-                      color: controller.isLoading.value 
-                          ? const Color(0xFFE0E0E0) 
-                          : const Color(0xFFC4ECF6),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-                      shadows: const [
-                        BoxShadow(
-                          color: Color(0x3F000000),
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                          spreadRadius: 0,
-                        )
-                      ],
-                    ),
-                    child: Center(
-                      child: controller.isLoading.value
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                child: Obx(
+                  () => GestureDetector(
+                    onTap: controller.isLoading.value
+                        ? null
+                        : controller.handleLogin,
+                    child: Container(
+                      width: 243,
+                      height: 33,
+                      decoration: ShapeDecoration(
+                        color: controller.isLoading.value
+                            ? const Color(0xFFE0E0E0)
+                            : const Color(0xFFC4ECF6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        shadows: const [
+                          BoxShadow(
+                            color: Color(0x3F000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: controller.isLoading.value
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.black,
+                                  ),
+                                ),
+                              )
+                            : const Text(
+                                '로그인',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontFamily: 'Gowun Dodum',
+                                  fontWeight: FontWeight.w400,
+                                  height: 0.90,
+                                ),
                               ),
-                            )
-                          : const Text(
-                              '로그인',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                                fontFamily: 'Gowun Dodum',
-                                fontWeight: FontWeight.w400,
-                                height: 0.90,
-                              ),
-                            ),
+                      ),
                     ),
                   ),
-                )),
+                ),
               ),
 
               // "또는" text
@@ -454,14 +371,16 @@ class LoginView extends GetView<LoginController> {
                     height: 33,
                     decoration: ShapeDecoration(
                       color: const Color(0xFFC4ECF6),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                       shadows: const [
                         BoxShadow(
                           color: Color(0x3F000000),
                           blurRadius: 4,
                           offset: Offset(0, 2),
                           spreadRadius: 0,
-                        )
+                        ),
                       ],
                     ),
                     child: const Center(
