@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 import 'dart:convert';
 import '../controllers/main_home_controller.dart';
@@ -24,7 +25,7 @@ class MainHomeView extends GetView<MainHomeController> {
               Column(
                 children: [
                   const SizedBox(height: 10),
-                  
+
                   // 상단바
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -32,30 +33,30 @@ class MainHomeView extends GetView<MainHomeController> {
                       children: [
                         Align(
                           alignment: Alignment.center,
-                          child: Obx(() => Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: '어서오세요 ',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 17,
-                                    fontFamily: 'Gowun Dodum',
-                                    fontWeight: FontWeight.w400,
+                          child: Obx(
+                            () => Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: '어서오세요 ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
-                                ),
-                                TextSpan(
-                                  text: '${controller.userName.value}님!',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 17,
-                                    fontFamily: 'Gowun Dodum',
-                                    fontWeight: FontWeight.w600,
+                                  TextSpan(
+                                    text: '${controller.userName.value}님!',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          )),
+                          ),
                         ),
                         const SizedBox(height: 20),
                         Row(
@@ -88,7 +89,6 @@ class MainHomeView extends GetView<MainHomeController> {
                         style: TextStyle(
                           color: Colors.black87,
                           fontSize: 22,
-                          fontFamily: 'Gowun Dodum',
                           fontWeight: FontWeight.bold,
                           shadows: [
                             Shadow(
@@ -101,7 +101,7 @@ class MainHomeView extends GetView<MainHomeController> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 20),
 
                   // 중앙 영역 (마을 카드)
@@ -110,43 +110,50 @@ class MainHomeView extends GetView<MainHomeController> {
                       if (controller.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      
+
                       if (controller.villages.isEmpty) {
                         return _buildNoVillageCard();
                       }
-                      
+
                       if (controller.pageController.value == null) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      
+
                       return ScrollConfiguration(
                         behavior: ScrollConfiguration.of(context).copyWith(
                           dragDevices: {
                             PointerDeviceKind.touch,
-                            PointerDeviceKind.mouse
+                            PointerDeviceKind.mouse,
                           },
                         ),
                         child: SizedBox(
                           height: 340,
                           child: PageView.builder(
                             controller: controller.pageController.value,
-                            itemCount: controller.villages.length > 1 ? null : 1,
+                            itemCount: controller.villages.length > 1
+                                ? null
+                                : 1,
                             onPageChanged: controller.onPageChanged,
                             itemBuilder: (context, index) {
-                              final int actualIndex = index % controller.villages.length;
-                              final villageData = controller.villages[actualIndex];
-                              
-                              return Obx(() => _VillageCard(
-                                title: villageData['name'],
-                                creator: villageData['creator'] ?? '촌장님',
-                                villageId: villageData['id'],
-                                imageData: villageData['image'],
-                                isCenter: index == controller.currentIndex.value,
-                                onTap: () => controller.navigateToVillage(
-                                  villageData['id'],
-                                  villageData['name'],
+                              final int actualIndex =
+                                  index % controller.villages.length;
+                              final villageData =
+                                  controller.villages[actualIndex];
+
+                              return Obx(
+                                () => _VillageCard(
+                                  title: villageData['name'],
+                                  creator: villageData['creator'] ?? '촌장님',
+                                  villageId: villageData['id'],
+                                  imageData: villageData['image'],
+                                  isCenter:
+                                      index == controller.currentIndex.value,
+                                  onTap: () => controller.navigateToVillage(
+                                    villageData['id'],
+                                    villageData['name'],
+                                  ),
                                 ),
-                              ));
+                              );
                             },
                           ),
                         ),
@@ -186,7 +193,7 @@ class MainHomeView extends GetView<MainHomeController> {
                               color: Colors.black12,
                               blurRadius: 10,
                               offset: Offset(0, -2),
-                            )
+                            ),
                           ],
                         ),
                         child: Padding(
@@ -214,7 +221,7 @@ class MainHomeView extends GetView<MainHomeController> {
                           ),
                         ),
                       ),
-                      
+
                       // MY마을 버튼
                       Positioned(
                         bottom: 35,
@@ -235,7 +242,7 @@ class MainHomeView extends GetView<MainHomeController> {
                                   color: Colors.black.withOpacity(0.15),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
-                                )
+                                ),
                               ],
                             ),
                             child: const Center(
@@ -244,7 +251,6 @@ class MainHomeView extends GetView<MainHomeController> {
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
-                                  fontFamily: 'Gowun Dodum',
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -292,7 +298,6 @@ class MainHomeView extends GetView<MainHomeController> {
               '가입된 마을이 없습니다',
               style: TextStyle(
                 fontSize: 16,
-                fontFamily: 'Gowun Dodum',
                 color: Colors.black87,
                 fontWeight: FontWeight.bold,
               ),
@@ -303,7 +308,10 @@ class MainHomeView extends GetView<MainHomeController> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -311,11 +319,7 @@ class MainHomeView extends GetView<MainHomeController> {
               ),
               child: const Text(
                 '새 마을 만들기',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Gowun Dodum',
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -329,7 +333,7 @@ class _CustomTopButton extends StatelessWidget {
   final String label;
   final IconData iconData;
   final VoidCallback onTap;
-  
+
   const _CustomTopButton({
     required this.label,
     required this.iconData,
@@ -353,7 +357,6 @@ class _CustomTopButton extends StatelessWidget {
             label,
             style: const TextStyle(
               fontSize: 13,
-              fontFamily: 'Gowun Dodum',
               color: Colors.black,
               fontWeight: FontWeight.w400,
             ),
@@ -447,7 +450,6 @@ class _VillageCard extends StatelessWidget {
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         fontSize: 22,
-                                        fontFamily: 'Gowun Dodum',
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
                                       ),
@@ -478,7 +480,6 @@ class _VillageCard extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       fontSize: 20,
-                                      fontFamily: 'Gowun Dodum',
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
                                     ),
@@ -499,11 +500,7 @@ class _VillageCard extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     '$creator 님의 마을',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontFamily: 'Gowun Dodum',
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 15, color: Colors.black54),
                   ),
                 ),
               ),

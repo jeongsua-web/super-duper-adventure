@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../controllers/mailbox_controller.dart';
 
 class MailboxView extends GetView<MailboxController> {
@@ -21,7 +22,6 @@ class MailboxView extends GetView<MailboxController> {
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
-            fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -35,11 +35,7 @@ class MailboxView extends GetView<MailboxController> {
           return const Center(
             child: Text(
               '받은 초대장이 없습니다',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                fontFamily: 'Gowun Dodum',
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
           );
         }
@@ -62,7 +58,6 @@ class MailboxView extends GetView<MailboxController> {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        fontFamily: 'Inter',
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -71,7 +66,6 @@ class MailboxView extends GetView<MailboxController> {
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black87,
-                        fontFamily: 'Inter',
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -79,7 +73,8 @@ class MailboxView extends GetView<MailboxController> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: () => controller.rejectInvitation(invitation['id']),
+                          onPressed: () =>
+                              controller.rejectInvitation(invitation['id']),
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.grey[400],
                             padding: const EdgeInsets.symmetric(
@@ -88,11 +83,8 @@ class MailboxView extends GetView<MailboxController> {
                             ),
                           ),
                           child: const Text(
-                            '거절',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'Inter',
-                            ),
+                            '거레',
+                            style: TextStyle(color: Colors.black),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -110,10 +102,7 @@ class MailboxView extends GetView<MailboxController> {
                           ),
                           child: const Text(
                             '수락',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'Inter',
-                            ),
+                            style: TextStyle(color: Colors.black),
                           ),
                         ),
                       ],
