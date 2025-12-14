@@ -25,41 +25,51 @@ class VillageDashboardView extends GetView<VillageViewController> {
         Get.snackbar('오류', '로그인이 필요합니다');
         return;
       }
-      
+
       Get.to(
         () => const ResidentProfileView(),
         binding: BindingsBuilder(() {
-          Get.lazyPut(() => ResidentProfileController(
-            userId: currentUserId,
-            villageName: controller.villageName ?? '마을',
-          ));
+          Get.lazyPut(
+            () => ResidentProfileController(
+              userId: currentUserId,
+              villageName: controller.villageName ?? '마을',
+            ),
+          );
         }),
       );
     } else if (category == '게시판') {
       Get.to(
         () => const BoardView(),
         binding: BindingsBuilder(() {
-          Get.lazyPut(() => BoardController(
-            villageName: controller.villageName ?? '마을',
-            villageId: controller.resolvedVillageId.value ?? '',
-          ));
+          Get.lazyPut(
+            () => BoardController(
+              villageName: controller.villageName ?? '마을',
+              villageId: controller.resolvedVillageId.value ?? '',
+            ),
+          );
         }),
       );
     } else if (category == '마을 생성자 집') {
       Get.to(
         () => const CreatorHomeView(),
         binding: BindingsBuilder(() {
-          Get.lazyPut(() => CreatorHomeController(villageName: controller.villageName ?? '마을'));
+          Get.lazyPut(
+            () => CreatorHomeController(
+              villageName: controller.villageName ?? '마을',
+            ),
+          );
         }),
       );
     } else if (category == '캘린더') {
       Get.to(
         () => const CalendarView(),
         binding: BindingsBuilder(() {
-          Get.lazyPut(() => CalendarController(
-            villageName: controller.villageName ?? '마을',
-            villageId: controller.resolvedVillageId.value,
-          ));
+          Get.lazyPut(
+            () => CalendarController(
+              villageName: controller.villageName ?? '마을',
+              villageId: controller.resolvedVillageId.value,
+            ),
+          );
         }),
       );
     } else if (category == '채팅') {
@@ -78,9 +88,7 @@ class VillageDashboardView extends GetView<VillageViewController> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
 
       return Scaffold(
@@ -90,25 +98,19 @@ class VillageDashboardView extends GetView<VillageViewController> {
             children: [
               // 상단 바
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
                       onTap: controller.goBack,
-                      child: Container(
-                        width: 63,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '뒤로가기',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        size: 24,
+                        color: Colors.black,
                       ),
                     ),
                     Text(
@@ -122,39 +124,19 @@ class VillageDashboardView extends GetView<VillageViewController> {
                       children: [
                         GestureDetector(
                           onTap: controller.goToTileMap,
-                          child: Container(
-                            width: 47,
-                            height: 47,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD9D9D9),
-                              border: Border.all(color: Colors.black),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '🗺️',
-                                style: TextStyle(fontSize: 28),
-                              ),
-                            ),
+                          child: const Icon(
+                            Icons.map,
+                            size: 24,
+                            color: Colors.black,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 16),
                         GestureDetector(
                           onTap: controller.goToSettings,
-                          child: Container(
-                            width: 47,
-                            height: 47,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD9D9D9),
-                              border: Border.all(color: Colors.black),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '⚙️',
-                                style: TextStyle(fontSize: 28),
-                              ),
-                            ),
+                          child: const Icon(
+                            Icons.settings,
+                            size: 24,
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -169,10 +151,6 @@ class VillageDashboardView extends GetView<VillageViewController> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 21),
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
                   child: GridView.count(
                     crossAxisCount: 3,
                     crossAxisSpacing: 16,
@@ -234,17 +212,17 @@ class _VillageCell extends StatelessWidget {
       onTap: label.isNotEmpty ? onTap : null,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFD9D9D9),
-          border: Border.all(color: Colors.black),
+          border: Border.all(color: const Color(0xFF4CDBFF), width: 1),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Center(
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: fontSize,
-              color: Colors.black,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: fontSize, color: Colors.black),
             ),
           ),
         ),
