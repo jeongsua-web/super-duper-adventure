@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/quiz_controller.dart';
+import 'quiz_create_view.dart';
 
 class QuizView extends GetView<QuizController> {
   const QuizView({super.key});
@@ -130,13 +131,25 @@ class QuizView extends GetView<QuizController> {
                             ),
                           ),
                         ),
-                        // 오른쪽: 검색 아이콘
-                        const Align(
+                        // 오른쪽: 글쓰기 아이콘
+                        Align(
                           alignment: Alignment.centerRight,
-                          child: Icon(
-                            Icons.search,
-                            color: Colors.white,
-                            size: 28,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.to(
+                                  QuizCreateScreen(
+                                    villageName: controller.villageName,
+                                  ),
+                                );
+                              },
+                              child: Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -155,8 +168,8 @@ class QuizView extends GetView<QuizController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 90),
-                    
+                    const SizedBox(height: 30),
+
                     // 진행중인 퀴즈 섹션
                     Text(
                       '진행중인 퀴즈',
@@ -167,73 +180,78 @@ class QuizView extends GetView<QuizController> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    
-                    Obx(() => Column(
-                      children: controller.activeQuizzes.map((quiz) {
-                        return Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          padding: const EdgeInsets.all(20),
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFFC4ECF6),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(23),
+
+                    Obx(
+                      () => Column(
+                        children: controller.activeQuizzes.map((quiz) {
+                          return Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.all(20),
+                            decoration: ShapeDecoration(
+                              color: const Color(0xFFC4ECF6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(23),
+                              ),
                             ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                quiz['title'],
-                                style: GoogleFonts.gowunDodum(
-                                  color: Colors.black,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w400,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  quiz['title'],
+                                  style: GoogleFonts.gowunDodum(
+                                    color: Colors.black,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                quiz['description'],
-                                style: GoogleFonts.gowunDodum(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w400,
+                                const SizedBox(height: 20),
+                                Text(
+                                  quiz['description'],
+                                  style: GoogleFonts.gowunDodum(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 40),
-                              Center(
-                                child: GestureDetector(
-                                  onTap: () => controller.startQuiz(quiz['id']),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 50,
-                                      vertical: 15,
-                                    ),
-                                    decoration: ShapeDecoration(
-                                      color: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(23),
+                                const SizedBox(height: 40),
+                                Center(
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        controller.startQuiz(quiz['id']),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 50,
+                                        vertical: 15,
                                       ),
-                                    ),
-                                    child: Text(
-                                      '퀴즈 풀기',
-                                      style: GoogleFonts.gowunDodum(
-                                        color: Colors.black,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w400,
+                                      decoration: ShapeDecoration(
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            23,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        '퀴즈 풀기',
+                                        style: GoogleFonts.gowunDodum(
+                                          color: Colors.black,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    )),
-                    
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
                     const SizedBox(height: 40),
-                    
+
                     // 종료된 퀴즈 섹션
                     Text(
                       '종료된 퀴즈',
@@ -244,49 +262,52 @@ class QuizView extends GetView<QuizController> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    
-                    Obx(() => Column(
-                      children: controller.completedQuizzes.map((quiz) {
-                        return GestureDetector(
-                          onTap: () => controller.viewQuizResult(quiz['id']),
-                          child: Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.only(bottom: 20),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
-                            ),
-                            decoration: ShapeDecoration(
-                              color: const Color(0xFFC4ECF6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(23),
+
+                    Obx(
+                      () => Column(
+                        children: controller.completedQuizzes.map((quiz) {
+                          return GestureDetector(
+                            onTap: () => controller.viewQuizResult(quiz['id']),
+                            child: Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 20),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              decoration: ShapeDecoration(
+                                color: const Color(0xFFC4ECF6),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(23),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    quiz['title'],
+                                    style: GoogleFonts.gowunDodum(
+                                      color: Colors.black,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  Text(
+                                    quiz['date'],
+                                    style: GoogleFonts.gowunDodum(
+                                      color: const Color(0xFF595959),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  quiz['title'],
-                                  style: GoogleFonts.gowunDodum(
-                                    color: Colors.black,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                Text(
-                                  quiz['date'],
-                                  style: GoogleFonts.gowunDodum(
-                                    color: const Color(0xFF595959),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    )),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ],
                 ),
               ),

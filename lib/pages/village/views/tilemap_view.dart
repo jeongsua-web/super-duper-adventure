@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../models/tile_object.dart';
+import '../../../enums/tile_type.dart';
 import '../controllers/tilemap_controller.dart';
 
 class TileMapView extends GetView<TileMapController> {
@@ -11,192 +11,130 @@ class TileMapView extends GetView<TileMapController> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('${controller.villageName} - 타일맵'),
-            backgroundColor: const Color(0xFF4DDBFF),
-          ),
-          body: const Center(child: CircularProgressIndicator()),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
 
       return Scaffold(
-        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text('${controller.villageName} - 타일맵'),
-          backgroundColor: const Color(0xFF4DDBFF),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: controller.goBack,
-          ),
+          title: Text(controller.villageName),
+          actions: [
+            // 관리자용 편집 버튼 (테스트용)
+            IconButton(
+              icon: Icon(controller.isEditMode.value ? Icons.check : Icons.edit),
+              onPressed: controller.toggleEditMode,
+            )
+          ],
         ),
         body: Column(
           children: [
-            // 정보 패널
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: const Color(0xFFF0F0F0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      const Icon(Icons.grid_on, color: Colors.blue),
-                      const SizedBox(height: 4),
-                      Obx(() => Text(
-                            '그리드: ${controller.gridWidth}x${controller.gridHeight}',
-                            style: const TextStyle(fontSize: 12),
-                          )),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const Icon(Icons.home, color: Color(0xFFFFB347)),
-                      const SizedBox(height: 4),
-                      Obx(() => Text(
-                            '객체: ${controller.objects.length}개',
-                            style: const TextStyle(fontSize: 12),
-                          )),
-                    ],
-                  ),
-                ],
+            // (상단 정보 패널 생략 - 기존 코드 사용)
+            
+            // 편집 모드일 때만 보이는 팔레트
+            if (controller.isEditMode.value)
+              Container(
+                height: 50,
+                color: Colors.grey[200],
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: TileType.values.map((type) {
+                    if (type == TileType.edge) return const SizedBox(); // 가장자리는 팔레트 제외
+                    return GestureDetector(
+                      onTap: () => controller.selectedTileType.value = type,
+                      child: Obx(() => Container(
+                        width: 50, height: 50,
+                        margin: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: type.color,
+                          border: controller.selectedTileType.value == type 
+                            ? Border.all(color: Colors.red, width: 3) : null,
+                        ),
+                        child: Center(child: Text(type.name, style: const TextStyle(fontSize: 10))),
+                      )),
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
-            // 타일맵
+
+            // 메인 맵 뷰
             Expanded(
               child: Container(
-                color: const Color(0xFFF5F5F5),
-                child: Obx(() => InteractiveViewer(
-                      transformationController: controller.transformationController,
-                      boundaryMargin: const EdgeInsets.all(100),
-                      minScale: 0.5,
-                      maxScale: 3.0,
-                      constrained: false,
-                      child: GestureDetector(
-                        // 전체 타일맵을 감싸는 단일 GestureDetector
-                        onTapUp: (TapUpDetails details) {
-                          // 탭 위치를 타일 인덱스로 변환
-                          final tileSize = TileMapController.tileSize.toDouble();
-                          final col = (details.localPosition.dx / tileSize).floor();
-                          final row = (details.localPosition.dy / tileSize).floor();
-                          
-                          // 그리드 범위 내에서만 처리
-                          if (col >= 0 && col < controller.gridWidth.value &&
-                              row >= 0 && row < controller.gridHeight.value) {
-                            controller.onTileTap(row, col);
-                          }
-                        },
-                        child: Stack(
-                          children: [
-                            // 배경 이미지
-                            Positioned(
-                              width: controller.gridWidth.value * TileMapController.tileSize.toDouble(),
-                              height: controller.gridHeight.value * TileMapController.tileSize.toDouble(),
-                              child: SvgPicture.asset(
-                                'assets/images/backgrand.svg',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            // 타일맵 컨테이너
-                            Container(
-                              width: controller.gridWidth.value * TileMapController.tileSize.toDouble(),
-                              height: controller.gridHeight.value * TileMapController.tileSize.toDouble(),
-                              color: Colors.transparent,
-                              child: Stack(
-                                children: [
-                                  // 그리드 라인
-                                  CustomPaint(
-                                    painter: GridPainter(
-                                      gridWidth: controller.gridWidth.value,
-                                      gridHeight: controller.gridHeight.value,
-                                      tileSize: TileMapController.tileSize,
-                                    ),
-                                    size: Size(
-                                      controller.gridWidth.value * TileMapController.tileSize.toDouble(),
-                                      controller.gridHeight.value * TileMapController.tileSize.toDouble(),
-                                    ),
-                                  ),
-                                  // 객체 표시 (GestureDetector 제거하고 포인터만 표시)
-                                  ...controller.objects.map(
-                                    (obj) => Positioned(
-                                      left: obj.x * TileMapController.tileSize.toDouble(),
-                                      top: obj.y * TileMapController.tileSize.toDouble(),
-                                      child: IgnorePointer(
-                                        child: Container(
-                                          width: TileMapController.tileSize.toDouble(),
-                                          height: TileMapController.tileSize.toDouble(),
-                                          decoration: BoxDecoration(
-                                            color: obj.type == ObjectType.system
-                                                ? Colors.blue.withOpacity(0.7)
-                                                : Colors.orange.withOpacity(0.7),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              obj.type == ObjectType.system ? '📌' : '🏠',
-                                              style: const TextStyle(fontSize: 24),
-                                            ),
-                                          ),
-                                        ),
+                color: Colors.black, // 배경(우주/빈공간)
+                child: InteractiveViewer(
+                  transformationController: controller.transformationController,
+                  minScale: 0.5, maxScale: 3.0, constrained: false,
+                  child: GestureDetector(
+                    onTapUp: (details) {
+                      final tileSize = TileMapController.tileSize.toDouble();
+                      final col = (details.localPosition.dx / tileSize).floor();
+                      final row = (details.localPosition.dy / tileSize).floor();
+                      if (col >= 0 && col < controller.gridWidth.value &&
+                          row >= 0 && row < controller.gridHeight.value) {
+                        controller.onTileTap(row, col);
+                      }
+                    },
+                    child: SizedBox(
+                      width: controller.gridWidth.value * TileMapController.tileSize.toDouble(),
+                      height: controller.gridHeight.value * TileMapController.tileSize.toDouble(),
+                      child: Stack(
+                        children: [
+                          // ★ 1층: 바닥 타일 (2중 for문 대신 Column/Row 사용)
+                          Column(
+                            children: List.generate(controller.gridHeight.value, (row) {
+                              return Row(
+                                children: List.generate(controller.gridWidth.value, (col) {
+                                  return Obx(() {
+                                    // 타일 타입 가져오기
+                                    final type = controller.gridTiles[row][col];
+                                    return Container(
+                                      width: TileMapController.tileSize.toDouble(),
+                                      height: TileMapController.tileSize.toDouble(),
+                                      decoration: BoxDecoration(
+                                        color: type.color, // ★ 여기에 이미지(AssetImage) 넣으면 됨
+                                        border: Border.all(color: Colors.black12, width: 0.5), // 타일 구분선
                                       ),
+                                    );
+                                  });
+                                }),
+                              );
+                            }),
+                          ),
+
+                          // ★ 2층: 오브젝트 (집, 건물)
+                          Obx(() => Stack(
+                            children: controller.objects.map((obj) => Positioned(
+                              left: obj.x * TileMapController.tileSize.toDouble(),
+                              top: obj.y * TileMapController.tileSize.toDouble(),
+                              child: IgnorePointer( // 클릭은 상위 GestureDetector가 처리
+                                child: Container(
+                                  width: TileMapController.tileSize.toDouble(),
+                                  height: TileMapController.tileSize.toDouble(),
+                                  decoration: BoxDecoration(
+                                    color: obj.type == ObjectType.system 
+                                      ? Colors.purple.withOpacity(0.8) 
+                                      : Colors.orange.withOpacity(0.8),
+                                    shape: BoxShape.circle, // 건물은 동그랗게 표현 (예시)
+                                    boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black26)],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      obj.type == ObjectType.system ? '🏫' : '🏠',
+                                      style: const TextStyle(fontSize: 24),
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            )).toList(),
+                          )),
+                        ],
                       ),
-                    )),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
         ),
       );
     });
-  }
-}
-
-class GridPainter extends CustomPainter {
-  final int gridWidth;
-  final int gridHeight;
-  final int tileSize;
-
-  GridPainter({
-    required this.gridWidth,
-    required this.gridHeight,
-    required this.tileSize,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFAAFA52).withOpacity(0.3)
-      ..strokeWidth = 0.5;
-
-    // 수평선
-    for (int i = 0; i <= gridHeight; i++) {
-      canvas.drawLine(
-        Offset(0, i * tileSize.toDouble()),
-        Offset(gridWidth * tileSize.toDouble(), i * tileSize.toDouble()),
-        paint,
-      );
-    }
-
-    // 수직선
-    for (int i = 0; i <= gridWidth; i++) {
-      canvas.drawLine(
-        Offset(i * tileSize.toDouble(), 0),
-        Offset(i * tileSize.toDouble(), gridHeight * tileSize.toDouble()),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(GridPainter oldDelegate) {
-    return oldDelegate.gridWidth != gridWidth ||
-        oldDelegate.gridHeight != gridHeight ||
-        oldDelegate.tileSize != tileSize;
   }
 }

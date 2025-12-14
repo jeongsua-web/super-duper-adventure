@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../views/guestbook_view.dart';
 
 class ResidentProfileController extends GetxController {
   final String villageName;
@@ -12,13 +13,7 @@ class ResidentProfileController extends GetxController {
 
   // 방명록 가기
   void goToGuestbook() {
-    // TODO: Implement guestbook navigation
-    Get.snackbar(
-      '방명록',
-      '방명록 기능 준비 중입니다',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 1),
-    );
+    Get.to(() => GuestbookScreen(residentName: villageName));
   }
 
   // 스티커 붙이기
