@@ -7,11 +7,162 @@ import '../controllers/board_list_controller.dart';
 class BoardListView extends GetView<BoardListController> {
   const BoardListView({super.key});
 
+  Widget _buildDrawer(BuildContext context) {
+    return Obx(() => AnimatedPositioned(
+      duration: const Duration(milliseconds: 250),
+      right: controller.showDrawer.value ? 0 : -280,
+      top: 0,
+      bottom: 0,
+      width: 280,
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+            // 드로어 헤더
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              color: const Color(0xFFC4ECF6),
+              height: 151,
+              child: SafeArea(
+                bottom: false,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: controller.toggleNotification,
+                          child: Obx(() => Icon(
+                            controller.notificationEnabled.value
+                                ? Icons.notifications
+                                : Icons.notifications_off,
+                            size: 24,
+                            color: Colors.black,
+                          )),
+                        ),
+                        GestureDetector(
+                          onTap: controller.toggleEditMode,
+                          child: Obx(() => Text(
+                            controller.isEditMode.value ? '완료' : '편집',
+                            style: GoogleFonts.gowunDodum(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          )),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // 카테고리 목록
+            Expanded(
+              child: Obx(() => controller.isEditMode.value
+                  ? ReorderableListView(
+                      buildDefaultDragHandles: false,
+                      onReorder: controller.reorderCategories,
+                      footer: _buildAddCategoryButton(context),
+                      children: controller.categories.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        String category = entry.value;
+                        return _buildEditableCategoryItem(index, category);
+                      }).toList(),
+                    )
+                  : ListView(
+                      children: controller.categories.map((category) {
+                        return _buildCategoryItem(category);
+                      }).toList(),
+                    )),
+            ),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  Widget _buildEditableCategoryItem(int index, String category) {
+    return Container(
+      key: ValueKey(category),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              ReorderableDragStartListener(
+                index: index,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Icon(Icons.drag_handle, size: 20, color: Colors.grey[600]),
+                ),
+              ),
+              Text(category, style: GoogleFonts.gowunDodum(fontSize: 14)),
+            ],
+          ),
+          if (category != '전체' && category != '퀴즈')
+            GestureDetector(
+              onTap: () => controller.removeCategory(category),
+              child: Text(
+                '삭제',
+                style: GoogleFonts.gowunDodum(color: Colors.grey, fontSize: 14),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(String category) {
+    return GestureDetector(
+      onTap: () {
+        if (category == '퀴즈') {
+          controller.goToQuiz();
+        } else {
+          controller.updateCategory(category);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+        ),
+        child: Text(category, style: GoogleFonts.gowunDodum(fontSize: 14)),
+      ),
+    );
+  }
+
+  Widget _buildAddCategoryButton(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+      ),
+      child: GestureDetector(
+        onTap: () => controller.showAddCategoryDialog(context),
+        child: Row(
+          children: [
+            Icon(Icons.add, size: 20, color: Colors.grey[600]),
+            const SizedBox(width: 8),
+            Text('카테고리 추가', style: GoogleFonts.gowunDodum(fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
         children: [
           // 상단 그라디언트 헤더
           Container(
@@ -195,7 +346,7 @@ class BoardListView extends GetView<BoardListController> {
                 }),
                 // 메뉴 아이콘
                 GestureDetector(
-                  onTap: () {},
+                  onTap: controller.toggleDrawer,
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8),
                     child: Icon(Icons.menu, color: Colors.white, size: 24),
@@ -206,52 +357,71 @@ class BoardListView extends GetView<BoardListController> {
           )),
 
           // 공지 영역
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFB9B9B9).withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+          FutureBuilder<DocumentSnapshot?>(
+            future: controller.getPinnedPost(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const SizedBox.shrink();
+              }
+
+              final pinnedPost = snapshot.data!.data() as Map<String, dynamic>?;
+              if (pinnedPost == null) return const SizedBox.shrink();
+
+              final pinnedTitle = pinnedPost['title'] ?? '공지';
+
+              return GestureDetector(
+                onTap: () => controller.goToPostDetail(snapshot.data!.id),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CDBFF),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFB9B9B9).withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    '공지',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4CDBFF),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '공지',
+                          style: GoogleFonts.gowunDodum(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          pinnedTitle,
+                          style: GoogleFonts.gowunDodum(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    '공지제목',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
 
           // 게시글 목록
@@ -310,6 +480,17 @@ class BoardListView extends GetView<BoardListController> {
         ),
         child: const Icon(Icons.edit, color: Colors.white, size: 24),
       ),
+    ),
+        // 드로어 오버레이
+        Obx(() => controller.showDrawer.value
+            ? GestureDetector(
+                onTap: controller.toggleDrawer,
+                child: Container(color: Colors.black.withOpacity(0.3)),
+              )
+            : const SizedBox.shrink()),
+        // 드로어
+        _buildDrawer(context),
+      ],
     );
   }
 }

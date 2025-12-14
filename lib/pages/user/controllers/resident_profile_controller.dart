@@ -10,6 +10,17 @@ class ResidentProfileController extends GetxController {
     Get.back();
   }
 
+  // 방명록 가기
+  void goToGuestbook() {
+    // TODO: Implement guestbook navigation
+    Get.snackbar(
+      '방명록',
+      '방명록 기능 준비 중입니다',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 1),
+    );
+  }
+
   // 스티커 붙이기
   void attachSticker() {
     Get.snackbar(
