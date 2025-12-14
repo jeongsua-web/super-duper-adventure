@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../services/auth_service.dart';
+import '../../../routes/app_routes.dart';
 
 class SignupController extends GetxController {
   // TextEditingControllers
-  final usernameController = TextEditingController();  // 아이디
-  final nameController = TextEditingController();      // 실명
+  final usernameController = TextEditingController(); // 아이디
+  final nameController = TextEditingController(); // 실명
   final passwordController = TextEditingController();
   final phone1Controller = TextEditingController();
   final phone2Controller = TextEditingController();
@@ -20,10 +21,10 @@ class SignupController extends GetxController {
   final RxString selectedPhonePrefix = '010'.obs;
   final RxString selectedEmailDomain = 'naver.com'.obs;
   final RxBool isLoading = false.obs;
-  
+
   // 성별 선택
   final RxString selectedGender = ''.obs;
-  
+
   // 직업 선택
   final RxString selectedJob = ''.obs;
   final TextEditingController customJobController = TextEditingController();
@@ -55,12 +56,12 @@ class SignupController extends GetxController {
   void updatePhonePrefix(String newPrefix) {
     selectedPhonePrefix.value = newPrefix;
   }
-  
+
   // 성별 선택
   void selectGender(String gender) {
     selectedGender.value = gender;
   }
-  
+
   // 직업 선택
   void selectJob(String job) {
     selectedJob.value = job;
@@ -142,10 +143,11 @@ class SignupController extends GetxController {
           await FirebaseFirestore.instance.collection('users').doc(userId).set({
             'id': userId,
             'username': usernameController.text,
-            'name': nameController.text,  // 기존 name 필드 유지
-            'realName': nameController.text,  // 실명
+            'name': nameController.text, // 기존 name 필드 유지
+            'realName': nameController.text, // 실명
             'email': fullEmail,
-            'phone': '${selectedPhonePrefix.value}-${phone1Controller.text}-${phone2Controller.text}',
+            'phone':
+                '${selectedPhonePrefix.value}-${phone1Controller.text}-${phone2Controller.text}',
             'gender': genderValue,
             'job': jobValue.isNotEmpty ? jobValue : null,
             'createdAt': FieldValue.serverTimestamp(),
@@ -159,7 +161,7 @@ class SignupController extends GetxController {
         );
 
         // 로그인 화면으로 이동
-        Get.back();
+        Get.offNamed(AppRoutes.login);
       } else {
         Get.snackbar(
           '회원가입 실패',
