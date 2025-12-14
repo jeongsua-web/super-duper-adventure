@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+// [기존 import 유지]
 import '../community/board_screen.dart';
 import 'creator_home_screen.dart';
 import '../community/calendar_screen.dart';
-
 import '../user/resident_profile_screen.dart';
 import 'village_settings_screen.dart';
 import '../../services/village_role_service.dart';
 import '../../models/village_member.dart';
-
-// [★필수] 채팅 목록 화면 import 추가
-import '../community/chat_list_screen.dart';
 import 'tilemap_screen.dart'; 
+import '../community/chat_screen.dart'; 
 
 class VillageViewScreen extends StatefulWidget {
   final String? villageName;
@@ -72,29 +71,48 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
     }
   }
 
-  // [버튼 클릭 시 이동 로직]
+  // 버튼 클릭 로직
   void _openCategory(BuildContext context, String category) {
-    if (category == '주민집') {
+    final target = category.trim();
+    print("클릭된 메뉴: $target"); 
+
+    if (target == '주민집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => ResidentProfileScreen(villageName: widget.villageName ?? '마을')));
-    } else if (category == '게시판') {
+    } else if (target == '게시판') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => BoardScreen(villageName: widget.villageName ?? '마을', villageId: _resolvedVillageId ?? '')));
-    } else if (category == '마을 생성자 집') {
+    } else if (target == '마을 생성자 집') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => CreatorHomeScreen(villageName: widget.villageName ?? '마을')));
-    } else if (category == '캘린더') {
+    } else if (target == '캘린더') {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => CalendarScreen(villageName: widget.villageName ?? '마을', villageId: _resolvedVillageId)));
     } 
     
     // -----------------------------------------------------------
-    // [★여기입니다] '채팅' 버튼 누르면 -> ChatListScreen(목록)으로 이동
+    // [★핵심] 채팅 버튼 로직: ChatScreen으로 바로 이동
     // -----------------------------------------------------------
-    else if (category == '채팅') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const ChatListScreen(), 
-      ));
+    else if (target == '채팅') {
+      print("채팅 화면 이동 시도...");
+      
+      if (_resolvedVillageId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('마을 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.')));
+        return;
+      }
+
+      try {
+        Navigator.of(context).push(MaterialPageRoute(
+          // ChatScreen으로 바로 이동 (chatRoomId에 마을 ID 사용)
+          builder: (_) => ChatScreen(
+            chatRoomId: _resolvedVillageId!, 
+            villageName: widget.villageName ?? '전체 채팅',
+          ), 
+        ));
+      } catch (e) {
+        print("❌ 채팅 화면 이동 중 에러 발생: $e");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('채팅 화면 오류: $e')));
+      }
     } 
     
     else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$category 페이지로 이동')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$target 페이지로 이동')));
     }
   }
 
@@ -173,7 +191,7 @@ class _VillageViewScreenState extends State<VillageViewScreen> {
                     _VillageCell(label: '마을 생성자 집', fontSize: 16, onTap: () => _openCategory(context, '마을 생성자 집')),
                     _VillageCell(label: '', onTap: () {}),
                     
-                    // [★] 이 버튼을 누르면 위 _openCategory 함수가 실행됨
+                    // [★] 채팅 버튼
                     _VillageCell(label: '채팅', onTap: () => _openCategory(context, '채팅')),
                     
                     _VillageCell(label: '게시판', onTap: () => _openCategory(context, '게시판')),
@@ -202,6 +220,7 @@ class _VillageCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: label.isNotEmpty ? onTap : null,
       child: Container(
         decoration: BoxDecoration(color: const Color(0xFFD9D9D9), border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(4)),

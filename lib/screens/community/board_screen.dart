@@ -26,344 +26,185 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        width: 393,
-        height: 852,
-        clipBehavior: Clip.antiAlias,
-        decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
-          ),
-        ),
-        child: Stack(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 그라디언트 배경
-            Positioned(
-              left: 0,
-              top: 0,
-              child: Container(
-                width: 393,
-                height: 296,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment(0.50, 1.00),
-                    end: Alignment(0.50, 0.00),
-                    colors: [Color(0xFFC4ECF6), Color(0xFF4CDBFF)],
-                  ),
-                ),
-              ),
-            ),
-
-            // 검색창 영역
-            Positioned(
-              left: 0,
-              top: 296,
-              child: Container(
-                width: 393,
-                height: 45,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFC4ECF6),
-                  border: Border(
-                    top: BorderSide(width: 2, color: Color(0xFF4CDBFF)),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(width: 48),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VillageViewScreen(
-                              villageName: widget.villageName,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        widget.villageName,
-                        style: GoogleFonts.gowunDodum(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(right: 16),
-                      child: Icon(Icons.search, size: 24, color: Colors.white),
-                    ),
+            /// ===== 상단 그라디언트 =====
+            Container(
+              width: double.infinity,
+              height: 260,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Color(0xFFC4ECF6),
+                    Color(0xFF4CDBFF),
                   ],
                 ),
               ),
-            ),
-
-            // 상단바 (시간, 배터리 등)
-            Positioned(
-              left: -4,
-              top: 2,
-              child: Container(
-                width: 402,
-                padding: const EdgeInsets.only(
-                  top: 21,
-                  left: 16,
-                  right: 16,
-                  bottom: 19,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      height: 22,
-                      padding: const EdgeInsets.only(top: 2),
-                      child: const Text(
-                        '9:41',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 17,
-                          fontFamily: 'SF Pro',
-                          fontWeight: FontWeight.w600,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 24, top: 12),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MainHomeScreen(),
                         ),
-                      ),
-                    ),
-                    Row(
+                      );
+                    },
+                    // ✨ 텍스트 테두리 두께 수정 (6 -> 3)
+                    child: Stack(
                       children: [
-                        Opacity(
-                          opacity: 0.35,
-                          child: Container(
-                            width: 25,
-                            height: 13,
-                            decoration: ShapeDecoration(
-                              shape: RoundedRectangleBorder(
-                                side: const BorderSide(
-                                  width: 1,
-                                  color: Colors.black,
-                                ),
-                                borderRadius: BorderRadius.circular(4.30),
-                              ),
-                            ),
+                        // 1. 테두리 (검은색 stroke)
+                        Text(
+                          '마이마을',
+                          style: GoogleFonts.bagelFatOne(
+                            fontSize: 26,
+                            letterSpacing: 1,
+                            foreground: Paint()
+                              ..style = PaintingStyle.stroke
+                              ..strokeWidth = 3 // ✨ 여기를 3으로 줄였습니다.
+                              ..color = Colors.black,
                           ),
                         ),
-                        const SizedBox(width: 7),
-                        Container(
-                          width: 21,
-                          height: 9,
-                          decoration: ShapeDecoration(
-                            color: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(2.50),
-                            ),
+                        // 2. 알맹이 (흰색 fill)
+                        Text(
+                          '마이마을',
+                          style: GoogleFonts.bagelFatOne(
+                            fontSize: 26,
+                            letterSpacing: 1,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // 다이나믹 아일랜드
-            Positioned(
-              left: 129,
-              top: 16,
-              child: Container(
-                width: 131,
-                height: 33,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFF383838),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40),
                   ),
                 ),
               ),
             ),
 
-            // 마이마을 텍스트
-            Positioned(
-              left: 16,
-              top: 59,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MainHomeScreen(),
-                    ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Text(
-                      '마이',
-                      style: GoogleFonts.bagelFatOne(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 1,
-                        height: 1.2,
-                      ),
-                    ),
-                    Text(
-                      '마을',
-                      style: GoogleFonts.bagelFatOne(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 1,
-                        height: 1.2,
-                      ),
-                    ),
-                  ],
+            /// ===== 마을명 + 검색 =====
+            Container(
+              height: 48,
+              decoration: const BoxDecoration(
+                color: Color(0xFFC4ECF6),
+                border: Border(
+                  top: BorderSide(width: 2, color: Color(0xFF4CDBFF)),
                 ),
               ),
-            ),
-
-            // 카테고리 버튼들
-            Positioned(
-              left: 43,
-              top: 383,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BoardListScreen(
-                        category: '전체',
-                        villageName: widget.villageName,
-                        villageId: widget.villageId,
-                      ),
-                    ),
-                  );
-                },
-                child: Text(
-                  '전체',
-                  style: GoogleFonts.gowunDodum(
-                    color: Colors.black,
-                    fontSize: 28,
-                    fontWeight: _selectedCategory == '전체'
-                        ? FontWeight.w700
-                        : FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 43,
-              top: 456,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BoardListScreen(
-                        category: '일상',
-                        villageName: widget.villageName,
-                        villageId: widget.villageId,
-                      ),
-                    ),
-                  );
-                },
-                child: Text(
-                  '일상',
-                  style: GoogleFonts.gowunDodum(
-                    color: Colors.black,
-                    fontSize: 28,
-                    fontWeight: _selectedCategory == '일상'
-                        ? FontWeight.w700
-                        : FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 43,
-              top: 529,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BoardListScreen(
-                        category: '게임',
-                        villageName: widget.villageName,
-                        villageId: widget.villageId,
-                      ),
-                    ),
-                  );
-                },
-                child: Text(
-                  '게임',
-                  style: GoogleFonts.gowunDodum(
-                    color: Colors.black,
-                    fontSize: 28,
-                    fontWeight: _selectedCategory == '게임'
-                        ? FontWeight.w700
-                        : FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 43,
-              top: 602,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BoardListScreen(
-                        category: '취미',
-                        villageName: widget.villageName,
-                        villageId: widget.villageId,
-                      ),
-                    ),
-                  );
-                },
-                child: Text(
-                  '취미',
-                  style: GoogleFonts.gowunDodum(
-                    color: Colors.black,
-                    fontSize: 28,
-                    fontWeight: _selectedCategory == '취미'
-                        ? FontWeight.w700
-                        : FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 42,
-              top: 675,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          QuizScreen(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => VillageViewScreen(
                             villageName: widget.villageName,
-                            villageId: widget.villageId,
                           ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      widget.villageName,
+                      style: GoogleFonts.gowunDodum(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  );
-                },
-                child: Text(
-                  '퀴즈',
-                  style: GoogleFonts.gowunDodum(
-                    color: Colors.black,
-                    fontSize: 28,
-                    fontWeight: _selectedCategory == '퀴즈'
-                        ? FontWeight.w700
-                        : FontWeight.w400,
                   ),
-                ),
+                  const Icon(
+                    Icons.search,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ],
               ),
             ),
+
+            /// ===== 카테고리 영역 =====
+            Padding(
+              padding: const EdgeInsets.only(left: 24, top: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _categoryItem('전체'),
+                  _categoryItem('일상'),
+                  _categoryItem('게임'),
+                  _categoryItem('취미'),
+                  _quizItem(),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 60),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// ===== 일반 카테고리 =====
+  Widget _categoryItem(String category) {
+    return GestureDetector(
+      onTap: () {
+        setState(() => _selectedCategory = category);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BoardListScreen(
+              category: category,
+              villageName: widget.villageName,
+              villageId: widget.villageId,
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          category,
+          textAlign: TextAlign.left,
+          style: GoogleFonts.gowunDodum(
+            fontSize: 28,
+            fontWeight: _selectedCategory == category
+                ? FontWeight.w700
+                : FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// ===== 퀴즈 =====
+  Widget _quizItem() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => QuizScreen(
+              villageName: widget.villageName,
+              villageId: widget.villageId,
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          '퀴즈',
+          style: GoogleFonts.gowunDodum(
+            fontSize: 28,
+            fontWeight:
+                _selectedCategory == '퀴즈' ? FontWeight.w700 : FontWeight.w400,
+          ),
         ),
       ),
     );
