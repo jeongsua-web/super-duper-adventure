@@ -102,7 +102,9 @@ class CalendarView extends GetView<CalendarController> {
                   )
                 : null,
             color: isSelected ? null : const Color(0xFFC4ECF6),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(7),
+            ),
             shadows: const [
               BoxShadow(
                 color: Color(0x3F000000),
@@ -154,22 +156,24 @@ class CalendarView extends GetView<CalendarController> {
                 ),
               ),
               const SizedBox(width: 24),
-              Obx(() => Text(
-                    '${controller.selectedYear.value}',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 36,
-                      fontFamily: 'Gowun Dodum',
-                      fontWeight: FontWeight.w400,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(0, 4),
-                          blurRadius: 4,
-                          color: Color(0xFFC4ECF6),
-                        ),
-                      ],
-                    ),
-                  )),
+              Obx(
+                () => Text(
+                  '${controller.selectedYear.value}',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 36,
+                    fontFamily: 'Gowun Dodum',
+                    fontWeight: FontWeight.w400,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 4),
+                        blurRadius: 4,
+                        color: Color(0xFFC4ECF6),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(width: 24),
               GestureDetector(
                 onTap: () => controller.selectedYear.value++,
@@ -239,24 +243,26 @@ class CalendarView extends GetView<CalendarController> {
           ),
           const SizedBox(height: 40),
           // 연간 이벤트
-          Obx(() => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(4),
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
-                  ),
+          Obx(
+            () => Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(4),
+              decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
                 ),
-                child: Text(
-                  '${controller.selectedYear.value}년도의 큰 이벤트',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontFamily: 'Gowun Dodum',
-                    fontWeight: FontWeight.w400,
-                  ),
+              ),
+              child: Text(
+                '${controller.selectedYear.value}년도의 큰 이벤트',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontFamily: 'Gowun Dodum',
+                  fontWeight: FontWeight.w400,
                 ),
-              )),
+              ),
+            ),
+          ),
           const SizedBox(height: 20),
           // 연간 이벤트 리스트 (예시)
           _buildYearEventList(),
@@ -269,13 +275,14 @@ class CalendarView extends GetView<CalendarController> {
     return Obx(() {
       // Firebase에서 가져온 실제 연간 이벤트
       final yearEvents = <Map<String, String>>[];
-      
+
       controller.events.forEach((date, eventList) {
         if (date.year == controller.selectedYear.value) {
           for (var event in eventList) {
             yearEvents.add({
               'title': event['title'] ?? '',
-              'date': '${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}',
+              'date':
+                  '${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}',
             });
           }
         }
@@ -359,21 +366,25 @@ class CalendarView extends GetView<CalendarController> {
                 end: Alignment(0.50, 0.00),
                 colors: [Color(0xFFC4ECF6), Color(0xFF4CDBFF)],
               ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(7),
+              ),
             ),
             child: Column(
               children: [
-                Obx(() => Text(
-                      '${controller.focusedDay.value.year}\n${controller.focusedDay.value.month}월',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 32,
-                        fontFamily: 'Gowun Dodum',
-                        fontWeight: FontWeight.w400,
-                        height: 1.09,
-                      ),
-                    )),
+                Obx(
+                  () => Text(
+                    '${controller.focusedDay.value.year}\n${controller.focusedDay.value.month}월',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 32,
+                      fontFamily: 'Gowun Dodum',
+                      fontWeight: FontWeight.w400,
+                      height: 1.09,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 const Divider(color: Colors.white, height: 1),
                 const SizedBox(height: 16),
@@ -412,7 +423,9 @@ class CalendarView extends GetView<CalendarController> {
                 height: 32,
                 decoration: ShapeDecoration(
                   color: const Color(0xFFC4ECF6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7),
+                  ),
                   shadows: const [
                     BoxShadow(
                       color: Color(0x3F000000),
@@ -476,11 +489,12 @@ class CalendarView extends GetView<CalendarController> {
       // 날짜 추가
       for (int day = 1; day <= daysInMonth; day++) {
         final date = DateTime(year, month, day);
-        final isSelected = controller.selectedDay.value != null &&
+        final isSelected =
+            controller.selectedDay.value != null &&
             date.year == controller.selectedDay.value!.year &&
             date.month == controller.selectedDay.value!.month &&
             date.day == controller.selectedDay.value!.day;
-        
+
         final hasEvents = controller.getEventsForDay(date).isNotEmpty;
 
         dayWidgets.add(
@@ -531,11 +545,7 @@ class CalendarView extends GetView<CalendarController> {
         );
       }
 
-      return Wrap(
-        spacing: 5,
-        runSpacing: 8,
-        children: dayWidgets,
-      );
+      return Wrap(spacing: 5, runSpacing: 8, children: dayWidgets);
     });
   }
 
@@ -563,7 +573,7 @@ class CalendarView extends GetView<CalendarController> {
       }
 
       final events = controller.getEventsForDay(controller.selectedDay.value!);
-      
+
       if (events.isEmpty) {
         return const Padding(
           padding: EdgeInsets.all(20),
@@ -705,25 +715,31 @@ class CalendarView extends GetView<CalendarController> {
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      const SizedBox(width: 42),
-                      Container(
-                        width: 144,
-                        height: 17,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: ShapeDecoration(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
-                            borderRadius: BorderRadius.circular(10),
+                      const SizedBox(width: 20),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: 100,
+                          height: 24,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          decoration: ShapeDecoration(
+                            shape: RoundedRectangleBorder(
+                              side: const BorderSide(
+                                width: 1,
+                                color: Color(0xFF4CDBFF),
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${selectedDate.year.toString().substring(2)}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.day.toString().padLeft(2, '0')}',
-                            style: const TextStyle(
-                              color: Color(0xFFA7A7A7),
-                              fontSize: 13,
-                              fontFamily: 'Gowun Dodum',
-                              fontWeight: FontWeight.w400,
+                          child: Center(
+                            child: Text(
+                              '${selectedDate.year.toString().substring(2)}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.day.toString().padLeft(2, '0')}',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 13,
+                                fontFamily: 'Gowun Dodum',
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ),
                         ),
@@ -742,18 +758,27 @@ class CalendarView extends GetView<CalendarController> {
                     ),
                   ),
                   const SizedBox(height: 22),
-                  Container(
-                    height: 37,
-                    decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        TextField(
+                  Column(
+                    children: [
+                      Container(
+                        height: 37,
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: const BorderSide(
+                              width: 1,
+                              color: Color(0xFF4CDBFF),
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: TextField(
                           controller: titleController,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontFamily: 'Gowun Dodum',
+                            fontWeight: FontWeight.w400,
+                          ),
                           decoration: const InputDecoration(
                             hintText: '입력하세요',
                             hintStyle: TextStyle(
@@ -762,24 +787,28 @@ class CalendarView extends GetView<CalendarController> {
                               fontFamily: 'Gowun Dodum',
                             ),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                        ),
-                        const Positioned(
-                          right: 8,
-                          top: 8,
-                          child: Text(
-                            'blind',
-                            style: TextStyle(
-                              color: Color(0xFF8183F1),
-                              fontSize: 16,
-                              fontFamily: 'Jersey 20',
-                              fontWeight: FontWeight.w400,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Text(
+                          'blind',
+                          style: TextStyle(
+                            color: Color(0xFF8183F1),
+                            fontSize: 16,
+                            fontFamily: 'Jersey 20',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 46),
                   // 시간
@@ -794,33 +823,41 @@ class CalendarView extends GetView<CalendarController> {
                   ),
                   const SizedBox(height: 12),
                   // 하루종일 체크박스
-                  Obx(() => Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => isAllDay.value = !isAllDay.value,
-                            child: Container(
-                              width: 14,
-                              height: 14,
-                              decoration: BoxDecoration(
-                                color: isAllDay.value ? const Color(0xFF4CDBFF) : const Color(0xFFD9D9D9),
-                              ),
-                              child: isAllDay.value
-                                  ? const Icon(Icons.check, size: 12, color: Colors.white)
-                                  : null,
+                  Obx(
+                    () => Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => isAllDay.value = !isAllDay.value,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: isAllDay.value
+                                  ? const Color(0xFF4CDBFF)
+                                  : const Color(0xFFD9D9D9),
                             ),
+                            child: isAllDay.value
+                                ? const Icon(
+                                    Icons.check,
+                                    size: 12,
+                                    color: Colors.white,
+                                  )
+                                : null,
                           ),
-                          const SizedBox(width: 5),
-                          const Text(
-                            '하루종일',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontFamily: 'Gowun Dodum',
-                              fontWeight: FontWeight.w400,
-                            ),
+                        ),
+                        const SizedBox(width: 5),
+                        const Text(
+                          '하루종일',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontFamily: 'Gowun Dodum',
+                            fontWeight: FontWeight.w400,
                           ),
-                        ],
-                      )),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   // 시작 시간
                   const Text(
@@ -839,20 +876,25 @@ class CalendarView extends GetView<CalendarController> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: Center(
-                      child: Obx(() => Text(
-                            startTime.value,
-                            style: const TextStyle(
-                              color: Color(0xFFA7A7A7),
-                              fontSize: 13,
-                              fontFamily: 'Jersey 20',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          )),
+                      child: Obx(
+                        () => Text(
+                          startTime.value,
+                          style: const TextStyle(
+                            color: Color(0xFFA7A7A7),
+                            fontSize: 13,
+                            fontFamily: 'Jersey 20',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -873,20 +915,25 @@ class CalendarView extends GetView<CalendarController> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: Center(
-                      child: Obx(() => Text(
-                            endTime.value,
-                            style: const TextStyle(
-                              color: Color(0xFFA7A7A7),
-                              fontSize: 13,
-                              fontFamily: 'Jersey 20',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          )),
+                      child: Obx(
+                        () => Text(
+                          endTime.value,
+                          style: const TextStyle(
+                            color: Color(0xFFA7A7A7),
+                            fontSize: 13,
+                            fontFamily: 'Jersey 20',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 68),
@@ -905,13 +952,22 @@ class CalendarView extends GetView<CalendarController> {
                     height: 91,
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: TextField(
                       controller: memoController,
                       maxLines: 4,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'Gowun Dodum',
+                        fontWeight: FontWeight.w400,
+                      ),
                       decoration: const InputDecoration(
                         hintText: '입력하세요!',
                         hintStyle: TextStyle(
@@ -937,7 +993,10 @@ class CalendarView extends GetView<CalendarController> {
                           height: 27,
                           decoration: ShapeDecoration(
                             shape: RoundedRectangleBorder(
-                              side: const BorderSide(width: 1, color: Color(0xFFEBAFAF)),
+                              side: const BorderSide(
+                                width: 1,
+                                color: Color(0xFFEBAFAF),
+                              ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
@@ -959,7 +1018,8 @@ class CalendarView extends GetView<CalendarController> {
                       GestureDetector(
                         onTap: () {
                           if (titleController.text.isNotEmpty) {
-                            controller.eventController.text = titleController.text;
+                            controller.eventController.text =
+                                titleController.text;
                             controller.addEvent();
                             Get.back();
                           }
@@ -1016,15 +1076,17 @@ class CalendarView extends GetView<CalendarController> {
               ),
             ),
             child: Center(
-              child: Obx(() => Text(
-                    '${controller.focusedDay.value.year} ${controller.focusedDay.value.month}월',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontFamily: 'Gowun Dodum',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  )),
+              child: Obx(
+                () => Text(
+                  '${controller.focusedDay.value.year} ${controller.focusedDay.value.month}월',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontFamily: 'Gowun Dodum',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -1086,18 +1148,25 @@ class CalendarView extends GetView<CalendarController> {
   }
 
   Widget _buildWeekScheduleGrid() {
-    final hours = ['1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm'];
-    
+    final hours = [
+      '1pm',
+      '2pm',
+      '3pm',
+      '4pm',
+      '5pm',
+      '6pm',
+      '7pm',
+      '8pm',
+      '9pm',
+    ];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: List.generate(hours.length, (index) {
           return Column(
             children: [
-              Container(
-                height: 3,
-                color: const Color(0xFF4CDBFF),
-              ),
+              Container(height: 3, color: const Color(0xFF4CDBFF)),
               SizedBox(
                 height: 60,
                 child: Row(
@@ -1111,7 +1180,7 @@ class CalendarView extends GetView<CalendarController> {
                             final date = weekDates[dayIndex];
                             final events = controller.getEventsForDay(date);
                             final hasEvent = events.isNotEmpty;
-                            
+
                             return Expanded(
                               child: hasEvent && index == 0
                                   ? Container(
@@ -1119,7 +1188,9 @@ class CalendarView extends GetView<CalendarController> {
                                       decoration: ShapeDecoration(
                                         color: const Color(0xFFC4ECF6),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                       ),
                                     )
@@ -1170,15 +1241,17 @@ class CalendarView extends GetView<CalendarController> {
               ),
             ),
             child: Center(
-              child: Obx(() => Text(
-                    '${controller.focusedDay.value.year} ${controller.focusedDay.value.month}월',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontFamily: 'Gowun Dodum',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  )),
+              child: Obx(
+                () => Text(
+                  '${controller.focusedDay.value.year} ${controller.focusedDay.value.month}월',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontFamily: 'Gowun Dodum',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -1207,10 +1280,11 @@ class CalendarView extends GetView<CalendarController> {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: weekDates.map((date) {
-                  final isToday = date.year == controller.focusedDay.value.year &&
+                  final isToday =
+                      date.year == controller.focusedDay.value.year &&
                       date.month == controller.focusedDay.value.month &&
                       date.day == controller.focusedDay.value.day;
-                  
+
                   return GestureDetector(
                     onTap: () => controller.focusedDay.value = date,
                     child: Column(
@@ -1256,13 +1330,23 @@ class CalendarView extends GetView<CalendarController> {
   }
 
   Widget _buildDayScheduleGrid() {
-    final hours = ['1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm'];
-    
+    final hours = [
+      '1pm',
+      '2pm',
+      '3pm',
+      '4pm',
+      '5pm',
+      '6pm',
+      '7pm',
+      '8pm',
+      '9pm',
+    ];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 21),
       child: Obx(() {
         final events = controller.getEventsForDay(controller.focusedDay.value);
-        
+
         return Column(
           children: List.generate(hours.length, (index) {
             return Column(
