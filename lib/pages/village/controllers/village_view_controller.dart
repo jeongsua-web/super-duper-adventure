@@ -106,7 +106,7 @@ class VillageViewController extends GetxController {
     }
     
     if (resolvedVillageId.value != null) {
-      Get.toNamed('/village-settings', arguments: {
+      Get.toNamed(AppRoutes.villageSettings, arguments: {
         'villageId': resolvedVillageId.value!,
         'villageName': villageName ?? '마을',
       });

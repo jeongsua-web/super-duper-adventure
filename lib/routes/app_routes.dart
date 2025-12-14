@@ -23,6 +23,8 @@ import 'package:my_app/pages/community/views/board_list_view.dart';
 import 'package:my_app/pages/community/controllers/board_list_controller.dart';
 import 'package:my_app/pages/community/views/quiz_view.dart';
 import 'package:my_app/pages/community/controllers/quiz_controller.dart';
+import 'package:my_app/pages/village/views/village_settings_view.dart';
+import 'package:my_app/pages/village/controllers/village_settings_controller.dart';
 
 abstract class AppRoutes {
   static const String splash = '/';
@@ -38,6 +40,7 @@ abstract class AppRoutes {
   static const String quiz = '/quiz';
   static const String mailbox = '/mailbox';
   static const String settings = '/settings';
+  static const String villageSettings = '/village-settings';
 }
 
 class AppPages {
@@ -167,6 +170,20 @@ class AppPages {
       page: () => const AccountSettingsView(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => AccountSettingsController());
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.villageSettings,
+      page: () => const VillageSettingsView(),
+      binding: BindingsBuilder(() {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageId = args['villageId'] as String? ?? '';
+        final villageName = args['villageName'] as String? ?? '마을';
+        Get.lazyPut(() => VillageSettingsController(
+          villageId: villageId,
+          villageName: villageName,
+        ));
       }),
       transition: Transition.rightToLeft,
     ),

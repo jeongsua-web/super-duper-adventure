@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../routes/app_routes.dart';
 
 class MainHomeController extends GetxController {
   // PageController
@@ -177,7 +178,8 @@ class MainHomeController extends GetxController {
   
   // 설정 화면으로 이동
   void navigateToSettings() {
-    Get.toNamed('/settings');
+    print('[MainHomeController] 설정 화면으로 이동');
+    Get.toNamed(AppRoutes.settings);
   }
   
   // 우편함으로 이동

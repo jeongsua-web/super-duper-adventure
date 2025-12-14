@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../community/controllers/board_controller.dart';
 import '../../community/views/board_view.dart';
 import '../../community/controllers/calendar_controller.dart';
@@ -17,10 +18,21 @@ class VillageDashboardView extends GetView<VillageViewController> {
 
   void _openCategory(String category) {
     if (category == '주민집') {
+      // TODO: 주민 목록에서 선택하도록 변경 필요
+      // 임시로 현재 사용자의 프로필을 표시
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+      if (currentUserId == null) {
+        Get.snackbar('오류', '로그인이 필요합니다');
+        return;
+      }
+      
       Get.to(
         () => const ResidentProfileView(),
         binding: BindingsBuilder(() {
-          Get.lazyPut(() => ResidentProfileController(villageName: controller.villageName ?? '마을'));
+          Get.lazyPut(() => ResidentProfileController(
+            userId: currentUserId,
+            villageName: controller.villageName ?? '마을',
+          ));
         }),
       );
     } else if (category == '게시판') {
