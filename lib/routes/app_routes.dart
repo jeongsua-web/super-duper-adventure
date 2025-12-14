@@ -46,6 +46,7 @@ abstract class AppRoutes {
   static const String boardList = '/board-list';
   static const String quiz = '/quiz';
   static const String search = '/search';
+  static const String postDetail = '/post-detail';
   static const String mailbox = '/mailbox';
   static const String settings = '/settings';
   static const String villageSettings = '/village-settings';
@@ -171,7 +172,12 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.search,
-      page: () => const SearchView(),
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageName = args['villageName'] as String? ?? '마을';
+        final villageId = args['villageId'] as String? ?? '';
+        return SearchScreen(villageName: villageName, villageId: villageId);
+      },
       binding: BindingsBuilder(() {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageName = args['villageName'] as String? ?? '마을';
@@ -204,10 +210,12 @@ class AppPages {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final villageId = args['villageId'] as String? ?? '';
         final villageName = args['villageName'] as String? ?? '마을';
-        Get.lazyPut(() => VillageSettingsController(
-          villageId: villageId,
-          villageName: villageName,
-        ));
+        Get.lazyPut(
+          () => VillageSettingsController(
+            villageId: villageId,
+            villageName: villageName,
+          ),
+        );
       }),
       transition: Transition.rightToLeft,
     ),
@@ -226,10 +234,10 @@ class AppPages {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         final chatRoomId = args['chatRoomId'] as String? ?? '';
         final villageName = args['villageName'] as String? ?? '마을 채팅방';
-        Get.lazyPut(() => ChatController(
-          chatRoomId: chatRoomId,
-          villageName: villageName,
-        ));
+        Get.lazyPut(
+          () =>
+              ChatController(chatRoomId: chatRoomId, villageName: villageName),
+        );
       }),
       transition: Transition.rightToLeft,
     ),

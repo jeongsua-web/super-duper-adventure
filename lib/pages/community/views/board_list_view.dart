@@ -486,7 +486,10 @@ class _BoardListViewState extends State<BoardListView> {
                             onTap: () {
                               Get.toNamed(
                                 AppRoutes.search,
-                                arguments: {'villageName': widget.villageName},
+                                arguments: {
+                                  'villageName': widget.villageName,
+                                  'villageId': widget.villageId,
+                                },
                               );
                             },
                             child: const Icon(
@@ -747,10 +750,7 @@ class _PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PostDetailView()),
-        );
+        Get.to(() => PostDetailScreen(postId: postId, villageId: villageId));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),

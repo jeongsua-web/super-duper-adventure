@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../home/views/main_home_view.dart';
 import '../controllers/board_controller.dart';
 import '../../../routes/app_routes.dart';
-import 'search_view.dart';
 import 'board_list_view.dart';
 
 class BoardView extends GetView<BoardController> {
@@ -95,7 +94,10 @@ class _BoardScreenState extends State<BoardScreen> {
                       onTap: () {
                         Get.toNamed(
                           AppRoutes.search,
-                          arguments: {'villageName': widget.villageName},
+                          arguments: {
+                            'villageName': widget.villageName,
+                            'villageId': widget.villageId,
+                          },
                         );
                       },
                       child: const Padding(
