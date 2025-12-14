@@ -56,27 +56,17 @@ class UserController extends GetxController {
       if (currentUser != null && currentUser.uid == token) {
         debugPrint('[UserController] Firebase Auth 세션 유효함');
         
-        // Firestore에서 사용자 정보 가져오기
-        final userDoc = await _firestore.collection('users').doc(token).get()
-            .timeout(const Duration(seconds: 5));
+        // 일단 기본 사용자 정보로 설정 (즉시 로그인)
+        _user.value = User(
+          id: token,
+          name: currentUser.email?.split('@')[0] ?? '사용자',
+          email: currentUser.email ?? '',
+        );
         
-        if (userDoc.exists && userDoc.data() != null) {
-          final data = userDoc.data()!;
-          _user.value = User(
-            id: token,
-            name: data['name'] ?? currentUser.email?.split('@')[0] ?? '사용자',
-            email: data['email'] ?? currentUser.email ?? '',
-          );
-          debugPrint('[UserController] 자동 로그인 성공: ${_user.value!.name}');
-        } else {
-          // Firestore에 데이터가 없어도 Firebase Auth 세션이 있으면 기본값으로 설정
-          _user.value = User(
-            id: token,
-            name: currentUser.email?.split('@')[0] ?? '사용자',
-            email: currentUser.email ?? '',
-          );
-          debugPrint('[UserController] 기본 사용자 정보로 로그인');
-        }
+        // Firestore에서 추가 정보 가져오기 (백그라운드에서)
+        _loadUserDataFromFirestore(token, currentUser);
+        
+        debugPrint('[UserController] 자동 로그인 성공: ${_user.value!.name}');
       } else {
         debugPrint('[UserController] Firebase Auth 세션 없음 -> 토큰 삭제');
         await _storage.remove('uToken');
@@ -137,5 +127,25 @@ class UserController extends GetxController {
 
   void clearUser() {
     _user.value = null;
+  }
+
+  /// Firestore에서 사용자 정보 로드 (백그라운드)
+  Future<void> _loadUserDataFromFirestore(String userId, auth.User currentUser) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get()
+          .timeout(const Duration(seconds: 10));
+      
+      if (userDoc.exists && userDoc.data() != null) {
+        final data = userDoc.data()!;
+        _user.value = User(
+          id: userId,
+          name: data['name'] ?? currentUser.email?.split('@')[0] ?? '사용자',
+          email: data['email'] ?? currentUser.email ?? '',
+        );
+        debugPrint('[UserController] Firestore 사용자 정보 업데이트 완료');
+      }
+    } catch (e) {
+      debugPrint('[UserController] Firestore 사용자 정보 로드 실패 (기본값 유지): $e');
+    }
   }
 }

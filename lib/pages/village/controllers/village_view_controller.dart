@@ -87,7 +87,7 @@ class VillageViewController extends GetxController {
   }
 
   void goToChatList() {
-    Get.toNamed('/chat-list');
+    Get.toNamed(AppRoutes.chatList);
   }
 
   void goToTileMap() {
