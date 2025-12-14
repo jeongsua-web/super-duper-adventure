@@ -7,12 +7,12 @@ import 'firebase_options.dart';
 import 'routes/app_routes.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main_home_screen.dart';
+import 'providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  Get.put(ThemeProvider());
   runApp(const MyApp());
 }
 
@@ -21,13 +21,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Get.find<ThemeProvider>();
+
     return GetMaterialApp(
       title: '우리 마을',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
         textTheme: GoogleFonts.gowunDodumTextTheme(),
+        brightness: Brightness.light,
       ),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+        textTheme: GoogleFonts.gowunDodumTextTheme(),
+        brightness: Brightness.dark,
+      ),
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       getPages: AppPages.pages,
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -38,7 +48,7 @@ class MyApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          
+
           // 로그인 되어 있으면 MainHomeScreen, 아니면 LoginScreen
           if (snapshot.hasData) {
             return const MainHomeScreen();
