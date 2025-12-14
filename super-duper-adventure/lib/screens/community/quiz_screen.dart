@@ -36,6 +36,58 @@ class QuizScreen extends StatelessWidget {
               bottom: false,
               child: Column(
                 children: [
+                  // 상단바 (시간, 배터리)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '9:41',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.signal_cellular_4_bar, size: 16),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.wifi, size: 16),
+                            const SizedBox(width: 4),
+                            Container(
+                              width: 24,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: 18,
+                                  height: 8,
+                                  margin: const EdgeInsets.all(1),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(1),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // 마이마을 로고와 마을 이름
                   Padding(
                     padding: const EdgeInsets.symmetric(

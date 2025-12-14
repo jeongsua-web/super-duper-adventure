@@ -70,14 +70,14 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
           .doc(widget.villageId)
           .collection('posts')
           .add({
-            'title': _titleController.text,
-            'content': _contentController.text,
-            'category': _selectedCategory,
-            'author': '익명',
-            'createdAt': FieldValue.serverTimestamp(),
-            'isNotice': _isNotice,
-            'imageUrl': imageUrl,
-          });
+        'title': _titleController.text,
+        'content': _contentController.text,
+        'category': _selectedCategory,
+        'author': '익명',
+        'createdAt': FieldValue.serverTimestamp(),
+        'isNotice': _isNotice,
+        'imageUrl': imageUrl,
+      });
 
       if (mounted) Navigator.pop(context);
     } catch (e) {
@@ -110,6 +110,58 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
               bottom: false,
               child: Column(
                 children: [
+                  // 상단바 (시간, 배터리)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '9:41',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.signal_cellular_4_bar, size: 16),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.wifi, size: 16),
+                            const SizedBox(width: 4),
+                            Container(
+                              width: 24,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: 18,
+                                  height: 8,
+                                  margin: const EdgeInsets.all(1),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(1),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // 헤더 (X, 제목, 완료 버튼)
                   Padding(
                     padding: const EdgeInsets.symmetric(

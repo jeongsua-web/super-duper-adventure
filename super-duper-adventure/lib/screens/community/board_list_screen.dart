@@ -26,10 +26,8 @@ class BoardListScreen extends StatefulWidget {
 
 class _BoardListScreenState extends State<BoardListScreen> {
   String _selectedCategory = '전체';
-  late List<String> _categories = ['전체', '일상', '게임', '취미', '퀴즈'];
+  final List<String> _categories = ['전체', '일상', '게임', '취미', '퀴즈'];
   bool _showDrawer = false;
-  bool _notificationEnabled = true;
-  bool _isEditMode = false;
 
   @override
   void initState() {
@@ -80,73 +78,6 @@ class _BoardListScreenState extends State<BoardListScreen> {
     return '${date.month}.${date.day.toString().padLeft(2, '0')}';
   }
 
-  void _showAddCategoryDialog() {
-    final TextEditingController controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            '카테고리 추가',
-            style: GoogleFonts.gowunDodum(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: '카테고리 이름 입력',
-              hintStyle: GoogleFonts.gowunDodum(fontSize: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            style: GoogleFonts.gowunDodum(fontSize: 14),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                '취소',
-                style: GoogleFonts.gowunDodum(color: Colors.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                final String categoryName = controller.text.trim();
-                if (categoryName.isNotEmpty &&
-                    !_categories.contains(categoryName)) {
-                  setState(() {
-                    _categories.insert(_categories.length - 1, categoryName);
-                  });
-                  Navigator.of(context).pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        categoryName.isEmpty
-                            ? '카테고리 이름을 입력해주세요'
-                            : '이미 존재하는 카테고리입니다',
-                        style: GoogleFonts.gowunDodum(),
-                      ),
-                    ),
-                  );
-                }
-              },
-              child: Text(
-                '추가',
-                style: GoogleFonts.gowunDodum(color: Colors.blue),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -171,7 +102,7 @@ class _BoardListScreenState extends State<BoardListScreen> {
           right: 0,
           top: 0,
           bottom: 0,
-          width: 280,
+          width: 200,
           child: Container(
             color: Colors.white,
             child: Column(
@@ -190,33 +121,17 @@ class _BoardListScreenState extends State<BoardListScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _notificationEnabled = !_notificationEnabled;
-                              });
-                            },
-                            child: Icon(
-                              _notificationEnabled
-                                  ? Icons.notifications
-                                  : Icons.notifications_off,
-                              size: 24,
-                              color: Colors.black,
-                            ),
+                          const Icon(
+                            Icons.notifications,
+                            size: 24,
+                            color: Colors.black,
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isEditMode = !_isEditMode;
-                              });
-                            },
-                            child: Text(
-                              _isEditMode ? '완료' : '편집',
-                              style: GoogleFonts.gowunDodum(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                              ),
+                          Text(
+                            '편집',
+                            style: GoogleFonts.gowunDodum(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],
@@ -226,180 +141,52 @@ class _BoardListScreenState extends State<BoardListScreen> {
                 ),
                 // 카테고리 목록
                 Expanded(
-                  child: _isEditMode
-                      ? ReorderableListView(
-                          buildDefaultDragHandles: false,
-                          children: _categories.asMap().entries.map((entry) {
-                            int index = entry.key;
-                            String category = entry.value;
-                            return Container(
-                              key: ValueKey(category),
-                              child: GestureDetector(
-                                onTap: () {},
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: Colors.grey[200]!,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          ReorderableDragStartListener(
-                                            index: index,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                right: 8.0,
-                                              ),
-                                              child: Icon(
-                                                Icons.drag_handle,
-                                                size: 20,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            category,
-                                            style: GoogleFonts.gowunDodum(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      if (category != '전체' && category != '퀴즈')
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _categories.remove(category);
-                                              if (_selectedCategory ==
-                                                  category) {
-                                                _selectedCategory = '전체';
-                                              }
-                                            });
-                                          },
-                                          child: Text(
-                                            '삭제',
-                                            style: GoogleFonts.gowunDodum(
-                                              color: Colors.grey,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
+                  child: ListView(
+                    children: _categories.map((category) {
+                      return GestureDetector(
+                        onTap: () {
+                          if (category == '퀴즈') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => QuizScreen(
+                                  villageName: widget.villageName,
+                                  villageId: widget.villageId,
                                 ),
                               ),
                             );
-                          }).toList(),
-                          onReorder: (oldIndex, newIndex) {
+                          } else {
                             setState(() {
-                              if (oldIndex < newIndex) {
-                                newIndex -= 1;
-                              }
-                              final item = _categories.removeAt(oldIndex);
-                              _categories.insert(newIndex, item);
+                              _selectedCategory = category;
+                              _showDrawer = false;
                             });
-                          },
-                          footer: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(color: Colors.grey[200]!),
                             ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: Colors.grey[200]!),
-                              ),
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                _showAddCategoryDialog();
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.add,
-                                    size: 20,
-                                    color: Colors.grey[600],
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '카테고리 추가',
-                                    style: GoogleFonts.gowunDodum(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ],
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              category,
+                              style: GoogleFonts.gowunDodum(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
-                        )
-                      : ListView(
-                          children: _categories.asMap().entries.map((entry) {
-                            int index = entry.key;
-                            String category = entry.value;
-                            return GestureDetector(
-                              onTap: () {
-                                if (_isEditMode) {
-                                  return;
-                                }
-                                if (category == '퀴즈') {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => QuizScreen(
-                                        villageName: widget.villageName,
-                                        villageId: widget.villageId,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  setState(() {
-                                    _selectedCategory = category;
-                                    _showDrawer = false;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey[200]!,
-                                    ),
-                                  ),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    category,
-                                    style: GoogleFonts.gowunDodum(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
                         ),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ],
             ),
@@ -427,6 +214,58 @@ class _BoardListScreenState extends State<BoardListScreen> {
               bottom: false,
               child: Column(
                 children: [
+                  // 상단바 (시간, 배터리)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '9:41',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.signal_cellular_4_bar, size: 16),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.wifi, size: 16),
+                            const SizedBox(width: 4),
+                            Container(
+                              width: 24,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: 18,
+                                  height: 8,
+                                  margin: const EdgeInsets.all(1),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(1),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // 마이마을 로고와 마을 이름
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -505,7 +344,6 @@ class _BoardListScreenState extends State<BoardListScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => SearchScreen(
                                     villageName: widget.villageName,
-                                    villageId: widget.villageId,
                                   ),
                                 ),
                               );

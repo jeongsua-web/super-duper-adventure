@@ -1,30 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../routes/app_routes.dart';
-import '../../providers/theme_provider.dart';
 
-class AccountSettingsScreen extends StatefulWidget {
+class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({super.key});
-
-  @override
-  State<AccountSettingsScreen> createState() => _AccountSettingsScreenState();
-}
-
-class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
-  late bool _isDarkMode;
-  bool _isAllNotificationsEnabled = true;
-  bool _isChatNotificationsEnabled = true;
-  bool _isQuizNotificationsEnabled = true;
-  bool _isCalendarNotificationsEnabled = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _isDarkMode = Get.find<ThemeProvider>().isDarkMode;
-  }
 
   Future<void> _logout(BuildContext context) async {
     try {
@@ -34,9 +14,9 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('로그아웃 실패: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('로그아웃 실패: $e')),
+        );
       }
     }
   }
@@ -45,315 +25,207 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
-        ),
-        leadingWidth: 60,
-      ),
-      body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+      body: Stack(
+        children: [
+          // 뒤로가기 버튼
+          Positioned(
+            left: 21,
+            top: 20,
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: 63,
+                height: 38,
+                decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
+                child: const Center(
+                  child: Text(
+                    '뒤로가기',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                      height: 1.12,
+                      letterSpacing: 0.16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          
+          // 계정 및 프로필
+          const Positioned(
+            left: 32,
+            top: 111,
+            child: Text(
+              '계정 및 프로필',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 19,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+                height: 0.95,
+                letterSpacing: 0.19,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 39,
+            top: 164,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 계정 및 프로필 섹션
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    '계정 및 프로필',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                _SettingItem(
+                  text: '비밀번호 변경',
+                  onTap: () {
+                    // TODO: 비밀번호 변경
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12, bottom: 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SettingItem(
-                        text: '비밀번호 변경',
-                        onTap: () {
-                          // TODO: 비밀번호 변경
-                        },
-                      ),
-                      _SettingItem(
-                        text: '닉네임 변경 (60일)',
-                        onTap: () {
-                          // TODO: 닉네임 변경
-                        },
-                      ),
-                      _SettingItem(
-                        text: '다른계정으로 접속',
-                        onTap: () {
-                          // TODO: 계정 전환
-                        },
-                      ),
-                      _SettingItem(text: '로그아웃', onTap: () => _logout(context)),
-                    ],
-                  ),
+                _SettingItem(
+                  text: '닉네임 변경 (60일)',
+                  onTap: () {
+                    // TODO: 닉네임 변경
+                  },
                 ),
-
-                // 알림 섹션
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    '알림',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                _SettingItem(
+                  text: '다른계정으로 접속',
+                  onTap: () {
+                    // TODO: 계정 전환
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12, bottom: 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '전체 알림 ON/OFF',
-                            style: GoogleFonts.gowunDodum(
-                              color: Colors.black,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Transform.scale(
-                            scale: 0.8,
-                            child: CupertinoSwitch(
-                              value: _isAllNotificationsEnabled,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isAllNotificationsEnabled = value;
-                                  _isChatNotificationsEnabled = value;
-                                  _isQuizNotificationsEnabled = value;
-                                  _isCalendarNotificationsEnabled = value;
-                                });
-                                // TODO: 알림 설정 저장
-                              },
-                              activeColor: const Color(0xFFC4ECF6),
-                              trackColor: Colors.grey[300],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 23),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '채팅 알림',
-                              style: GoogleFonts.gowunDodum(
-                                color: Colors.black,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            Transform.scale(
-                              scale: 0.8,
-                              child: CupertinoSwitch(
-                                value: _isChatNotificationsEnabled,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isChatNotificationsEnabled = value;
-                                  });
-                                  // TODO: 채팅 알림 설정 저장
-                                },
-                                activeColor: const Color(0xFFC4ECF6),
-                                trackColor: Colors.grey[300],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 23),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '퀴즈 알림',
-                              style: GoogleFonts.gowunDodum(
-                                color: Colors.black,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            Transform.scale(
-                              scale: 0.8,
-                              child: CupertinoSwitch(
-                                value: _isQuizNotificationsEnabled,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isQuizNotificationsEnabled = value;
-                                  });
-                                  // TODO: 퀴즈 알림 설정 저장
-                                },
-                                activeColor: const Color(0xFFC4ECF6),
-                                trackColor: Colors.grey[300],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 23),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '캘린더 알림',
-                              style: GoogleFonts.gowunDodum(
-                                color: Colors.black,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            Transform.scale(
-                              scale: 0.8,
-                              child: CupertinoSwitch(
-                                value: _isCalendarNotificationsEnabled,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isCalendarNotificationsEnabled = value;
-                                  });
-                                  // TODO: 캘린더 알림 설정 저장
-                                },
-                                activeColor: const Color(0xFFC4ECF6),
-                                trackColor: Colors.grey[300],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 개인 섹션
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    '개인',
-                    style: GoogleFonts.gowunDodum(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12, bottom: 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '다크모드',
-                            style: GoogleFonts.gowunDodum(
-                              color: Colors.black,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Transform.scale(
-                            scale: 0.8,
-                            child: CupertinoSwitch(
-                              value: _isDarkMode,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isDarkMode = value;
-                                });
-                                Get.find<ThemeProvider>().toggleTheme();
-                              },
-                              activeColor: const Color(0xFFC4ECF6),
-                              trackColor: Colors.grey[300],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 23),
-                        child: _SettingItem(
-                          text: '글꼴 크기 조정',
-                          onTap: () {
-                            // TODO: 글꼴 크기
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 23),
-                        child: _SettingItem(
-                          text: '애니메이션',
-                          onTap: () {
-                            // TODO: 애니메이션
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 회원 탈퇴
-                Padding(
-                  padding: const EdgeInsets.only(left: 12, bottom: 40),
-                  child: GestureDetector(
-                    onTap: () {
-                      // TODO: 회원 탈퇴
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('회원 탈퇴'),
-                          content: const Text('정말 탈퇴하시겠습니까?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('취소'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // TODO: 탈퇴 로직
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                '탈퇴',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      '회원 탈퇴',
-                      style: TextStyle(
-                        color: Color(0xFFEB5050),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
+                _SettingItem(
+                  text: '로그아웃',
+                  onTap: () => _logout(context),
                 ),
               ],
             ),
           ),
-        ),
+          
+          // 알림
+          const Positioned(
+            left: 32,
+            top: 375,
+            child: Text(
+              '알림',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 19,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+                height: 0.95,
+                letterSpacing: 0.19,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 39,
+            top: 424,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SettingItem(
+                  text: '전체 알림 ON/OFF',
+                  onTap: () {
+                    // TODO: 알림 설정
+                  },
+                ),
+                _SettingItem(
+                  text: '채팅 퀴즈 캘린더 알림',
+                  onTap: () {
+                    // TODO: 세부 알림 설정
+                  },
+                ),
+              ],
+            ),
+          ),
+          
+          // 개인
+          const Positioned(
+            left: 32,
+            top: 573,
+            child: Text(
+              '개인',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 19,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+                height: 0.95,
+                letterSpacing: 0.19,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 39,
+            top: 622,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SettingItem(
+                  text: '다크모드',
+                  onTap: () {
+                    // TODO: 다크모드
+                  },
+                ),
+                _SettingItem(
+                  text: '글꼴 크기 조정',
+                  onTap: () {
+                    // TODO: 글꼴 크기
+                  },
+                ),
+                _SettingItem(
+                  text: '애니메이션',
+                  onTap: () {
+                    // TODO: 애니메이션
+                  },
+                ),
+              ],
+            ),
+          ),
+          
+          // 회원 탈퇴
+          Positioned(
+            left: 39,
+            top: 790,
+            child: GestureDetector(
+              onTap: () {
+                // TODO: 회원 탈퇴
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('회원 탈퇴'),
+                    content: const Text('정말 탈퇴하시겠습니까?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('취소'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // TODO: 탈퇴 로직
+                          Navigator.pop(context);
+                        },
+                        child: const Text('탈퇴', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: const Text(
+                '회원 탈퇴',
+                style: TextStyle(
+                  color: Color(0xFFEB5050),
+                  fontSize: 17,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                  height: 1.76,
+                  letterSpacing: 0.17,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -363,7 +235,10 @@ class _SettingItem extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
 
-  const _SettingItem({required this.text, required this.onTap});
+  const _SettingItem({
+    required this.text,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -373,10 +248,12 @@ class _SettingItem extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 23),
         child: Text(
           text,
-          style: GoogleFonts.gowunDodum(
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 17,
+            fontFamily: 'Inter',
             fontWeight: FontWeight.w400,
+            letterSpacing: 0.17,
           ),
         ),
       ),
