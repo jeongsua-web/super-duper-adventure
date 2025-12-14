@@ -26,8 +26,6 @@ import 'package:my_app/pages/community/controllers/quiz_controller.dart';
 import 'package:my_app/pages/community/views/search_view.dart';
 import 'package:my_app/pages/community/controllers/search_controller.dart'
     as community;
-import 'package:my_app/pages/community/views/post_detail_view.dart';
-import 'package:my_app/pages/community/controllers/post_detail_controller.dart';
 import 'package:my_app/pages/village/views/village_settings_view.dart';
 import 'package:my_app/pages/village/controllers/village_settings_controller.dart';
 import 'package:my_app/pages/community/views/chat_view.dart';
@@ -203,20 +201,6 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut(() => AccountSettingsController());
       }),
-      transition: Transition.rightToLeft,
-    ),
-    GetPage(
-      name: AppRoutes.postDetail,
-      page: () {
-        final args = Get.arguments as Map<String, dynamic>? ?? {};
-        final postId = args['postId'] as String? ?? '';
-        final villageId = args['villageId'] as String? ?? '';
-
-        // 컨트롤러 먼저 초기화 (기존 인스턴스 제거 후 새로 생성)
-        Get.delete<PostDetailController>();
-        Get.put(PostDetailController(postId: postId, villageId: villageId));
-        return PostDetailView();
-      },
       transition: Transition.rightToLeft,
     ),
     GetPage(
