@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/mailbox_controller.dart';
 
 class MailboxView extends GetView<MailboxController> {

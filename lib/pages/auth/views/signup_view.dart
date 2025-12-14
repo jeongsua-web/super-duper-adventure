@@ -28,7 +28,11 @@ class SignupView extends GetView<SignupController> {
                   left: 25,
                   top: 62,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.black, size: 27),
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
+                      size: 27,
+                    ),
                     onPressed: () => Get.back(),
                     padding: EdgeInsets.zero,
                   ),
@@ -122,15 +126,26 @@ class SignupView extends GetView<SignupController> {
                     height: 29,
                     alignment: Alignment.center,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     child: TextField(
                       controller: controller.nameController,
                       textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: -4,
+                          bottom: 4,
+                        ),
                       ),
                       style: const TextStyle(
                         fontFamily: 'Gowun Dodum',
@@ -179,35 +194,44 @@ class SignupView extends GetView<SignupController> {
                     width: 65,
                     height: 29,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-                    ),
-                    child: Obx(() => DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: controller.selectedPhonePrefix.value,
-                        isDense: true,
-                        items: ['010', '011', '016', '017', '018', '019'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Text(
-                                value,
-                                style: const TextStyle(
-                                  fontFamily: 'Gowun Dodum',
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            controller.updatePhonePrefix(newValue);
-                          }
-                        },
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                    )),
+                    ),
+                    child: Obx(
+                      () => DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: controller.selectedPhonePrefix.value,
+                          isDense: true,
+                          items: ['010', '011', '016', '017', '018', '019'].map(
+                            (String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Text(
+                                    value,
+                                    style: const TextStyle(
+                                      fontFamily: 'Gowun Dodum',
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              controller.updatePhonePrefix(newValue);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 // 하이픈 1
@@ -235,8 +259,13 @@ class SignupView extends GetView<SignupController> {
                     height: 29,
                     alignment: Alignment.center,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     child: TextField(
                       controller: controller.phone1Controller,
@@ -245,8 +274,14 @@ class SignupView extends GetView<SignupController> {
                       maxLength: 4,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
+                        isDense: true,
                         counterText: '',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        contentPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: -4,
+                          bottom: 4,
+                        ),
                       ),
                       style: const TextStyle(
                         fontFamily: 'Gowun Dodum',
@@ -280,8 +315,13 @@ class SignupView extends GetView<SignupController> {
                     height: 29,
                     alignment: Alignment.center,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     child: TextField(
                       controller: controller.phone2Controller,
@@ -290,8 +330,14 @@ class SignupView extends GetView<SignupController> {
                       maxLength: 4,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
+                        isDense: true,
                         counterText: '',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        contentPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: -4,
+                          bottom: 4,
+                        ),
                       ),
                       style: const TextStyle(
                         fontFamily: 'Gowun Dodum',
@@ -341,15 +387,26 @@ class SignupView extends GetView<SignupController> {
                     height: 29,
                     alignment: Alignment.center,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     child: TextField(
                       controller: controller.emailLocalController,
                       textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: -4,
+                          bottom: 4,
+                        ),
                       ),
                       style: const TextStyle(
                         fontFamily: 'Gowun Dodum',
@@ -382,38 +439,44 @@ class SignupView extends GetView<SignupController> {
                     width: 124,
                     height: 29,
                     decoration: ShapeDecoration(
-                      color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 0.70),
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    child: Obx(() => DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: controller.selectedEmailDomain.value,
-                        isDense: true,
-                        items: ['naver.com', 'gmail.com', 'daum.net', '직접입력'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Text(
-                                value,
-                                style: const TextStyle(
-                                  fontFamily: 'Gowun Dodum',
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            controller.updateEmailDomain(newValue);
-                          }
-                        },
+                    child: Obx(
+                      () => DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: controller.selectedEmailDomain.value,
+                          isDense: true,
+                          items: ['naver.com', 'gmail.com', 'daum.net', '직접입력']
+                              .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      value,
+                                      style: const TextStyle(
+                                        fontFamily: 'Gowun Dodum',
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              })
+                              .toList(),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              controller.updateEmailDomain(newValue);
+                            }
+                          },
+                        ),
                       ),
-                    )),
+                    ),
                   ),
                 ),
                 // 아이디 라벨
@@ -457,15 +520,26 @@ class SignupView extends GetView<SignupController> {
                     height: 29,
                     alignment: Alignment.center,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     child: TextField(
                       controller: controller.usernameController,
                       textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: -4,
+                          bottom: 4,
+                        ),
                       ),
                       style: const TextStyle(
                         fontFamily: 'Gowun Dodum',
@@ -498,10 +572,13 @@ class SignupView extends GetView<SignupController> {
                           },
                     child: Container(
                       width: 88,
-                      height: 21,
+                      height: 29,
                       decoration: ShapeDecoration(
                         shape: RoundedRectangleBorder(
-                          side: const BorderSide(width: 0.50),
+                          side: const BorderSide(
+                            width: 1,
+                            color: Color(0xFF4CDBFF),
+                          ),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -580,8 +657,13 @@ class SignupView extends GetView<SignupController> {
                     height: 29,
                     alignment: Alignment.center,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     child: TextField(
                       controller: controller.passwordController,
@@ -589,7 +671,13 @@ class SignupView extends GetView<SignupController> {
                       textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: -4,
+                          bottom: 4,
+                        ),
                       ),
                       style: const TextStyle(
                         fontFamily: 'Gowun Dodum',
@@ -639,15 +727,26 @@ class SignupView extends GetView<SignupController> {
                     height: 29,
                     alignment: Alignment.center,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFE7E7E7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          color: Color(0xFF4CDBFF),
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     child: TextField(
                       obscureText: true,
                       textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: -4,
+                          bottom: 4,
+                        ),
                       ),
                       style: const TextStyle(
                         fontFamily: 'Gowun Dodum',
@@ -696,41 +795,47 @@ class SignupView extends GetView<SignupController> {
                 Positioned(
                   left: 130,
                   top: 810,
-                  child: Obx(() => GestureDetector(
-                    onTap: controller.isLoading.value ? null : controller.handleSignup,
-                    child: Container(
-                      width: 133,
-                      height: 40,
-                      decoration: ShapeDecoration(
-                        color: controller.isLoading.value 
-                            ? const Color(0xFFE0E0E0) 
-                            : const Color(0xFFFFA9A9),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40),
+                  child: Obx(
+                    () => GestureDetector(
+                      onTap: controller.isLoading.value
+                          ? null
+                          : controller.handleSignup,
+                      child: Container(
+                        width: 133,
+                        height: 40,
+                        decoration: ShapeDecoration(
+                          color: controller.isLoading.value
+                              ? const Color(0xFFE0E0E0)
+                              : const Color(0xFFC4ECF6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        child: Center(
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.black,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  '회원가입 완료',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontFamily: 'Gowun Dodum',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
                         ),
                       ),
-                      child: Center(
-                        child: controller.isLoading.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                                ),
-                              )
-                            : const Text(
-                                '회원가입 완료',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontFamily: 'Gowun Dodum',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                      ),
                     ),
-                  )),
+                  ),
                 ),
               ],
             ),
@@ -903,29 +1008,27 @@ class SignupView extends GetView<SignupController> {
       // 직접입력 체크박스
       Positioned(
         left: 25,
-        top: 759,
+        top: 762,
         child: GestureDetector(
           onTap: () => controller.selectJob('직접입력'),
-          child: Obx(() => Container(
-            width: 13,
-            height: 13,
-            decoration: ShapeDecoration(
-              color: controller.selectedJob.value == '직접입력' 
-                  ? const Color(0xFFFFA9A9) 
-                  : Colors.white,
-              shape: RoundedRectangleBorder(
-                side: const BorderSide(width: 1),
-                borderRadius: BorderRadius.circular(2),
+          child: Obx(
+            () => Container(
+              width: 13,
+              height: 13,
+              decoration: ShapeDecoration(
+                color: controller.selectedJob.value == '직접입력'
+                    ? const Color(0xFFC4ECF6)
+                    : Colors.white,
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
+              child: controller.selectedJob.value == '직접입력'
+                  ? const Icon(Icons.check, size: 10, color: Colors.white)
+                  : null,
             ),
-            child: controller.selectedJob.value == '직접입력'
-                ? const Icon(
-                    Icons.check,
-                    size: 10,
-                    color: Colors.black,
-                  )
-                : null,
-          )),
+          ),
         ),
       ),
       // 직접입력 배경 및 입력 필드
@@ -938,36 +1041,46 @@ class SignupView extends GetView<SignupController> {
             width: 250,
             height: 20,
             decoration: ShapeDecoration(
-              color: const Color(0xFFE7E7E7),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-            alignment: Alignment.centerLeft,
-            child: Obx(() => TextField(
-              controller: controller.customJobController,
-              enabled: controller.selectedJob.value == '직접입력',
-              onTap: () {
-                if (controller.selectedJob.value != '직접입력') {
-                  controller.selectJob('직접입력');
-                }
-              },
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                hintText: '직접입력',
-                hintStyle: TextStyle(
+            alignment: Alignment.center,
+            child: Obx(
+              () => TextField(
+                controller: controller.customJobController,
+                enabled: controller.selectedJob.value == '직접입력',
+                textAlignVertical: TextAlignVertical.center,
+                onTap: () {
+                  if (controller.selectedJob.value != '직접입력') {
+                    controller.selectJob('직접입력');
+                  }
+                },
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '직접입력',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Gowun Dodum',
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                  contentPadding: EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    top: -4,
+                    bottom: 4,
+                  ),
+                  isDense: true,
+                ),
+                style: const TextStyle(
                   fontFamily: 'Gowun Dodum',
                   fontSize: 12,
-                  color: Colors.grey,
+                  height: 1.4,
                 ),
-                contentPadding: EdgeInsets.zero,
-                isDense: true,
               ),
-              style: const TextStyle(
-                fontFamily: 'Gowun Dodum',
-                fontSize: 12,
-                height: 1.4,
-              ),
-            )),
+            ),
           ),
         ),
       ),
@@ -980,26 +1093,24 @@ class SignupView extends GetView<SignupController> {
       top: top,
       child: GestureDetector(
         onTap: () => controller.selectGender(genderValue),
-        child: Obx(() => Container(
-          width: 13,
-          height: 13,
-          decoration: ShapeDecoration(
-            color: controller.selectedGender.value == genderValue 
-                ? const Color(0xFFFFA9A9) 
-                : Colors.white,
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 1),
-              borderRadius: BorderRadius.circular(2),
+        child: Obx(
+          () => Container(
+            width: 13,
+            height: 13,
+            decoration: ShapeDecoration(
+              color: controller.selectedGender.value == genderValue
+                  ? const Color(0xFFC4ECF6)
+                  : Colors.white,
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
+            child: controller.selectedGender.value == genderValue
+                ? const Icon(Icons.check, size: 10, color: Colors.white)
+                : null,
           ),
-          child: controller.selectedGender.value == genderValue
-              ? const Icon(
-                  Icons.check,
-                  size: 10,
-                  color: Colors.black,
-                )
-              : null,
-        )),
+        ),
       ),
     );
   }
@@ -1010,26 +1121,24 @@ class SignupView extends GetView<SignupController> {
       top: top,
       child: GestureDetector(
         onTap: () => controller.selectJob(jobValue),
-        child: Obx(() => Container(
-          width: 13,
-          height: 13,
-          decoration: ShapeDecoration(
-            color: controller.selectedJob.value == jobValue 
-                ? const Color(0xFFFFA9A9) 
-                : Colors.white,
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 1),
-              borderRadius: BorderRadius.circular(2),
+        child: Obx(
+          () => Container(
+            width: 13,
+            height: 13,
+            decoration: ShapeDecoration(
+              color: controller.selectedJob.value == jobValue
+                  ? const Color(0xFFC4ECF6)
+                  : Colors.white,
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(width: 1, color: Color(0xFF4CDBFF)),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
+            child: controller.selectedJob.value == jobValue
+                ? const Icon(Icons.check, size: 10, color: Colors.white)
+                : null,
           ),
-          child: controller.selectedJob.value == jobValue
-              ? const Icon(
-                  Icons.check,
-                  size: 10,
-                  color: Colors.black,
-                )
-              : null,
-        )),
+        ),
       ),
     );
   }
