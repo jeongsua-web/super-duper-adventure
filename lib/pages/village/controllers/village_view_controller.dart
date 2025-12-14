@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import '../../../models/village_member.dart';
 import '../../../services/village_role_service.dart';
+import '../../../routes/app_routes.dart';
 
 class VillageViewController extends GetxController {
   final String? villageName;
@@ -91,7 +92,7 @@ class VillageViewController extends GetxController {
 
   void goToTileMap() {
     if (resolvedVillageId.value != null) {
-      Get.toNamed('/tilemap', arguments: {
+      Get.toNamed(AppRoutes.tilemap, arguments: {
         'villageName': villageName ?? '마을',
         'villageId': resolvedVillageId.value,
       });

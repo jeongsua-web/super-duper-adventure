@@ -15,6 +15,8 @@ import 'package:my_app/pages/mailbox/views/mailbox_view.dart';
 import 'package:my_app/pages/mailbox/controllers/mailbox_controller.dart';
 import 'package:my_app/pages/village/views/village_dashboard_view.dart';
 import 'package:my_app/pages/village/controllers/village_view_controller.dart';
+import 'package:my_app/pages/village/views/tilemap_view.dart';
+import 'package:my_app/pages/village/controllers/tilemap_controller.dart';
 import 'package:my_app/pages/community/views/board_view.dart';
 import 'package:my_app/pages/community/controllers/board_controller.dart';
 import 'package:my_app/pages/community/views/board_list_view.dart';
@@ -30,6 +32,7 @@ abstract class AppRoutes {
   static const String mainHome = '/main-home';
   static const String village = '/village';
   static const String villageCreate = '/village-create';
+  static const String tilemap = '/tilemap';
   static const String board = '/board';
   static const String boardList = '/board-list';
   static const String quiz = '/quiz';
@@ -87,6 +90,20 @@ class AppPages {
         final villageName = args['villageName'] as String?;
         final villageId = args['villageId'] as String?;
         Get.lazyPut(() => VillageViewController(
+          villageName: villageName,
+          villageId: villageId,
+        ));
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.tilemap,
+      page: () => const TileMapView(),
+      binding: BindingsBuilder(() {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        final villageName = args['villageName'] as String? ?? '마을';
+        final villageId = args['villageId'] as String?;
+        Get.lazyPut(() => TileMapController(
           villageName: villageName,
           villageId: villageId,
         ));
