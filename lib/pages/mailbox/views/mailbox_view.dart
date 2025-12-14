@@ -82,7 +82,7 @@ class MailboxView extends GetView<MailboxController> {
                             ),
                           ),
                           child: const Text(
-                            '거레',
+                            '거절',
                             style: TextStyle(color: Colors.black),
                           ),
                         ),

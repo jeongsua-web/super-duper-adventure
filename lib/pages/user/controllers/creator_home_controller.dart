@@ -15,12 +15,12 @@ class CreatorHomeController extends GetxController {
 
   // 주민 친밀도 데이터
   final RxList<Map<String, dynamic>> memberRankings = <Map<String, dynamic>>[].obs;
-
+  
   // 임시 퀴즈 정답 데이터
   final RxList<Map<String, dynamic>> recentQuizzes = <Map<String, dynamic>>[
-    {'question': 'Q. 김지수의 MBTI는?', 'answer': 'A. ESTP', 'date': '2025.11.25'},
-    {'question': 'Q. 김지수의 생일은?', 'answer': 'A. 8월 25일', 'date': '2025.11.23'},
-    {'question': 'Q. 김지수의 별자리는?', 'answer': 'A. 처녀자리', 'date': '2025.11.10'},
+    {'question': 'Q. 나의 MBTI는?', 'answer': 'A. ESTP', 'date': '2025.11.25'},
+    {'question': 'Q. 나의 생일은?', 'answer': 'A. 8월 25일', 'date': '2025.11.23'},
+    {'question': 'Q. 나의 별자리는?', 'answer': 'A. 처녀자리', 'date': '2025.11.10'},
   ].obs;
 
   @override
